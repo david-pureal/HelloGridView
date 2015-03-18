@@ -1,0 +1,110 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#d2ffff"
+    android:paddingLeft="0dp"
+    android:paddingTop="20dp"
+    tools:context="${relativePackage}.${activityClass}" >
+
+    <RadioGroup
+        android:id="@+id/radioGroup1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="0dp"
+        android:layout_toLeftOf="@+id/main"
+        android:orientation="vertical" >
+
+        <RadioButton
+            android:id="@+id/time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/main"
+            android:layout_marginTop="18dp"
+            android:layout_toLeftOf="@+id/main"
+            android:checked="true"
+            android:text="时间 "
+            android:textColor="#000000"
+            android:textSize="15sp" />
+
+        <RadioButton
+            android:id="@+id/temp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="温度 "
+            android:textColor="#000000"
+            android:textSize="15sp" />
+
+        <RadioButton
+            android:id="@+id/jiaoban"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_weight="0.02"
+            android:text="搅拌 "
+            android:textColor="#000000"
+            android:textSize="15sp" />
+
+    </RadioGroup>
+
+    <ImageView
+        android:id="@+id/main"
+        android:layout_width="465dp"
+        android:layout_height="272dp"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="18dp"
+        android:layout_weight="3.91"
+        android:scaleType="fitXY"
+         />
+
+    <study.hellogridview.VerticalSeekBar
+        android:id="@+id/seekBar1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/minus"
+        android:layout_below="@+id/add"
+        android:layout_marginLeft="30dp"
+        android:layout_toRightOf="@+id/main"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:paddingTop="10dp" />
+
+    <!--  Button
+        android:id="@+id/start_pause"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/main"
+        android:layout_alignParentLeft="true"
+        android:layout_toLeftOf="@+id/main"
+        android:text="开始/暂停" />-->
+
+    <ImageView
+        android:id="@+id/start_pause"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_alignBottom="@+id/main"
+        android:layout_alignParentLeft="true"
+        android:layout_toLeftOf="@+id/main"
+        android:src="@drawable/start_pause" />
+
+    <ImageView
+        android:id="@+id/add"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/main"
+        android:layout_marginRight="8dp"
+        android:src="@drawable/add" />
+
+    <ImageView
+        android:id="@+id/minus"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignBottom="@+id/main"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="8dp"
+        android:src="@drawable/minus" />
+
+</RelativeLayout>

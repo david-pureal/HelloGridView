@@ -1,0 +1,34 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#d2ffff"
+    android:orientation="vertical"
+    tools:context="${relativePackage}.${activityClass}" >
+
+    <Switch
+        android:id="@+id/switch_english"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="103dp"
+        android:layout_marginStart="103dp"
+        android:layout_marginTop="30dp"
+        
+        android:text="使用英文"
+        android:textOn="开启"
+        android:textColor="#000000"
+        android:textSize="20sp" />
+    
+    <Switch
+        android:id="@+id/switch_sound"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="103dp"
+        android:layout_marginStart="103dp"
+        android:layout_marginTop="30dp"
+        android:text="语音提示"
+        android:textOn="开启"
+        android:textColor="#000000"
+        android:textSize="20sp" />
+
+</LinearLayout>

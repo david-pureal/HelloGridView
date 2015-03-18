@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#d2ffff"
+    android:paddingLeft="0dp"
+    android:paddingTop="20dp"
+    tools:context="${relativePackage}.${activityClass}" >
+
+	<ImageView
+	    android:id="@+id/splash_img"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_alignParentBottom="true"
+	    android:layout_alignParentLeft="true"
+	    android:layout_weight="1"
+	    android:scaleType="centerInside"
+	    android:src="@drawable/machine" />
+
+ <TextView
+     android:id="@+id/splash_text"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:layout_alignTop="@+id/splash_img"
+     android:layout_centerHorizontal="true"
+     android:layout_marginTop="34dp"
+     android:layout_weight="1"
+     android:maxLines="8"
+     android:text="炒菜从未如此简单"
+     android:textColor="#CE9D9D"
+     android:textSize="20sp" />
+
+ <TextView
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:layout_alignParentBottom="true"
+     android:layout_centerHorizontal="true"
+     android:layout_weight="1"
+     android:maxLines="8"
+     android:text="开机动画"
+     android:textColor="#000000"
+     android:textSize="20sp" />
+
+    
+</RelativeLayout>
