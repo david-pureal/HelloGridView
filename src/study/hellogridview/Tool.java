@@ -12,6 +12,8 @@ import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Environment;
 import android.util.Log;
 
@@ -134,5 +136,19 @@ public class Tool {
 			} 
 		} 
 		return false; 
+	}
+	
+	public String getSSid(Context context){
+		WifiManager wm = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+		if(wm != null){
+			WifiInfo wi = wm.getConnectionInfo();
+			if (wi != null) {
+				String s = wi.getSSID();
+				if(s.length()>2&&s.charAt(0) == '"'&&s.charAt(s.length() -1) == '"'){
+					return s.substring(0,s.length()-1);
+				}
+			}
+		}
+		return "";
 	}
 }

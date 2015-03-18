@@ -88,6 +88,7 @@ public class SmartLinkActivity extends Activity implements OnTouchListener {
 					Toast.makeText(SmartLinkActivity.this, 
 							"发现设备  "+mi.getMid()+"mac"+ mi.getMac()+"IP"+mi.getModuleIP(), 
 							Toast.LENGTH_SHORT).show();
+					TCPClient.getInstance().connect_ip_sta(mi.getModuleIP());
 				}
 			});
 		}
@@ -113,7 +114,7 @@ public class SmartLinkActivity extends Activity implements OnTouchListener {
 		setContentView(R.layout.activity_smart_link);
 		m_startBtn = (Button) findViewById(R.id.startcook);
 		ssid = (TextView) findViewById(R.id.ssid);
-		ssid.setText(getSSid());
+		ssid.setText(Tool.getInstance().getSSid(this));
 		pswd = (EditText) findViewById(R.id.pswd);
 		
 		
@@ -135,7 +136,7 @@ public class SmartLinkActivity extends Activity implements OnTouchListener {
 					//再次获取实例 加载需要的信息
 //					sm = SmartLinkManipulator.getInstence(MainActivity.this);
 					
-					String ss = getSSid();
+					String ss = Tool.getInstance().getSSid(SmartLinkActivity.this);
 					String ps = pswd.getText().toString().trim();
 					hand.sendEmptyMessage(1);
 					
@@ -160,26 +161,6 @@ public class SmartLinkActivity extends Activity implements OnTouchListener {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		//getMenuInflater().inflate(R.menu.main, menu);
 		return true;
-	}
-	
-	private String getSSid(){
-		if (Tool.getInstance().isWifiConnected(this))
-		{
-			Log.v("SmartLink", "WifiInfo is connected ");
-		}
-		WifiManager wm = (WifiManager) getSystemService(WIFI_SERVICE);
-		if(wm != null){
-			WifiInfo wi = wm.getConnectionInfo();
-			if (wi != null) {
-				String s = wi.getSSID();
-				Log.v("SmartLink", "ssid = " + s);
-				if(s.length()>2&&s.charAt(0) == '"'&&s.charAt(s.length() -1) == '"'){
-					return s.substring(0,s.length()-1);
-				}
-			}
-			else Log.v("SmartLink", "WifiInfo is null ");
-		}
-		return "";
 	}
 	
 	@Override  

@@ -49,7 +49,6 @@ class RespPackage {
 public class Package {
 	
 	public static final byte Send_Dish = 101;
-
 	public static final byte Set_Param = 102;
 	public static final byte Get_Favorite = 103;
 	public static final byte Update_Favorite = 104;

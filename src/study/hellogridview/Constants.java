@@ -6,6 +6,9 @@ public final class Constants {
 	public static final short AP_STA_PORT = 5000;
 	public static final int BBXC_SOCKET_TIMEOUT = 5000;
 	
+	// state
+	public static final int MSG_ID_STA_IP = 100;
+	
 	// for SmartLink
 	public static final String TAG = "HF-A11 | ";
 	public static final int UDP_PORT = 48899;

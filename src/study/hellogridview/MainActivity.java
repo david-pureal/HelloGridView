@@ -219,6 +219,8 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
 	        	startActivity(intent);
 	        }  
 	     });
+	    
+	    TCPClient.getInstance().set_mainact(this);
 		
 	}// onCreate
 	

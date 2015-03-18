@@ -77,6 +77,13 @@ public class TCPClient {
 		return tcpClient;
 	}
 	
+	public void connect_ip_sta(String sta_ip) {
+		Message msg = new Message();
+		msg.what = Constants.MSG_ID_STA_IP;
+		msg.obj = sta_ip;
+		this.sendMsg(msg);
+	}
+	
 	public void set_mainact(MainActivity main) {
 		this.main_activity = main;
 	}
@@ -108,8 +115,6 @@ public class TCPClient {
 		}
 		return false;
 	}
-	
-	
 	
 	public class ClientThread implements Runnable {
 		private Socket s;
@@ -150,6 +155,7 @@ public class TCPClient {
 			} catch (IOException io) {
 				io.printStackTrace();
 			}
+			Log.v("TcpClient" ,"Reconnect to sta_ip(" + ip_sta + " done!");
 		}
 		
 		int notifycount = 0;
@@ -252,9 +258,24 @@ public class TCPClient {
 				while (true) {
 					try {
 						if (Tool.getInstance().isWifiConnected(main_activity)) {
-							
+							Log.v("tcpclient", "not connected to any wifi, don't try to connect device");
+							Thread.sleep(15000);
+							continue;
 						}
-						s.connect(new InetSocketAddress(ip_ap, port), Constants.BBXC_SOCKET_TIMEOUT);
+						
+						// 如果当前wifi是设备的AP，那就优先使用AP模式
+						if (Tool.getInstance().getSSid(main_activity).equals(Constants.AP_NAME)) {
+							s.connect(new InetSocketAddress(ip_ap, port), Constants.BBXC_SOCKET_TIMEOUT);
+						}
+						else if (!ip_sta.isEmpty()) {
+							s.connect(new InetSocketAddress(ip_sta, port), Constants.BBXC_SOCKET_TIMEOUT);
+						}
+						else {
+							Log.v("tcpclient", "请使用Smartlink模式连接设备");
+							Thread.sleep(15000);
+							continue;
+						}
+						
 						if (s.isConnected()) {
 							break;
 						} else {
@@ -312,6 +333,9 @@ public class TCPClient {
 								e.printStackTrace();
 								Log.v("tcpclient", "sendMsg exception");
 							}
+						}
+						else if (msg.what == Constants.MSG_ID_STA_IP) {
+						set_ip_sta((String) msg.obj);
 						}
 					}
 				}; 
