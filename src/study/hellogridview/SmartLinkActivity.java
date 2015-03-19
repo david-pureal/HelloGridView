@@ -137,6 +137,7 @@ public class SmartLinkActivity extends Activity implements OnTouchListener {
 //					sm = SmartLinkManipulator.getInstence(MainActivity.this);
 					
 					String ss = Tool.getInstance().getSSid(SmartLinkActivity.this);
+					Log.v("smartlink", "ssid=" + ss);
 					String ps = pswd.getText().toString().trim();
 					hand.sendEmptyMessage(1);
 					
