@@ -86,6 +86,17 @@ public class TCPClient {
 				//saveDevices(mModules);
 				//send message to display
 				//mHandler.sendEmptyMessage(0);
+				
+				//只取第一个module，暂不考虑有两个module的情况
+				//如果没有连接wifi，那么modules肯定为空
+				for (int i = 0; i < mModules.size(); ++i) {
+					Module m = mModules.get(i);
+					if (!m.getIp().equals(Constants.AP_IP) && 
+							!Tool.getInstance().getSSid(main_activity).equals(Constants.AP_NAME)){
+						Log.v("tcpclient", "find device in sta mode, ip = " + m.getIp());
+						connect_ip_sta(m.getIp());
+					}
+				}
 			}
 		};
 	}
@@ -200,14 +211,24 @@ public class TCPClient {
 		public void set_ip_sta(String ip_sta) {
 			this.ip_sta = ip_sta;
 			try {
+				recv_data.stop = true;
 				if (s != null) {
 					s.close();
 				}
 				
 				s = new Socket();
 				s.connect(new InetSocketAddress(this.ip_sta, port), Constants.BBXC_SOCKET_TIMEOUT);
-				br = new BufferedInputStream(new DataInputStream(s.getInputStream()));
-				os = s.getOutputStream();
+				
+				if (s.isConnected()) {
+					br = new BufferedInputStream(new DataInputStream(s.getInputStream()));
+					os = s.getOutputStream();
+					recv_data = new ReceiveThread();
+					recv_data.recv_thread.start();
+					Log.v("tcpclient", "successfully connect to sta ip:" + this.ip_sta);
+				}
+				else {
+					Log.v("tcpclient", "failed connect to sta ip:" + this.ip_sta);
+				}
 			} catch (IOException io) {
 				io.printStackTrace();
 			}
@@ -349,19 +370,8 @@ public class TCPClient {
 				os = s.getOutputStream();
 				
 				// 启动一条子线程来读取服务器相应的数据
-				new Thread() {
-					@Override
-					public void run() {
-						//String content = null;
-						// 不断的读取Socket输入流的内容
-						ByteArrayOutputStream bytestream = new ByteArrayOutputStream();
-						while (read_package(br, bytestream)) {
-							// 每当读取到来自服务器的数据之后，发送的消息通知程序,界面显示该数据
-							TCPClient.getInstance().OnReceive(bytestream);
-							bytestream.reset();
-						}
-					}
-				}.start();
+				recv_data = new ReceiveThread();
+				recv_data.recv_thread.start();
 				
 				// 为当前线程初始化Looper
 				Looper.prepare();
@@ -391,7 +401,7 @@ public class TCPClient {
 							}
 						}
 						else if (msg.what == Constants.MSG_ID_STA_IP) {
-						set_ip_sta((String) msg.obj);
+							set_ip_sta((String) msg.obj);
 						}
 					}
 				}; 
@@ -410,6 +420,28 @@ public class TCPClient {
 				e.printStackTrace();
 			}
 
+		}
+		
+		public ReceiveThread recv_data;
+		
+		class ReceiveThread implements Runnable {
+			public boolean stop = false;
+			public Thread recv_thread;
+			public ReceiveThread() {
+				recv_thread = new Thread(this);
+			}
+			@Override
+			public void run() {
+				while (!stop) {
+					// 不断的读取Socket输入流的内容
+					ByteArrayOutputStream bytestream = new ByteArrayOutputStream();
+					while (read_package(br, bytestream)) {
+						// 每当读取到来自服务器的数据之后，发送的消息通知程序,界面显示该数据
+						TCPClient.getInstance().OnReceive(bytestream);
+						bytestream.reset();
+					}
+				}
+			}
 		}
 	}
 
