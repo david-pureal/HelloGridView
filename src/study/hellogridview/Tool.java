@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.regex.Pattern;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -150,5 +151,52 @@ public class Tool {
 			}
 		}
 		return "";
+	}
+	
+	public synchronized Module decodeBroadcast2Module(String response) {
+		
+		if (response == null) {
+			return null;
+		}
+		
+		String[] array = response.split(",");
+		if (array==null || (array.length<2 && array.length>3) || 
+				!isIP(array[0]) || !isMAC(array[1])) {
+			return null;
+		}
+				
+		Module module = new Module();
+		module.setIp(array[0]);
+		module.setMac(array[1]);
+		if (array.length == 3) {
+			module.setModuleID(array[2]);
+		}
+		
+		return module;
+	} 
+	
+	public boolean isIP(String str) {
+		Pattern pattern = Pattern.compile("\\b((?!\\d\\d\\d)\\d+|1\\d\\d|2[0-4]\\d|25[0-5])" +
+				"\\.((?!\\d\\d\\d)\\d+|1\\d\\d|2[0-4]\\d|25[0-5])\\." +
+				"((?!\\d\\d\\d)\\d+|1\\d\\d|2[0-4]\\d|25[0-5])\\." +
+				"((?!\\d\\d\\d)\\d+|1\\d\\d|2[0-4]\\d|25[0-5])\\b");
+		return pattern.matcher(str).matches();
+	}
+	
+	public boolean isMAC(String str) {
+		
+		str = str.trim();
+		if (str.length() != 12) {
+			return false;
+		}
+		
+		char[] chars = new char[12];
+		str.getChars(0, 12, chars, 0);
+		for (int i = 0; i < chars.length; i++) {
+			if (!((chars[i]>='0' && chars[i]<='9') || (chars[i]>='A' && chars[i]<='F') || (chars[i]>='a' && chars[i]<='f'))) {
+				return false;
+			}
+		}
+		return true;
 	}
 }

@@ -8,12 +8,18 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.ConnectException;
+import java.net.DatagramPacket;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -24,6 +30,9 @@ public class TCPClient {
 	
 	private static TCPClient tcpClient;
 	public ClientThread clientThread;
+	
+	private UdpBroadcast udpBroadcast;
+	private List<Module> mModules;
 	
 	public MainActivity main_activity;
 	public DishActivity dish_activity;
@@ -68,6 +77,17 @@ public class TCPClient {
 			}
 
 		}.start();
+		
+		udpBroadcast = new UdpBroadcast() {
+			
+			@Override
+			public void onReceived(List<DatagramPacket> packets) {
+				mModules = decodePackets(packets);
+				//saveDevices(mModules);
+				//send message to display
+				//mHandler.sendEmptyMessage(0);
+			}
+		};
 	}
 	
 	public static TCPClient getInstance() { 
@@ -114,6 +134,42 @@ public class TCPClient {
 			Log.w("tcpclient", "clientThread or revHandler is null");
 		}
 		return false;
+	}
+	
+
+	
+	/**
+	 * decode pagkets to mudoles
+	 * @param packets
+	 * @return
+	 */
+	private List<Module> decodePackets(List<DatagramPacket> packets) {
+		
+		int i = 1;
+		Module module;
+		List<String> list = new ArrayList<String>();
+		List<Module> modules = new ArrayList<Module>();
+		
+		DECODE_PACKETS:
+		for (DatagramPacket packet : packets) {
+			
+			String data = new String(packet.getData(), 0, packet.getLength());
+			Log.d("tcpclient", i + ": " + data);
+			for (String item : list) {
+				if (item.equals(data)) {
+					continue DECODE_PACKETS;
+				}
+			}
+			
+			list.add(data);
+			if ((module = Tool.getInstance().decodeBroadcast2Module(data)) != null) {
+				module.setId(i);
+				modules.add(module);
+				i++;
+			}
+		}
+		
+		return modules;
 	}
 	
 	public class ClientThread implements Runnable {
