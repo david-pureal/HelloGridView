@@ -4,9 +4,12 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -198,5 +201,18 @@ public class Tool {
 			}
 		}
 		return true;
+	}
+	
+	public void saveDevices(Context context) {
+		SharedPreferences preferences = context.getSharedPreferences("module_list", Context.MODE_PRIVATE);
+		Editor editor = preferences.edit();
+		
+		int i = 100;
+		editor.putInt(Constants.KEY_PRE_ID + i, i);
+		editor.putString(Constants.KEY_PRE_IP + i, "asf");
+		editor.putString(Constants.KEY_PRE_MAC + i, "asf");
+		editor.commit();
+		Log.v("tool", "write done");
+		//editor.clear().commit();
 	}
 }

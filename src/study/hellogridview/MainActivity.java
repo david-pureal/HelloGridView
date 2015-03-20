@@ -220,9 +220,14 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
 	        }  
 	     });
 	    
-	    TCPClient.getInstance().set_mainact(this);
-		
 	}// onCreate
+	
+	@Override  
+    protected void onResume() {  
+        super.onResume();  
+        TCPClient.getInstance(this).set_mainact(this); 
+        Tool.getInstance().saveDevices(this);
+    }
 	
 	public int cur = 0;
 	
@@ -301,104 +306,3 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
     }
  
 }
-
-
-//TextView m_buildin = (TextView) findViewById(R.id.builtin_dishes);
-//m_buildin.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG);  
-//m_buildin.getPaint().setAntiAlias(true); 
-//m_buildin.setOnClickListener(new OnClickListener() {  
-//    @Override  
-//    public void onClick(View v) {  
-//        startActivity(new Intent(MainActivity.this,BuiltinDishes.class));  
-//        //finish();//关闭当前Activity  
-//    }  
-//});		
-//
-//TextView m_favorite = (TextView) findViewById(R.id.favorites);
-//m_favorite.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG);  
-//m_favorite.getPaint().setAntiAlias(true); 
-//m_favorite.setOnClickListener(new OnClickListener() {  
-//    @Override  
-//    public void onClick(View v) {  
-//        startActivity(new Intent(MainActivity.this,BuiltinDishes.class));  
-//        //finish();//关闭当前Activity  
-//    }  
-//});	
-//
-//TextView m_alldishes = (TextView) findViewById(R.id.alldishes);
-//m_alldishes.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG);  
-//m_alldishes.getPaint().setAntiAlias(true); 
-//m_alldishes.setOnClickListener(new OnClickListener() {  
-//    @Override  
-//    public void onClick(View v) {  
-//        startActivity(new Intent(MainActivity.this,BuiltinDishes.class));  
-//        //finish();//关闭当前Activity  
-//    }  
-//});
-
-
-
-//TextView temp = null; 
-//temp = (TextView) findViewById(R.id.share);
-//temp.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG);  
-//temp.getPaint().setAntiAlias(true); 
-//temp.setOnClickListener(new OnClickListener() {  
-//    @Override  
-//    public void onClick(View v) {  
-//        startActivity(new Intent(MainActivity.this,BuiltinDishes.class));  
-//        //finish();//关闭当前Activity  
-//    }  
-//});
-//temp = (TextView) findViewById(R.id.account);
-//temp.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG);  
-//temp.getPaint().setAntiAlias(true); 
-//temp.setOnClickListener(new OnClickListener() {  
-//    @Override  
-//    public void onClick(View v) {  
-//        startActivity(new Intent(MainActivity.this,BuiltinDishes.class));  
-//        //finish();//关闭当前Activity  
-//    }  
-//});
-//temp = (TextView) findViewById(R.id.makedish);
-//temp.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG);  
-//temp.getPaint().setAntiAlias(true); 
-//temp.setOnClickListener(new OnClickListener() {  
-//    @Override  
-//    public void onClick(View v) {  
-//        startActivity(new Intent(MainActivity.this,BuiltinDishes.class));  
-//        //finish();//关闭当前Activity  
-//    }  
-//});
-//temp = (TextView) findViewById(R.id.login);
-//temp.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG);  
-//temp.getPaint().setAntiAlias(true); 
-//temp.setOnClickListener(new OnClickListener() {  
-//    @Override  
-//    public void onClick(View v) {  
-//        startActivity(new Intent(MainActivity.this,BuiltinDishes.class));  
-//        //finish();//关闭当前Activity  
-//    }  
-//});
-//temp = (TextView) findViewById(R.id.setting);
-//temp.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG);  
-//temp.getPaint().setAntiAlias(true); 
-//temp.setOnClickListener(new OnClickListener() {  
-//    @Override  
-//    public void onClick(View v) {  
-//        startActivity(new Intent(MainActivity.this, SettingActivity.class));  
-//        //finish();//关闭当前Activity  
-//    }  
-//});
-//temp = (TextView) findViewById(R.id.tips);
-//temp.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG);  
-//temp.getPaint().setAntiAlias(true); 
-//temp.setOnClickListener(new OnClickListener() {  
-//    @Override  
-//    public void onClick(View v) {  
-//        startActivity(new Intent(MainActivity.this,BuiltinDishes.class));  
-//        //finish();//关闭当前Activity  
-//    }  
-//});
-
-//initValues();  
-//content.setOnTouchListener((OnTouchListener) this);

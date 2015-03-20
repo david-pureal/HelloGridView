@@ -44,6 +44,16 @@ public class TCPClient {
 	private DeviceState ds;
 	
 	private TCPClient() {
+		init();
+		Log.v("tcpclient", "in TCPClient()");
+	} // TCPClient()
+	
+	private TCPClient(Activity main_activity) {
+		this.main_activity = (MainActivity) main_activity;
+		init();
+	}
+	
+	private void init() {
 		clientThread = new ClientThread();
 		new Thread(clientThread).start();
 		
@@ -75,18 +85,12 @@ public class TCPClient {
 					}
 				}
 			}
-
 		}.start();
 		
 		udpBroadcast = new UdpBroadcast() {
-			
 			@Override
 			public void onReceived(List<DatagramPacket> packets) {
 				mModules = decodePackets(packets);
-				//saveDevices(mModules);
-				//send message to display
-				//mHandler.sendEmptyMessage(0);
-				
 				//只取第一个module，暂不考虑有两个module的情况
 				//如果没有连接wifi，那么modules肯定为空
 				for (int i = 0; i < mModules.size(); ++i) {
@@ -100,10 +104,17 @@ public class TCPClient {
 			}
 		};
 	}
-	
+
 	public static TCPClient getInstance() { 
 		if (tcpClient == null) {  
 	        tcpClient = new TCPClient();  
+	    }
+		return tcpClient;
+	}
+	
+	public static TCPClient getInstance(Activity main_activity) { 
+		if (tcpClient == null) {  
+	        tcpClient = new TCPClient(main_activity);  
 	    }
 		return tcpClient;
 	}
@@ -334,7 +345,7 @@ public class TCPClient {
 			try {
 				while (true) {
 					try {
-						if (Tool.getInstance().isWifiConnected(main_activity)) {
+						if (!Tool.getInstance().isWifiConnected(main_activity)) {
 							Log.v("tcpclient", "not connected to any wifi, don't try to connect device");
 							Thread.sleep(15000);
 							continue;
@@ -344,7 +355,7 @@ public class TCPClient {
 						if (Tool.getInstance().getSSid(main_activity).equals(Constants.AP_NAME)) {
 							s.connect(new InetSocketAddress(ip_ap, port), Constants.BBXC_SOCKET_TIMEOUT);
 						}
-						else if (!ip_sta.isEmpty()) {
+						else if (ip_sta != null && !ip_sta.isEmpty()) {
 							s.connect(new InetSocketAddress(ip_sta, port), Constants.BBXC_SOCKET_TIMEOUT);
 						}
 						else {
@@ -359,6 +370,7 @@ public class TCPClient {
 							Thread.sleep(15000);
 						}
 					} catch (Exception e) {
+						e.printStackTrace();
 						Log.e("tcpclient", "socket connect to " + ip_ap +";" + port + " failed! try reconnect...");
 						if (notify(dish_activity) || notify_curstate(curstate_activity) || notify_buildin(buildin_activity) || notify_setting(setting_activity));
 						Thread.sleep(15000);
