@@ -1,6 +1,7 @@
 package study.hellogridview;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
@@ -58,10 +59,25 @@ public class Dish implements Cloneable {
 		d.img_tiny = R.raw.tudousi_tiny;
 		//d.img_tiny = R.raw.temp_tiny;
 		d.name_english = "xincaipu";
+		DeviceState ds = DeviceState.getInstance();
+		short max = 0;
+		for (int i = 0; i < ds.builtin_dishids.length ; ++i) {
+			if (ds.builtin_dishids[i] > max) max = ds.builtin_dishids[i];
+		}
+		if (max > current_makedish_dishid) current_makedish_dishid = (short) (max + 1);
 		d.dishid = current_makedish_dishid;
 		++current_makedish_dishid;
 		dish_list.add(d);
 		return dish_list.size() - 1;
+	}
+	
+	public static String getDishNameById(short id) {
+		for (int i = 0; i < dish_list.size() ;++i) {
+			if (dish_list.get(i).dishid == id) {
+				return dish_list.get(i).name_chinese;
+			}
+		}
+		return ""+id;
 	}
 	
 	public static Dish[] getAllDish() {
@@ -161,18 +177,18 @@ public class Dish implements Cloneable {
 		dish10.dishid = 11;
 		dish_list.add(dish10);
 		
-		Dish dish11 = new Dish(R.drawable.xiqinxiaren, "西芹虾仁");
+		Dish dish11 = new Dish(R.drawable.xiqinxiaren, "菜十二");
 		dish11.img_tiny = R.raw.xiqinxiaren_tiny;
 		dish11.text = "1、底油：30克\n2、炝锅料：姜片5克、蒜片5克 \n3、主料：虾仁150克（加10克料酒腌制5分钟）\n4、辅料：西芹段100克、红萝卜菱形片20克\n5、水和调料：水10克、盐2克、鸡精2克"; 
 		dish11.name_english = "Celery shrimp";
-		dish11.dishid = 12;
+		dish11.dishid = 1200;
 		dish_list.add(dish11);
 		
 		Dish dish12 = new Dish(R.drawable.chaoqingcai, "新内菜谱");
 		dish12.img_tiny = R.raw.tudousi_tiny;
 		dish12.text = "1、底油：30克\n2、炝锅料：姜片5克、蒜片5克 \n3、主料：虾仁150克（加10克料酒腌制5分钟）\n4、辅料：西芹段100克、红萝卜菱形片20克\n5、水和调料：水10克、盐2克、鸡精2克"; 
 		dish12.name_english = "tomato chip";
-		dish12.dishid = 13;
+		dish12.dishid = 1300;
 		dish_list.add(dish12);
 		
 		try {

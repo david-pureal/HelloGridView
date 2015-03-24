@@ -12,7 +12,7 @@
             android:orientation="horizontal" >
 
             <TextView
-                android:id="@+id/replace_builtin"
+                android:id="@+id/replace_builtin_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="100dp"
@@ -33,12 +33,12 @@
             <!-- android:src="@drawable/make_new_dish_128"  -->
 
                 
-            <!-- Button
+            <Button
                 android:id="@+id/replace_builtin"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="120dp"
-                android:text="替换菜谱" / -->
+                android:layout_marginLeft="5dp"
+                android:text="替换菜谱" />
 
             <!--  Button
                 android:id="@+id/getbuiltin"

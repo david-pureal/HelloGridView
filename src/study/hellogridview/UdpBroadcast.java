@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
@@ -43,8 +44,14 @@ public abstract class UdpBroadcast {
 	public void open() {
 		
 		try {
-			socket = new DatagramSocket(port);
-			socket.setBroadcast(true);
+//			socket = new DatagramSocket(port);
+//			socket.setBroadcast(true);
+			if (socket == null) {
+				socket = new DatagramSocket(null);
+				socket.setReuseAddress(true);
+				socket.setBroadcast(true);
+				socket.bind(new InetSocketAddress(port));
+			}
 		} catch (SocketException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -140,7 +147,7 @@ public abstract class UdpBroadcast {
 			long time = System.currentTimeMillis();
 			
 			while (System.currentTimeMillis() - time < 15000 && !stop) {
-				Log.d("1", "try to receive");
+				Log.d("udpBroadcast", "try to receive");
 				try {
 					DatagramPacket packetToReceive = new DatagramPacket(new byte[BUFFER_SIZE], BUFFER_SIZE);
 					socket.receive(packetToReceive);

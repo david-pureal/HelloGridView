@@ -39,9 +39,11 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
+import android.widget.ProgressBar;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MakeDishActivity extends Activity {
 	
@@ -81,6 +83,10 @@ public class MakeDishActivity extends Activity {
 	TextView water_fuliao;
 	TextView water_fuliao_tv;
 	
+	Button makedish_replace;
+	
+	ProgressBar progressBar1;
+	
 	public int new_dish_id;
 	
 	private TableLayout tableLayout_zhuliao;
@@ -92,7 +98,11 @@ public class MakeDishActivity extends Activity {
 	public Integer[] waters = new Integer[20];
 	public Integer[] temps = new Integer[41];
 	public Integer[] oils = new Integer[10];
+	public Integer[] dishids = new Integer[12];
+	public final String dish_names[] = {"","","","","","","","","","","",""};
 	public final String jiaoban[] = {"0不搅拌", "1最慢速", "2较慢速", "3中慢速", "4中速", "5中快速", "6较快速", "7最快速", "8连续搅拌"};
+	protected int resp_cmd104_count = 0;
+	protected int current_cmd;
 	
 	@SuppressLint("HandlerLeak")
 	@Override
@@ -112,6 +122,9 @@ public class MakeDishActivity extends Activity {
 		}
 		for(int i = 0; i < oils.length; i++) {
 			oils[i] = 10 * (i + 1);
+		}
+		for (int i = 0; i < dishids.length; ++i) {
+			dishids[i] = i;
 		}
 		
 		Intent intent = getIntent();
@@ -179,15 +192,6 @@ public class MakeDishActivity extends Activity {
                 }  
             }  
         }); 
-		
-//		makedish_save = (Button) findViewById(R.id.makedish_save);
-//		makedish_save.setOnClickListener(new OnClickListener() {  
-//            @Override  
-//            public void onClick(View v) {  
-//            	//保存菜谱数据
-//            	MakeDishActivity.this.save_dish();
-//            }  
-//        });
 		
 		zhuliao_water_cb = (CheckBox) findViewById(R.id.makedish_zhuliao_water);
 		zhuliao_water_cb.setOnCheckedChangeListener(new OnCheckedChangeListener() {
@@ -263,23 +267,37 @@ public class MakeDishActivity extends Activity {
         });
 		
         handler = new Handler() {  
-        	  
             @Override  
             public void handleMessage(Message msg) {  
                 // 如果消息来自子线程  
                 if (msg.what == 0x123) {    
                 	RespPackage rp = (RespPackage) msg.obj;
                 	Log.v("MakeDishActivity", "got resp, cmdtype_head=" + (rp.cmdtype_head&0xff) + ", cmdtype_body=" + (rp.cmdtype_body&0xff));
+                	if ((rp.cmdtype_head&0xff) == 127 && (rp.cmdtype_body&0xff) == 101) {
+                		current_cmd = 101;
+                	} else if ((rp.cmdtype_head&0xff) == 127 && (rp.cmdtype_body&0xff) == 104) {
+                		current_cmd = 104;
+                	} 
+                	
                 	if ((rp.cmdtype_head&0xff) == 127 && (rp.cmdtype_body&0xff) == 108) {
                 		++ MakeDishActivity.this.resp_cmd108_count;
+                		progressBar1.incrementProgressBy(1);
                 	}
                 	
                 	if (MakeDishActivity.this.resp_cmd108_count == 5) { //目前图片都是分成5个帧传输的
                 		MakeDishActivity.this.resp_cmd108_count = 0;
-                		Log.v("MakeDishActivity", "resp_cmd108_count = " + resp_cmd108_count + " go to CurStateActivity");
-        	        	Intent intent = new Intent(MakeDishActivity.this, CurStateActivity.class);
-        	        	intent.putExtra("dish_index", new_dish_id); 
-        	        	startActivity(intent);
+            			progressBar1.setVisibility(View.GONE);
+            			progressBar1.setProgress(0);
+                		if (current_cmd == 101) {
+	                		Log.v("MakeDishActivity", "resp_cmd108_count = " + resp_cmd108_count + " go to CurStateActivity");
+	        	        	Intent intent = new Intent(MakeDishActivity.this, CurStateActivity.class);
+	        	        	intent.putExtra("dish_index", new_dish_id); 
+	        	        	startActivity(intent);
+                		} else if (current_cmd == 104) {
+                			Toast.makeText(MakeDishActivity.this, "替换菜谱完成", Toast.LENGTH_SHORT).show();
+                			TCPClient.getInstance().do_heartbeat();// 获取最新内置菜谱
+                			Log.v("MakeDishActivity", " replace done");
+                    	}
                 	}
                 }  
             }  
@@ -569,6 +587,58 @@ public class MakeDishActivity extends Activity {
 		
 		// 使用new_dish已有数据初始化
 		this.init_param();
+		
+		makedish_replace = (Button) findViewById(R.id.makedish_replace);
+		makedish_replace.setOnClickListener(new OnClickListener() {  
+            @Override  
+            public void onClick(View v) {  
+            	popupView = inflater.inflate(R.layout.wheel_view_1_column, null, false);
+            	final PopupWindow popWindow = new PopupWindow(popupView, 500, 700, true);
+            	
+            	final WheelView column_1 = (WheelView) popupView.findViewById(R.id.column_1);
+            	for (int i = 0; i < dishids.length; ++i) {
+    				dishids[i] = 0xffff & DeviceState.getInstance().builtin_dishids[i];
+    				dish_names[i] = Dish.getDishNameById(DeviceState.getInstance().builtin_dishids[i]);
+    			}
+            	//ArrayWheelAdapter<Integer> adapter = new ArrayWheelAdapter<Integer>(MakeDishActivity.this, dishids);	
+            	ArrayWheelAdapter<String> adapter = new ArrayWheelAdapter<String>(MakeDishActivity.this, dish_names);	
+            	column_1.setViewAdapter(adapter);
+            	column_1.setCurrentItem(0);
+            	
+            	Button sure = (Button) popupView.findViewById(R.id.makesure);
+            	sure.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    	Message msg = new Message();  
+	                    msg.what = 0x345;  
+	                    Package data = new Package(Package.Update_Favorite, new_dish);
+	                    data.set_replaced_id(dishids[column_1.getCurrentItem()]);
+	                    msg.obj = data.getBytes();
+	                    TCPClient.getInstance().sendMsg(msg); 
+	                    
+	                    MakeDishActivity.this.resp_cmd108_count = 0;
+	                    progressBar1.setVisibility(View.VISIBLE);
+	                    
+	                	ByteArrayOutputStream baos = new ByteArrayOutputStream();
+	                    while(data.get_img_pkg(baos) && baos.size() != 0) {
+	                    	Log.v("BuiltinDishes", "img baos.size() = " + baos.size());
+	                    	Message msgtmp = new Message();  
+	                    	msgtmp.what = 0x345; 
+	                    	msgtmp.obj = baos;
+	                    	TCPClient.getInstance().sendMsg(msgtmp); 
+	                    	baos = new ByteArrayOutputStream();
+	                    }
+	                    Log.v("BuiltinDishes", "send replace req " + column_1.getCurrentItem() + " to " + new_dish.dishid + " done!");
+                    	
+                        popWindow.dismiss(); //Close the Pop Window
+                    }
+                });
+            	popWindow.showAtLocation(self_content_view, Gravity.CENTER, 0, 0);
+            }  
+        });
+		
+		progressBar1 = (ProgressBar) findViewById(R.id.progressBar1);
+		progressBar1.setVisibility(View.GONE);
 	}
 	
 	public View popupView;

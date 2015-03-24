@@ -159,8 +159,8 @@ public class BuiltinDishes extends SlidingFragmentActivity implements OnTouchLis
           });
 		
 		gridView = (GridView)findViewById(R.id.gridview);  
-		
-		TextView tv = (TextView) findViewById(R.id.replace_builtin); 
+		replace_builtin = (Button)findViewById(R.id.replace_builtin); 
+		TextView tv = (TextView) findViewById(R.id.replace_builtin_tv); 
 		Intent intent = getIntent();
 		tv.setText(intent.getStringExtra("title"));
 		
@@ -170,6 +170,7 @@ public class BuiltinDishes extends SlidingFragmentActivity implements OnTouchLis
 		
 		if (intent.getStringExtra("title").equalsIgnoreCase("自编菜谱")) {
 			 Log.v("BuiltinDishes", "自编菜谱");
+			 replace_builtin.setVisibility(View.GONE);
 			 make_new_dish.setVisibility(View.VISIBLE);
 			 make_new_dish.setOnClickListener(new OnClickListener() {  
 	              @Override  
@@ -179,33 +180,37 @@ public class BuiltinDishes extends SlidingFragmentActivity implements OnTouchLis
 	              }  
 	          });
 		}
-//		replace_builtin = (Button)findViewById(R.id.replace_builtin);  
-//		replace_builtin.setOnClickListener(new OnClickListener() {  
-//      	  
-//            @Override  
-//            public void onClick(View v) {  
-//                try {  
-//                    // 当用户按下按钮之后，将用户输入的数据封装成Message  
-//                    // 然后发送给子线程Handler  
-//                    Message msg = new Message();  
-//                    msg.what = 0x345;  
-//                    //msg.obj = input.getText().toString();  
-//                    //msg.obj = "msg content";
-//                    Package data = new Package(Package.Update_Favorite, Dish.getAllDish()[12]);
-//                    msg.obj = data.getBytes();
-//                    TCPClient.getInstance().sendMsg(msg); 
-//                    
-//                	ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//                    while(data.get_img_pkg(baos) && baos.size() != 0) {
-//                    	Log.v("BuiltinDishes", "img baos.size() = " + baos.size());
-//                    	Message msgtmp = new Message();  
-//                    	msgtmp.what = 0x345; 
-//                    	msgtmp.obj = baos;
-//                    	TCPClient.getInstance().sendMsg(msgtmp); 
-//                    	baos = new ByteArrayOutputStream();
-//                    }
-//                    
-//                    // send sound
+		replace_builtin = (Button)findViewById(R.id.replace_builtin);  
+		replace_builtin.setOnClickListener(new OnClickListener() {  
+      	  
+            @Override  
+            public void onClick(View v) {  
+                try {  
+                	//for (int i = 0; i < 12; ++i) {
+                	int i = 2;
+	                    // 当用户按下按钮之后，将用户输入的数据封装成Message,然后发送给子线程Handler  
+	                    Message msg = new Message();  
+	                    msg.what = 0x345;  
+	                    Package data = new Package(Package.Update_Favorite, Dish.getAllDish()[12]);
+	                    data.set_replaced_id(2);
+	                    msg.obj = data.getBytes();
+	                    TCPClient.getInstance().sendMsg(msg); 
+	                    
+	                	ByteArrayOutputStream baos = new ByteArrayOutputStream();
+	                    while(data.get_img_pkg(baos) && baos.size() != 0) {
+	                    	Log.v("BuiltinDishes", "img baos.size() = " + baos.size());
+	                    	Message msgtmp = new Message();  
+	                    	msgtmp.what = 0x345; 
+	                    	msgtmp.obj = baos;
+	                    	TCPClient.getInstance().sendMsg(msgtmp); 
+	                    	baos = new ByteArrayOutputStream();
+	                    }
+	                    Log.v("BuiltinDishes", "replace dish " + i + " to " + (12 - i) + " done!");
+	                    
+	                    //TODO : should wait for replace response
+                	//}
+                    
+                    // send sound
 //                    if (/*DeviceState.getInstance().use_sound == 0x01*/ true) {
 //                    	while(data.get_sound_pkg(baos) && baos.size() != 0) {
 //                        	Log.v("DishActivity", "sound baos.size() = " + baos.size());
@@ -216,12 +221,12 @@ public class BuiltinDishes extends SlidingFragmentActivity implements OnTouchLis
 //                        	baos = new ByteArrayOutputStream();
 //                        }
 //                    }
-//                } catch (Exception e) { 
-//                	e.printStackTrace();
-//                	Log.v("BuiltinDishes", "prepare package data exception");
-//                }  
-//            }  
-//        }); 
+                } catch (Exception e) { 
+                	e.printStackTrace();
+                	Log.v("BuiltinDishes", "prepare package data exception");
+                }  
+            }  
+        }); 
 		
 //		getBuiltin = (Button) findViewById(R.id.getbuiltin);
 //		getBuiltin.setOnClickListener(new OnClickListener() {  

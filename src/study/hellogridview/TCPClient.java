@@ -11,6 +11,7 @@ import java.net.ConnectException;
 import java.net.DatagramPacket;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -54,39 +55,6 @@ public class TCPClient {
 	}
 	
 	private void init() {
-		clientThread = new ClientThread();
-		new Thread(clientThread).start();
-		
-		//  发送心跳
-		new Thread() {
-			@Override
-			public void run() {
-				long last_hb = System.currentTimeMillis();
-				while (true) {
-					if (clientThread.revHandler != null && clientThread.s.isConnected()) {
-						long curr = System.currentTimeMillis();
-						if (curr - last_hb > 30*1000) {
-							Message msg = new Message();  
-		                    msg.what = 0x345;  
-		                    //byte any = 0x03;
-		                    //msg.obj = any;
-		                    Package data = new Package(Package.Get_Favorite);
-		                    msg.obj = data.getBytes();
-		                    TCPClient.getInstance().sendMsg(msg);
-		                    last_hb = curr;
-		                    Log.v("tcpclient", "clientThread heartbeat");
-						}
-					}
-					try {
-						Thread.sleep(30*1000);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			}
-		}.start();
-		
 		udpBroadcast = new UdpBroadcast() {
 			@Override
 			public void onReceived(List<DatagramPacket> packets) {
@@ -103,6 +71,37 @@ public class TCPClient {
 				}
 			}
 		};
+		
+		//  发送心跳
+		new Thread() {
+			@Override
+			public void run() {
+				long last_hb = System.currentTimeMillis();
+				Log.v("tcpclient", "heartbeat Thread starting");
+				while (true) {
+					try {
+						if (clientThread != null && clientThread.revHandler != null && clientThread.s.isConnected()) {
+							long curr = System.currentTimeMillis();
+							if (curr - last_hb >= 30*1000) {
+								do_heartbeat();
+			                    last_hb = curr;
+			                    Log.v("tcpclient", "send heartbeat");
+			                    Thread.sleep(30*1000);
+							}
+						} else {
+							Log.v("TcpClient", "socket is not connected yet, try heartbeat after 3 seconds");
+							Thread.sleep(3*1000);
+						}
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+		}.start();
+		
+		clientThread = new ClientThread();
+		new Thread(clientThread).start();
 	}
 
 	public static TCPClient getInstance() { 
@@ -120,10 +119,15 @@ public class TCPClient {
 	}
 	
 	public void connect_ip_sta(String sta_ip) {
-		Message msg = new Message();
-		msg.what = Constants.MSG_ID_STA_IP;
-		msg.obj = sta_ip;
-		this.sendMsg(msg);
+		if (clientThread != null && clientThread.revHandler != null) {
+			Message msg = new Message();
+			msg.what = Constants.MSG_ID_STA_IP;
+			msg.obj = sta_ip;
+			this.sendMsg(msg);
+		}
+		else {
+			clientThread.ip_sta = sta_ip;
+		}
 	}
 	
 	public void set_mainact(MainActivity main) {
@@ -158,7 +162,14 @@ public class TCPClient {
 		return false;
 	}
 	
-
+	// do heartbeat after socket is connected
+	public void do_heartbeat() {
+		Message msg = new Message();  
+        msg.what = 0x345;  
+        Package data = new Package(Package.Get_Favorite);
+        msg.obj = data.getBytes();
+        TCPClient.getInstance().sendMsg(msg);
+	}
 	
 	/**
 	 * decode pagkets to mudoles
@@ -190,7 +201,6 @@ public class TCPClient {
 				i++;
 			}
 		}
-		
 		return modules;
 	}
 	
@@ -205,8 +215,8 @@ public class TCPClient {
 		OutputStream os = null;
 		
 		public String ip_ap = Constants.AP_IP;
-		//public String ip_ap = "192.168.1.172";
-		public String ip_sta;
+		public String ip_sta = "";
+		public String current_ip = "";
 		public short port = Constants.AP_STA_PORT;
 
 		public ClientThread() {}
@@ -221,29 +231,9 @@ public class TCPClient {
 		
 		public void set_ip_sta(String ip_sta) {
 			this.ip_sta = ip_sta;
-			try {
-				recv_data.stop = true;
-				if (s != null) {
-					s.close();
-				}
-				
-				s = new Socket();
-				s.connect(new InetSocketAddress(this.ip_sta, port), Constants.BBXC_SOCKET_TIMEOUT);
-				
-				if (s.isConnected()) {
-					br = new BufferedInputStream(new DataInputStream(s.getInputStream()));
-					os = s.getOutputStream();
-					recv_data = new ReceiveThread();
-					recv_data.recv_thread.start();
-					Log.v("tcpclient", "successfully connect to sta ip:" + this.ip_sta);
-				}
-				else {
-					Log.v("tcpclient", "failed connect to sta ip:" + this.ip_sta);
-				}
-			} catch (IOException io) {
-				io.printStackTrace();
+			if (s.isConnected() && !this.current_ip.equals(ip_sta)) {
+				reconnect(ip_sta);
 			}
-			Log.v("TcpClient" ,"Reconnect to sta_ip(" + ip_sta + " done!");
 		}
 		
 		int notifycount = 0;
@@ -342,6 +332,7 @@ public class TCPClient {
 		@Override
 		public void run() {
 			s = new Socket();
+			udpBroadcast.open();
 			try {
 				while (true) {
 					try {
@@ -354,13 +345,16 @@ public class TCPClient {
 						// 如果当前wifi是设备的AP，那就优先使用AP模式
 						if (Tool.getInstance().getSSid(main_activity).equals(Constants.AP_NAME)) {
 							s.connect(new InetSocketAddress(ip_ap, port), Constants.BBXC_SOCKET_TIMEOUT);
+							current_ip = ip_ap;
 						}
-						else if (ip_sta != null && !ip_sta.isEmpty()) {
+						else if (!ip_sta.isEmpty()) {
 							s.connect(new InetSocketAddress(ip_sta, port), Constants.BBXC_SOCKET_TIMEOUT);
+							current_ip = ip_sta;
 						}
 						else {
-							Log.v("tcpclient", "请使用Smartlink模式连接设备");
-							Thread.sleep(15000);
+							udpBroadcast.send(Constants.CMD_SCAN_MODULES);
+							Log.v("tcpclient", "尝试查找附近的设备，或使用Smartlink模式连接设备");
+							Thread.sleep(5000);
 							continue;
 						}
 						
@@ -407,7 +401,12 @@ public class TCPClient {
 								os.write(bs);
 								os.flush();
 								/*if (bs.length > 1000) */Thread.sleep(500);
-							} catch (Exception e) {
+							} catch (SocketException e) {
+								Log.v("tcpclient", "sendMsg SocketException, try to reconnect");
+								e.printStackTrace();
+								reconnect(current_ip);
+							}
+							catch (Exception e) {
 								e.printStackTrace();
 								Log.v("tcpclient", "sendMsg exception");
 							}
@@ -419,7 +418,6 @@ public class TCPClient {
 				}; 
 				// 启动Looper
 				Looper.loop();
-				Log.i("tcpclient", "revHandler created done");
 
 			} catch (SocketTimeoutException e) {
 				Message msg = new Message();
@@ -448,15 +446,43 @@ public class TCPClient {
 					// 不断的读取Socket输入流的内容
 					ByteArrayOutputStream bytestream = new ByteArrayOutputStream();
 					while (read_package(br, bytestream)) {
-						// 每当读取到来自服务器的数据之后，发送的消息通知程序,界面显示该数据
 						TCPClient.getInstance().OnReceive(bytestream);
 						bytestream.reset();
 					}
 				}
+				Log.v("tcpclient", "ReceiveThread exit");
+			}
+		} //ReceiveThread
+		
+		public void reconnect(String ip) {
+			Log.v("tcpclient", "try to reconnect to ip:" + ip);
+			try {
+				recv_data.stop = true;
+				Thread.sleep(1000);
+				if (s != null) {
+					s.close();
+				}
+				
+				s = new Socket();
+				s.connect(new InetSocketAddress(ip, port), Constants.BBXC_SOCKET_TIMEOUT);
+				
+				if (s.isConnected()) {
+					br = new BufferedInputStream(new DataInputStream(s.getInputStream()));
+					os = s.getOutputStream();
+					recv_data = new ReceiveThread();
+					recv_data.recv_thread.start();
+					Log.v("tcpclient", "successfully reconnect to ip:" + ip);
+				}
+				else {
+					Log.v("tcpclient", "failed reconnect to ip:" + ip);
+				}
+			} catch (Exception io) {
+				io.printStackTrace();
+				Log.v("tcpclient", "failed reconnect to ip:" + ip);
 			}
 		}
-	}
-
+	} // clientThead
+	
 	// read N bytes from socket
 	boolean read_n(BufferedInputStream bis, int n, byte[] buffer) {
 		int nidx = 0;
@@ -621,7 +647,13 @@ public class TCPClient {
 					}
 				}
 			}
-
+			
+			String builtin_dishid = "builtin_dishid : ";
+			for (int i = 0; i < ds.builtin_dishids.length; ++i) {
+				builtin_dishid += ds.builtin_dishids[i] + ", ";
+			}
+			Log.v("tcpclient", builtin_dishid);
+			
 			Message msg2 = new Message();
 			msg2.what = 0x123;
 			msg2.obj = rp_gf;

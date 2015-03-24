@@ -62,6 +62,8 @@ public class Package {
 
 	public DishActivity activity;
 	public CurStateActivity curstate_activity;
+	
+	short dishid_be_replaced = 0;
 
 	Package(byte cmdtype) {
 		activity = TCPClient.getInstance().dish_activity;
@@ -76,6 +78,10 @@ public class Package {
 		this.cmdtype = cmdtype;
 		this.dish = dish;
 		this.reqid = (int) (System.currentTimeMillis() / 1000);
+	}
+	
+	public void set_replaced_id(int i) {
+		dishid_be_replaced = (short) i;
 	}
 	
 	public ByteArrayOutputStream getBytes() {
@@ -119,7 +125,6 @@ public class Package {
 				e.printStackTrace();
 				Log.v("Package", "getBytes chinese name as GB2312 error!");
 			}
-			
 			
 			putShort(tmp, dish.dishid);
 //			bytestream.write(tmp, 25, 2);
@@ -188,8 +193,8 @@ public class Package {
 		case Update_Favorite :
 			try {
 				//Log.v("Package", "write bytes trace!");
-				short dish_be_replaced = 8;
-				putShort(tmp, dish_be_replaced);
+				//short dish_be_replaced = 8;
+				putShort(tmp, dishid_be_replaced);
 				
 				// read image into byte array
 				prepare_img_sounddata();
