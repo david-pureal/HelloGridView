@@ -1,14 +1,26 @@
 package study.hellogridview;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
+import org.apache.http.Header;
+
 import com.example.smartlinklib.ModuleInfo;
 import com.example.smartlinklib.SmartLinkManipulator;
 import com.example.smartlinklib.SmartLinkManipulator.ConnectCallBack;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.FileAsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
 
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.app.Activity;
+import android.content.res.AssetFileDescriptor;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MotionEvent;
@@ -26,6 +38,7 @@ import android.widget.Toast;
 public class SmartLinkActivity extends Activity implements OnTouchListener {
 	TextView ssid;
 	Button m_startBtn;
+	Button button_http;
 	EditText pswd;
 	SmartLinkManipulator sm;
 	boolean isconncting = false;
@@ -117,7 +130,84 @@ public class SmartLinkActivity extends Activity implements OnTouchListener {
 		ssid.setText(Tool.getInstance().getSSid(this));
 		pswd = (EditText) findViewById(R.id.pswd);
 		
-		
+		button_http = (Button) findViewById(R.id.button_http);
+		button_http.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				//String url_upload = "http://182.92.231.24:8889/upload";
+				String urlString = "http://182.92.231.24:8889/download?f=/home/david/python/data/tmp/london.jpg";
+				RequestParams params = new RequestParams();
+				HttpUtils.get(urlString, params, new FileAsyncHttpResponseHandler(SmartLinkActivity.this) {
+				    @Override
+				    public void onSuccess(int statusCode, Header[] headers, File file) {
+				        // Do something with the file `response`
+				    	FileInputStream inStream;
+						try {
+							inStream = new FileInputStream(file);
+					    	byte[] img_data = new byte[inStream.available()];
+							inStream.read(img_data);
+							
+							RequestParams params_tmp = new RequestParams();
+							params_tmp.put("myfile", new ByteArrayInputStream(img_data), "london.jpg");
+							String url_upload = "http://182.92.231.24:8889/upload";
+							HttpUtils.post(url_upload, params_tmp, new AsyncHttpResponseHandler() {
+								@Override
+								public void onFailure(int arg0, Header[] arg1, byte[] arg2, Throwable arg3) {
+									Log.v("smartlink", "onFailure");
+									arg3.printStackTrace();
+								}
+								@Override
+								public void onSuccess(int arg0, Header[] arg1, byte[] arg2) {
+									// TODO Auto-generated method stub
+									String res = new String(arg2);
+									Log.v("smartlink", "res = " + res);
+								}
+					        });
+							
+							if (inStream != null) inStream.close();
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+				    }
+
+					@Override
+					public void onFailure(int arg0, Header[] arg1,
+							Throwable arg2, File arg3) {
+						Log.v("smartlink", "FileAsyncHttpResponseHandler onFailure arg0 = " + arg0);
+						arg2.printStackTrace();
+					}
+				});
+				
+				
+//				AssetFileDescriptor fd = null;
+//				fd = SmartLinkActivity.this.getResources().openRawResourceFd(R.drawable.tudousi_tiny);
+//				
+//				try {
+//					inStream = fd.createInputStream();
+//					byte[] img_data = new byte[inStream.available()];
+//					inStream.read(img_data);
+//					
+//					params.put("myfile", new ByteArrayInputStream(img_data), "tudousi.jpg");
+//					HttpUtils.post(urlString, params, new AsyncHttpResponseHandler() {
+//						@Override
+//						public void onFailure(int arg0, Header[] arg1, byte[] arg2, Throwable arg3) {
+//							Log.v("smartlink", "onFailure");
+//							arg3.printStackTrace();
+//						}
+//						@Override
+//						public void onSuccess(int arg0, Header[] arg1, byte[] arg2) {
+//							// TODO Auto-generated method stub
+//							String res = new String(arg2);
+//							Log.v("smartlink", "res = " + res);
+//						}
+//			        });
+//				} catch (IOException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+			}
+		});
 		//»ñÈ¡ÊµÀý
 //		sm = SmartLinkManipulator.getInstence(MainActivity.this);
 		
