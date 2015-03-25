@@ -155,7 +155,7 @@ public class Package {
 				byte[] bytes = dish.name_english.getBytes("GB2312");
 				if (bytes.length < dish_name_length) { //english name is length is 13
 					bytestream.write(bytes);
-					byte[] b = new byte[dish_name_length];
+					byte[] b = new byte[dish_name_length - bytes.length];
 					bytestream.write(b);
 				}
 				else {

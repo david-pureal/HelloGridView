@@ -6,8 +6,18 @@ public final class Constants {
 	public static final short AP_STA_PORT = 5000;
 	public static final int BBXC_SOCKET_TIMEOUT = 5000;
 	
-	// state
+	// message id
 	public static final int MSG_ID_STA_IP = 100;
+	
+	// dish related
+	public static final int DISH_MADE_BY_SYSTEM = 0x00;   // APP内置菜谱
+	public static final int DISH_MADE_BY_USER   = 0x01;   // 用户上传的菜谱
+	public static final int DISH_DEVICE_BUILTIN = 0x10;   // 机器内置菜谱
+	public static final int DISH_FAVORITE       = 0x0100; // 用户收藏的菜谱
+	
+	public static final String DISH_PARAM_FILENAME = "dish.param";
+	public static final String DISH_IMG_FILENAME = "main.jpg";
+	public static final String DISH_IMG_TINY_FILENAME = "main_tiny.jpg";
 	
 	// for SmartLink
 	public static final String TAG = "HF-A11 | ";

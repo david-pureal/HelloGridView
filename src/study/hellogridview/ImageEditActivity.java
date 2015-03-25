@@ -2,8 +2,10 @@ package study.hellogridview;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
+import study.hellogridview.Dish.Material;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
@@ -30,7 +32,8 @@ public class ImageEditActivity extends Activity {
 	ImageView add_material_img;
 	
 	Dish dish;
-	LinkedHashMap<String, Object> material_map;
+	ArrayList<Material> material_list;
+	Material m;
 	public int material_index = -1;
 	String key;
 	TextView material_delete;
@@ -50,14 +53,18 @@ public class ImageEditActivity extends Activity {
 		material_index = intent.getIntExtra("material_index", -1);
 		if (intent.getStringExtra("edit_title").equals("备料图文")) {
 			dish = Dish.getAllDish()[dish_index];
-			material_map = dish.prepare_material_detail;
+			material_list = dish.prepare_material_detail;
 		}
 		
 		editText = (EditText)findViewById(R.id.edit_content);  
 		editText.setText(intent.getStringExtra("edit_content_input"));
 		if (material_index != -1) {
-			key = (String) material_map.keySet().toArray()[material_index];
+			m = material_list.get(material_index);
+			key = m.description;
 			editText.setText(key);
+		}
+		else {
+			material_index = material_list.size();
 		}
 		
 		TextView cancel = (TextView) findViewById(R.id.cancel);
@@ -86,13 +93,17 @@ public class ImageEditActivity extends Activity {
             			return;
             		}
             		
-            		if (ImageEditActivity.this.material_index != -1) {
-            			Log.v("ImageEditActivity", "material_index = " +  ImageEditActivity.this.material_index + ImageEditActivity.this.key);
-            			material_map.remove(ImageEditActivity.this.key); // 先删除再添加
-            		}
             		String str_content = editText.getText().toString();
-            		material_map.put(str_content, img_drawable);
-            		Log.v("ImageEditActivity", "material_map.size() = " + material_map.size());
+            		
+            		if (m == null) {
+            			m = dish.new Material();
+            			material_list.add(m);
+            		}
+            		m.description = str_content;
+            		m.img_drawable = img_drawable;
+            		m.path = img_path;
+            		
+            		Log.v("ImageEditActivity", "save done, material_list.size() = " + material_list.size());
             	}
             	
             	Intent intent = getIntent();
@@ -102,14 +113,14 @@ public class ImageEditActivity extends Activity {
         });
 		
 		material_delete = (TextView) findViewById(R.id.material_delete);
-		if (material_index == -1) {
+		if (material_index == material_list.size()) {
 			material_delete.setVisibility(View.GONE);
 		}
 		material_delete.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) { 
-            	material_map.remove(key);
-            	Log.v("ImageEditActivity", "material_map.size() = " + material_map.size());
+            	material_list.remove(m);
+            	Log.v("ImageEditActivity", "material_list.size() = " + material_list.size());
             	Intent intent = getIntent();
             	ImageEditActivity.this.setResult(1, intent);  
             	ImageEditActivity.this.finish();
@@ -121,8 +132,8 @@ public class ImageEditActivity extends Activity {
 		add_material_img.setImageResource(R.drawable.camera);
 		
 		if (key != null) {
-			add_material_img.setImageDrawable((Drawable) material_map.get(key));
-			img_drawable = (BitmapDrawable) material_map.get(key);
+			add_material_img.setImageDrawable(m.img_drawable);
+			img_drawable = m.img_drawable;
 		}
 		
 //		Bitmap bm = BitmapFactory.decodeResource(this.getResources(), R.drawable.camera_760_548);
@@ -148,8 +159,9 @@ public class ImageEditActivity extends Activity {
 		innerIntent.putExtra("outputY", 548);  
 		innerIntent.putExtra("scale", true);
 		innerIntent.putExtra("scaleUpIfNeeded", true);
-        innerIntent.setType("image/*");      // 查看类型 详细的类型在 com.google.android.mms.ContentType   
-        tempFile = new File(Tool.getInstance().getModulePath() + dish.dishid + "_material" + material_map.size() + ".jpg"); // 以时间秒为文件名  
+        innerIntent.setType("image/*");      // 查看类型 详细的类型在 com.google.android.mms.ContentType 
+        img_path = dish.getDishDirName() + "/material_" + material_index + ".jpg";
+        tempFile = new File(img_path); // 以时间秒为文件名  
         innerIntent.putExtra("output", Uri.fromFile(tempFile));  // 专入目标文件     
         innerIntent.putExtra("outputFormat", "JPEG"); //输入文件格式    
         
@@ -177,6 +189,7 @@ public class ImageEditActivity extends Activity {
      }
 	 
 	 BitmapDrawable img_drawable;
+	 String img_path;
 	 TextView edit_content;
 }
 

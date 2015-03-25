@@ -135,6 +135,7 @@ public class SmartLinkActivity extends Activity implements OnTouchListener {
 			@Override
 			public void onClick(View v) {
 				//String url_upload = "http://182.92.231.24:8889/upload";
+				
 				String urlString = "http://182.92.231.24:8889/download?f=/home/david/python/data/tmp/london.jpg";
 				RequestParams params = new RequestParams();
 				HttpUtils.get(urlString, params, new FileAsyncHttpResponseHandler(SmartLinkActivity.this) {
@@ -149,6 +150,7 @@ public class SmartLinkActivity extends Activity implements OnTouchListener {
 							
 							RequestParams params_tmp = new RequestParams();
 							params_tmp.put("myfile", new ByteArrayInputStream(img_data), "london.jpg");
+							params_tmp.put("path", "dish1000_xiqinchaorou");
 							String url_upload = "http://182.92.231.24:8889/upload";
 							HttpUtils.post(url_upload, params_tmp, new AsyncHttpResponseHandler() {
 								@Override

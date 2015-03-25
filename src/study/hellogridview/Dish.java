@@ -3,14 +3,23 @@ package study.hellogridview;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.Properties;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 import study.hellogridview.R;
 public class Dish implements Cloneable {
-	public static short USER_MAKE_DISH_START_ID = 1000;
-	public static short current_makedish_dishid = USER_MAKE_DISH_START_ID;
+	// 用户自编的菜谱在上传前的临时id，上传后由服务端重新分配id
+	public static final int USER_MAKE_DISH_START_ID = 60000; 
+	public static int current_makedish_dishid = USER_MAKE_DISH_START_ID;
 	public String name_chinese = "";
 	public String name_english = "name_english";
 	public short dishid = 100;
@@ -25,13 +34,16 @@ public class Dish implements Cloneable {
 	public byte oil = 10; //加油量
 	public byte qiangguoliao = 1;//炝锅料 0表示无， 1表示有
 	
-	public Integer img = R.drawable.tudousi;
-	public BitmapDrawable img_drawable = null;
+	public Integer img = R.drawable.tudousi;   // APP自带的菜谱
+	public BitmapDrawable img_drawable = null; // 自编菜谱，用来在APP上展示
+	public String img_path; //自编菜谱，用于存储
+	
 	public Integer img_tiny = R.drawable.tudousi;   //机器上显示的小图片，大小为106*76
 	public String img_tiny_path;
 	public Integer sound;
 	
 	public boolean isBuiltIn = true;
+	public int type = Constants.DISH_MADE_BY_SYSTEM & Constants.DISH_DEVICE_BUILTIN & Constants.DISH_FAVORITE;
 	
 	
 	public String text = "1、底油：20克\n2、炝锅料：姜丝5克、蒜片5克\n3、主料：土豆丝230克,青椒丝20克，\n      红椒丝20克\n4、调料：鸡精2克、盐2克";
@@ -42,7 +54,14 @@ public class Dish implements Cloneable {
 	// 材料是有序的
 	public LinkedHashMap<String, String> zhuliao_content_map = new LinkedHashMap<String, String>();
 	public LinkedHashMap<String, String> fuliao_content_map = new LinkedHashMap<String, String>();
-	public LinkedHashMap<String, Object> prepare_material_detail = new LinkedHashMap<String, Object>();; //备料图文详解：包括肉类怎么预处理、菜类切成什么形状
+	
+	class Material {
+		String description;
+		BitmapDrawable img_drawable;
+		String path;
+	}
+	//备料图文详解：包括肉类怎么预处理、菜类切成什么形状
+	public ArrayList<Material> prepare_material_detail = new ArrayList<Material>(); 
 	
 	private static Dish[] dishes = null;
 	//TODO ArrayList改为LinkedHashMap<short, Dish>
@@ -53,22 +72,38 @@ public class Dish implements Cloneable {
 		this.name_chinese = name;
 	}
 	
+	//用户自编菜谱
 	public static int addDish(Dish d) {
 		if (dish_list == null) getAllDish();
 		//d.img_tiny = R.raw.zibian_tiny;
 		d.img_tiny = R.raw.tudousi_tiny;
 		//d.img_tiny = R.raw.temp_tiny;
-		d.name_english = "xincaipu";
+		d.name_english = HanziToPinyin.getPinYin(d.name_chinese);
+		if (d.name_english.length() > 20) d.name_english.substring(0, 13);//英文名字有最大长度
 		DeviceState ds = DeviceState.getInstance();
 		short max = 0;
 		for (int i = 0; i < ds.builtin_dishids.length ; ++i) {
 			if (ds.builtin_dishids[i] > max) max = ds.builtin_dishids[i];
 		}
-		if (max > current_makedish_dishid) current_makedish_dishid = (short) (max + 1);
-		d.dishid = current_makedish_dishid;
-		++current_makedish_dishid;
+		if (max > current_makedish_dishid) current_makedish_dishid = max + 1;
+		d.dishid = (short) ++current_makedish_dishid;
+		
+		// create directory
+		Tool.getInstance().make_directory(d.getDishDirName());
+		
+		// 默认的菜谱图片
+		d.img_path = d.getDishDirName() + "/" + Constants.DISH_IMG_FILENAME;
+		Bitmap btm = d.img_drawable.getBitmap();
+		Tool.getInstance().savaBitmap(btm, d.img_path);
+		
+		d.type = Constants.DISH_MADE_BY_USER;
+		
 		dish_list.add(d);
 		return dish_list.size() - 1;
+	}
+	
+	public String getDishDirName() {
+		return Tool.getInstance().getModulePath() + "/dish" + (dishid & 0xffff) + "_" + name_english;
 	}
 	
 	public static String getDishNameById(short id) {
@@ -78,6 +113,46 @@ public class Dish implements Cloneable {
 			}
 		}
 		return ""+id;
+	}
+	
+	public void writeToFile() {
+		// 用于写入文件
+		JSONObject dishj = new JSONObject();
+		try {
+			dishj.put("dishid", dishid);
+			dishj.put("name_chinese", name_chinese);
+			dishj.put("name_english", name_english);
+			
+			dishj.put("zhuliao_time", zhuliao_time);
+			dishj.put("fuliao_time", fuliao_time);
+			dishj.put("zhuliao_temp", zhuliao_temp);
+			dishj.put("fuliao_temp", fuliao_temp);
+			dishj.put("zhuliao_jiaoban_speed", zhuliao_jiaoban_speed);
+			dishj.put("fuliao_jiaoban_speed", fuliao_jiaoban_speed);
+			
+			dishj.put("water", water);
+			dishj.put("water_weight", water_weight);
+			dishj.put("oil", oil);
+			dishj.put("qiangguoliao", qiangguoliao);
+			dishj.put("sound", sound);
+			
+			dishj.put("type", type);
+			
+			dishj.put("img_path", img_path);
+			dishj.put("img_tiny_path", img_tiny_path);
+
+			// 主料，辅料和备料图文写入文件
+			JSONArray array;
+//			for (Iterator<String> it = lmap.keySet().iterator();it.hasNext();)
+//			{
+//			    String key = it.next();
+//			}
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		JSONArray a;
 	}
 	
 	public static Dish[] getAllDish() {
@@ -235,6 +310,10 @@ public class Dish implements Cloneable {
 			e.printStackTrace();
 		}
 		return d;
+	}
+
+	public boolean isBuiltIn() {
+		return (type & Constants.DISH_MADE_BY_USER) == 0x00;
 	} 
 	
 }

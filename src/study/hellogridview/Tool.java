@@ -3,8 +3,10 @@ package study.hellogridview;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.List;
+import java.util.Properties;
 import java.util.regex.Pattern;
 
 import android.content.Context;
@@ -30,8 +32,8 @@ public class Tool {
 		return tool;
 	}
 	
-	public String makeTinyImage(BitmapDrawable input, short dishid) {
-		Bitmap src_bmp = input.getBitmap();
+	public String makeTinyImage(Dish dish/*BitmapDrawable input, short dishid*/) {
+		Bitmap src_bmp = dish.img_drawable.getBitmap();
 		
 		// 先调整大小
 		int width_tiny = 102;
@@ -65,10 +67,10 @@ public class Tool {
             options -= 1;//每次都减少3  
             resizedBitmap.compress(Bitmap.CompressFormat.JPEG, options, baos);//这里压缩options%，把压缩后的数据存放到baos中  
         } 
-//        ByteArrayInputStream isBm = new ByteArrayInputStream(baos.toByteArray());//把压缩后的数据baos存放到ByteArrayInputStream中  
-//        Bitmap bitmap = BitmapFactory.decodeStream(isBm, null, null);
+//      ByteArrayInputStream isBm = new ByteArrayInputStream(baos.toByteArray());//把压缩后的数据baos存放到ByteArrayInputStream中  
+//      Bitmap bitmap = BitmapFactory.decodeStream(isBm, null, null);
         Log.v("Tool", "baos.size() = " + baos.size() + ", options = " + options);
-        String filename = getModulePath() + dishid + "_tiny.jpg"; 
+        String filename = dish.getDishDirName() + "/" + Constants.DISH_IMG_TINY_FILENAME; 
         FileOutputStream fos;
         try {
         	fos = new FileOutputStream(filename);
@@ -88,14 +90,14 @@ public class Tool {
 	//获取本APP的本地存储目录
 	public String getModulePath() {
 		String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/babaxiaochao/";
-		
 		//确保路径存在
-		File temp = new File(path);  
-        if (!temp.exists()) {  
-            temp.mkdir();  
-        } 
-        
+        make_directory(path);
 		return path;
+	}
+	
+	public void make_directory(String dirname) {
+		File temp = new File(dirname);
+		if (!temp.exists()) temp.mkdir();
 	}
 	
 	public Bitmap zoomImage(Bitmap bgimage, double newWidth,  double newHeight) { 
@@ -214,5 +216,25 @@ public class Tool {
 		editor.commit();
 		Log.v("tool", "write done");
 		//editor.clear().commit();
+	}
+	
+	public Properties loadConfig(Context context, String file) {  
+		Properties properties = new Properties();  
+		try {  
+			FileInputStream s = new FileInputStream(file);  
+			properties.load(s);  
+		} catch (Exception e) {  
+			e.printStackTrace();  
+		}  
+		return properties;  
+	}  
+		  
+	public void saveConfig(Context context, String file, Properties properties) {  
+		try {  
+			FileOutputStream s = new FileOutputStream(file, false);  
+			properties.store(s, "");  
+		} catch (Exception e){  
+			e.printStackTrace();  
+		}  
 	}
 }

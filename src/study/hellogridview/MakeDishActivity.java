@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 
+import study.hellogridview.Dish.Material;
 import kankan.wheel.widget.OnWheelChangedListener;
 import kankan.wheel.widget.OnWheelClickedListener;
 import kankan.wheel.widget.OnWheelScrollListener;
@@ -138,7 +139,6 @@ public class MakeDishActivity extends Activity {
 		
 		makedish_img = (ImageView) findViewById(R.id.makedish_img); 
 		makedish_img.setImageDrawable(new_dish.img_drawable);
-		//dish_img.setImageResource(Dish.getAllDish()[dish_index].img);
 		makedish_img.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) {  
@@ -703,16 +703,9 @@ public class MakeDishActivity extends Activity {
 		innerIntent.putExtra("outputY", 288);  
         innerIntent.setType("image/*");      // 查看类型 详细的类型在 com.google.android.mms.ContentType   
 	          
-		//===============================  
-		//	          innerIntent.setType("image/*");   
-		//	          innerIntent.putExtra("crop", "true");     
-		//	          innerIntent.putExtra("aspectX", 1);//裁剪框比例    
-		//	          innerIntent.putExtra("aspectY", 1);    
-		//	          innerIntent.putExtra("outputX", 120);//输出图片大小    
-		//	          innerIntent.putExtra("outputY", 120);    
-		//================================  
-        tempFile = new File(Tool.getInstance().getModulePath() + new_dish.dishid + ".jpg"); // 以时间秒为文件名  
-        innerIntent.putExtra("output", Uri.fromFile(tempFile));  // 专入目标文件     
+        String main_img_path = new_dish.getDishDirName() + "/" + Constants.DISH_IMG_FILENAME;
+        tempFile = new File(main_img_path);  
+        innerIntent.putExtra("output", Uri.fromFile(tempFile));  // 写入目标文件     
         innerIntent.putExtra("outputFormat", "JPEG"); //输入文件格式    
         
         Intent wrapperIntent = Intent.createChooser(innerIntent, "先择图片"); //开始 并设置标题  
@@ -729,7 +722,7 @@ public class MakeDishActivity extends Activity {
         	 //makedish_img.setImageDrawable();
         	 if (resultCode == -1) {
         		 new_dish.img_drawable = (BitmapDrawable) Drawable.createFromPath(tempFile.getAbsolutePath());
-        		 new_dish.img_tiny_path = Tool.getInstance().makeTinyImage(new_dish.img_drawable, new_dish.dishid);
+        		 new_dish.img_tiny_path = Tool.getInstance().makeTinyImage(new_dish);
         	 }
              break;  
          case 2:
@@ -788,17 +781,16 @@ public class MakeDishActivity extends Activity {
 		 }
 	 }
 	 
-	 public void fill_material_table(TableLayout tableLayout, LinkedHashMap<String, Object> lmap) {
+	 public void fill_material_table(TableLayout tableLayout, ArrayList<Material> list) {
 		 if (tableLayout.getChildCount() >= 2) {
 			 tableLayout.removeViews(0, tableLayout.getChildCount() - 1);
 		 }
 		 Log.v("MakeDishActivity", "tableLayout.getchildcount() = " + tableLayout.getChildCount()); 
-		 int i = 0;
-		 for (Iterator<String> it = lmap.keySet().iterator();it.hasNext();++i)
-		 {
-		     String key = it.next();
-		     add_material_row(tableLayout, key, lmap.get(key), i);
-		     Log.v("MakeDishActivity", "key = " + key + " value = " + lmap.get(key));
+		 
+		 for (int i = 0; i < list.size(); ++i) {
+			 Material m = list.get(i);
+			 add_material_row(tableLayout, m.description, m.img_drawable, i);
+			 Log.v("MakeDishActivity", "add_material : " + m.description + ", " + m.img_drawable);
 		 }
 	 }
 	 
