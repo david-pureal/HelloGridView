@@ -772,7 +772,6 @@ public class MakeDishActivity extends Activity {
 		 }
 		 //第一个元素是添加图标
 		 tableLayout.getChildAt(0).setVisibility(lmap.isEmpty() ? View.VISIBLE : View.GONE);
-		 
 		 for (Iterator<String> it = lmap.keySet().iterator();it.hasNext();)
 		 {
 		     String key = it.next();
@@ -858,4 +857,11 @@ public class MakeDishActivity extends Activity {
          tableLayout.addView(textView, tableLayout.getChildCount() - 1);
          tableLayout.addView(textView2, tableLayout.getChildCount() - 1);
 	 }
+	 
+	 @Override  
+	 protected void onDestroy() {  
+	     super.onDestroy();  
+	     Log.v("MakeDishActivity", "onDestroy saveDishParam to file"); 
+	     new_dish.saveDishParam();
+	 } 
 }

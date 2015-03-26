@@ -105,7 +105,6 @@ public class Dish implements Cloneable {
 	public String getDishDirName() {
 		return Tool.getInstance().getModulePath() + "/dish" + (dishid & 0xffff) + "_" + name_english;
 	}
-	
 	public static String getDishNameById(short id) {
 		for (int i = 0; i < dish_list.size() ;++i) {
 			if (dish_list.get(i).dishid == id) {
@@ -115,7 +114,7 @@ public class Dish implements Cloneable {
 		return ""+id;
 	}
 	
-	public void writeToFile() {
+	public void saveDishParam() {
 		// 用于写入文件
 		JSONObject dishj = new JSONObject();
 		try {
@@ -142,17 +141,43 @@ public class Dish implements Cloneable {
 			dishj.put("img_tiny_path", img_tiny_path);
 
 			// 主料，辅料和备料图文写入文件
-			JSONArray array;
-//			for (Iterator<String> it = lmap.keySet().iterator();it.hasNext();)
-//			{
-//			    String key = it.next();
-//			}
+			JSONArray zhuliao_array = new JSONArray();
+			for (Iterator<String> it = zhuliao_content_map.keySet().iterator();it.hasNext();)
+			{
+			    String key = it.next();
+			    JSONObject element = new JSONObject();
+			    element.put(key, zhuliao_content_map.get(key));
+			    zhuliao_array.put(element);
+			}
+			dishj.put("zhuliao_content", zhuliao_array);
+			
+			JSONArray fuliao_array = new JSONArray();
+			for (Iterator<String> it = fuliao_content_map.keySet().iterator();it.hasNext();)
+			{
+			    String key = it.next();
+			    JSONObject element = new JSONObject();
+			    element.put(key, fuliao_content_map.get(key));
+			    fuliao_array.put(element);
+			}
+			dishj.put("fuliao_content", fuliao_array);
+			
+			JSONArray material_array = new JSONArray();
+			for (int i = 0; i < prepare_material_detail.size(); ++i)
+			{
+			    JSONObject element = new JSONObject();
+			    Material m = prepare_material_detail.get(i);
+			    element.put("description", m.description);
+			    element.put("path", m.path);
+			    material_array.put(element);
+			}
+			dishj.put("material_detail", material_array);
+			
+			String param_path = getDishDirName() + "/" + Constants.DISH_PARAM_FILENAME;
+			Tool.getInstance().writeFile(dishj.toString(), param_path);
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		JSONArray a;
 	}
 	
 	public static Dish[] getAllDish() {

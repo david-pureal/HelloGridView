@@ -132,6 +132,18 @@ public class Tool {
         	e.printStackTrace();
         }
 	}
+	
+	public void writeFile(String data, String path) {
+		FileOutputStream fos;
+        try {
+        	fos = new FileOutputStream(path);
+        	fos.write(data.getBytes());
+        	fos.close();
+        }
+        catch (Exception e) {
+        	e.printStackTrace();
+        }
+	}
 
 	public boolean isWifiConnected(Context context) { 
 		if (context != null) { 
