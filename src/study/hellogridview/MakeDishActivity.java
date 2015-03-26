@@ -3,6 +3,7 @@ package study.hellogridview;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -594,12 +595,22 @@ public class MakeDishActivity extends Activity {
             public void onClick(View v) {  
             	popupView = inflater.inflate(R.layout.wheel_view_1_column, null, false);
             	final PopupWindow popWindow = new PopupWindow(popupView, 500, 700, true);
-            	
             	final WheelView column_1 = (WheelView) popupView.findViewById(R.id.column_1);
+            	
+            	if (DeviceState.getInstance().got_builtin == false) {
+            		Toast.makeText(MakeDishActivity.this, "请先连接机器，获取内置菜谱", Toast.LENGTH_SHORT).show();
+            		return;
+            	}
             	for (int i = 0; i < dishids.length; ++i) {
     				dishids[i] = 0xffff & DeviceState.getInstance().builtin_dishids[i];
     				dish_names[i] = Dish.getDishNameById(DeviceState.getInstance().builtin_dishids[i]);
     			}
+            	
+            	int id = new_dish.dishid;
+            	if (Arrays.binarySearch(dishids, id) >= 0) {
+            		Toast.makeText(MakeDishActivity.this, "id(" + id + ")已经在机器中内置", Toast.LENGTH_SHORT).show();
+            		return;
+            	}
             	//ArrayWheelAdapter<Integer> adapter = new ArrayWheelAdapter<Integer>(MakeDishActivity.this, dishids);	
             	ArrayWheelAdapter<String> adapter = new ArrayWheelAdapter<String>(MakeDishActivity.this, dish_names);	
             	column_1.setViewAdapter(adapter);

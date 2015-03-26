@@ -1,11 +1,17 @@
 package study.hellogridview;
 
 import java.io.ByteArrayOutputStream;
+
+import android.view.LayoutInflater;
 import android.graphics.drawable.BitmapDrawable;
+
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.Arrays;
 import java.util.HashMap;
 
+import kankan.wheel.widget.WheelView;
+import kankan.wheel.widget.adapters.ArrayWheelAdapter;
 import cn.sharesdk.framework.Platform;
 import cn.sharesdk.framework.PlatformActionListener;
 import cn.sharesdk.framework.ShareSDK;
@@ -30,6 +36,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Handler.Callback;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -41,6 +48,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -87,6 +95,12 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
     public ScrollView dish_layout;
 	private float yDown;
 	private float real_yDown;
+	
+	public Button dish_replace;
+	
+	public Integer[] dishids = new Integer[12];
+	public final String dish_names[] = {"","","","","","","","","","","",""};
+	protected int current_cmd;
     
 	@SuppressLint("HandlerLeak")
 	@Override
@@ -124,18 +138,43 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
                 if (msg.what == 0x123) {    
                 	RespPackage rp = (RespPackage) msg.obj;
                 	Log.v("DishActivity", "got resp, cmdtype_head=" + (rp.cmdtype_head&0xff) + ", cmdtype_body=" + (rp.cmdtype_body&0xff));
+                	if ((rp.cmdtype_head&0xff) == 127 && (rp.cmdtype_body&0xff) == 101) {
+                		current_cmd = 101;
+                	} else if ((rp.cmdtype_head&0xff) == 127 && (rp.cmdtype_body&0xff) == 104) {
+                		current_cmd = 104;
+                	} 
+                	
                 	if ((rp.cmdtype_head&0xff) == 127 && (rp.cmdtype_body&0xff) == 108) {
                 		++ DishActivity.this.resp_cmd108_count;
                 	}
                 	
                 	if (DishActivity.this.resp_cmd108_count == 5) { //目前图片都是分成5个帧传输的
                 		DishActivity.this.resp_cmd108_count = 0;
-                		Log.v("DishActivity", "resp_cmd108_count = " + resp_cmd108_count + " go to CurStateActivity");
-        	        	Intent intent = new Intent(DishActivity.this, CurStateActivity.class);
-        	        	intent.putExtra("dish_index", dish_index); 
-        	        	startActivity(intent);
+                		if (current_cmd == 101) {
+	                		Log.v("DishActivity", "resp_cmd108_count = " + resp_cmd108_count + " go to CurStateActivity");
+	        	        	Intent intent = new Intent(DishActivity.this, CurStateActivity.class);
+	        	        	intent.putExtra("dish_index", dish_index); 
+	        	        	startActivity(intent);
+                		} else if (current_cmd == 104) {
+                			Toast.makeText(DishActivity.this, "替换菜谱完成", Toast.LENGTH_SHORT).show();
+                			TCPClient.getInstance().do_heartbeat();// 获取最新内置菜谱
+                			Log.v("DishActivity", " replace done");
+                    	}
                 	}
-                }  
+//                	if ((rp.cmdtype_head&0xff) == 127 && (rp.cmdtype_body&0xff) == 108) {
+//                		++ DishActivity.this.resp_cmd108_count;
+//                	}
+//                	
+//                	if (DishActivity.this.resp_cmd108_count == 5) { //目前图片都是分成5个帧传输的
+//                		DishActivity.this.resp_cmd108_count = 0;
+//                		Log.v("DishActivity", "resp_cmd108_count = " + resp_cmd108_count + " go to CurStateActivity");
+//        	        	Intent intent = new Intent(DishActivity.this, CurStateActivity.class);
+//        	        	intent.putExtra("dish_index", dish_index); 
+//        	        	startActivity(intent);
+//                	}
+                } 
+                
+                
             }  
         }; 
         
@@ -205,6 +244,72 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
                 }  
             }  
         }); 
+        
+        for (int i = 0; i < dishids.length; ++i) {
+			dishids[i] = i;
+		}
+        
+        dish_replace = (Button) findViewById(R.id.dish_replace);
+        dish_replace.setOnClickListener(new OnClickListener() {  
+            @Override  
+            public void onClick(View v) { 
+            	View popupView;
+            	LayoutInflater inflater;
+            	View self_content_view;
+            	inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE); 
+        		self_content_view = inflater.inflate(R.layout.activity_make_dish, null, false);
+            	popupView = inflater.inflate(R.layout.wheel_view_1_column, null, false);
+            	final PopupWindow popWindow = new PopupWindow(popupView, 500, 700, true);
+            	
+            	final WheelView column_1 = (WheelView) popupView.findViewById(R.id.column_1);
+            	for (int i = 0; i < dishids.length; ++i) {
+    				dishids[i] = 0xffff & DeviceState.getInstance().builtin_dishids[i];
+    				dish_names[i] = Dish.getDishNameById(DeviceState.getInstance().builtin_dishids[i]);
+    			}
+            	if (DeviceState.getInstance().got_builtin == false) {
+            		Toast.makeText(DishActivity.this, "请先连接机器，获取内置菜谱", Toast.LENGTH_SHORT).show();
+            		return;
+            	}
+            	int id = Dish.getAllDish()[dish_index].dishid;
+            	if (Arrays.binarySearch(dishids, id) >= 0) {
+            		Toast.makeText(DishActivity.this, "id(" + id + ")已经在机器中内置", Toast.LENGTH_SHORT).show();
+            		return;
+            	}
+            	//ArrayWheelAdapter<Integer> adapter = new ArrayWheelAdapter<Integer>(MakeDishActivity.this, dishids);	
+            	ArrayWheelAdapter<String> adapter = new ArrayWheelAdapter<String>(DishActivity.this, dish_names);	
+            	column_1.setViewAdapter(adapter);
+            	column_1.setCurrentItem(0);
+            	
+            	Button sure = (Button) popupView.findViewById(R.id.makesure);
+            	sure.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    	Message msg = new Message();  
+	                    msg.what = 0x345;  
+	                    Package data = new Package(Package.Update_Favorite, Dish.getAllDish()[dish_index]);
+	                    data.set_replaced_id(dishids[column_1.getCurrentItem()]);
+	                    msg.obj = data.getBytes();
+	                    TCPClient.getInstance().sendMsg(msg); 
+	                    
+	                    DishActivity.this.resp_cmd108_count = 0;
+	                    
+	                	ByteArrayOutputStream baos = new ByteArrayOutputStream();
+	                    while(data.get_img_pkg(baos) && baos.size() != 0) {
+	                    	Log.v("BuiltinDishes", "img baos.size() = " + baos.size());
+	                    	Message msgtmp = new Message();  
+	                    	msgtmp.what = 0x345; 
+	                    	msgtmp.obj = baos;
+	                    	TCPClient.getInstance().sendMsg(msgtmp); 
+	                    	baos = new ByteArrayOutputStream();
+	                    }
+	                    Log.v("BuiltinDishes", "send replace req " + column_1.getCurrentItem() + " to " + Dish.getAllDish()[dish_index].dishid + " done!");
+                    	
+                        popWindow.dismiss(); //Close the Pop Window
+                    }
+                });
+            	popWindow.showAtLocation(self_content_view, Gravity.CENTER, 0, 0);
+            }  
+        });
         
         addFavorite.setOnClickListener(new OnClickListener() {  
       	  

@@ -652,6 +652,7 @@ public class TCPClient {
 			for (int i = 0; i < ds.builtin_dishids.length; ++i) {
 				builtin_dishid += ds.builtin_dishids[i] + ", ";
 			}
+			ds.got_builtin = true;
 			Log.v("tcpclient", builtin_dishid);
 			
 			Message msg2 = new Message();

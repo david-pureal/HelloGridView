@@ -23,6 +23,7 @@ public class DeviceState {
 	public byte is_screen_lock = 0; //屏幕是否已锁
 	
 	public int device_id = 0;  // 机器识别码
+	public boolean got_builtin = false;
 	
 	public byte use_sound = 0;
 	public byte use_english = 0;

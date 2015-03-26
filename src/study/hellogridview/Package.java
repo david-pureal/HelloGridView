@@ -383,15 +383,17 @@ public class Package {
 				fd = TCPClient.getInstance().dish_activity.getResources().openRawResourceFd(dish.img_tiny);
 				Log.i("Package", "dish.img_tiny = " + dish.img_tiny);
 				//fd_sound = TCPClient.getInstance().dish_activity.getResources().openRawResourceFd(dish.sound);
-				Log.i("Package", "dish.sound = " + dish.sound);
+				
 			} else {
 				//fd = TCPClient.getInstance().makedish_activity.getResources().openRawResourceFd(dish.img_tiny);
 				try {
 					if (dish.img_tiny_path == null) {
 						fd = TCPClient.getInstance().makedish_activity.getResources().openRawResourceFd(R.raw.tudousi_tiny);
+						Log.i("Package", "dish.img_tiny_path is null use tudousi_tiny ");
 					}
 					else {
 						inStream = new FileInputStream(dish.img_tiny_path);
+						Log.i("Package", "dish.img_tiny_path = " + dish.img_tiny_path);
 					}
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
@@ -401,8 +403,31 @@ public class Package {
 				//fd_sound = TCPClient.getInstance().makedish_activity.getResources().openRawResourceFd(dish.sound);
 			}
 		} else if (this.cmdtype == Package.Update_Favorite) {
-			fd = TCPClient.getInstance().buildin_activity.getResources().openRawResourceFd(dish.img_tiny);
+			//fd = TCPClient.getInstance().buildin_activity.getResources().openRawResourceFd(dish.img_tiny);
 			//fd_sound = TCPClient.getInstance().buildin_activity.getResources().openRawResourceFd(dish.sound);
+			if (dish.isBuiltIn) {
+				fd = TCPClient.getInstance().dish_activity.getResources().openRawResourceFd(dish.img_tiny);
+				Log.i("Package", "dish.img_tiny = " + dish.img_tiny);
+				//fd_sound = TCPClient.getInstance().dish_activity.getResources().openRawResourceFd(dish.sound);
+				
+			} else {
+				//fd = TCPClient.getInstance().makedish_activity.getResources().openRawResourceFd(dish.img_tiny);
+				try {
+					if (dish.img_tiny_path == null) {
+						fd = TCPClient.getInstance().main_activity.getResources().openRawResourceFd(R.raw.tudousi_tiny);
+						Log.i("Package", "dish.img_tiny_path is null use tudousi_tiny ");
+					}
+					else {
+						inStream = new FileInputStream(dish.img_tiny_path);
+						Log.i("Package", "dish.img_tiny_path = " + dish.img_tiny_path);
+					}
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					fd = TCPClient.getInstance().main_activity.getResources().openRawResourceFd(R.raw.tudousi_tiny);
+				}
+				//fd_sound = TCPClient.getInstance().makedish_activity.getResources().openRawResourceFd(dish.sound);
+			}
 		}
 		
 		if (inStream == null) {
