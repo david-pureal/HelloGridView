@@ -228,26 +228,6 @@ public class BuiltinDishes extends SlidingFragmentActivity implements OnTouchLis
             }  
         }); 
 		
-//		getBuiltin = (Button) findViewById(R.id.getbuiltin);
-//		getBuiltin.setOnClickListener(new OnClickListener() {  
-//	      	  
-//            @Override  
-//            public void onClick(View v) {
-//                try {  
-//                    Message msg = new Message();  
-//                    msg.what = 0x345;  
-//                    Package data = new Package(Package.Get_Favorite);
-//                    msg.obj = data.getBytes();
-//                    TCPClient.getInstance().sendMsg(msg); 
-//                } catch (Exception e) {  
-//                	e.printStackTrace();
-//                	Log.v("BuiltinDishes", "prepare package data exception");
-//                }  
-//            }  
-//        });
-		
-
-	    
 	    LinearLayout dish_layout = (LinearLayout) findViewById(R.id.layout_builtin);  
         dish_layout.setOnTouchListener(this);
 
@@ -348,13 +328,11 @@ public class BuiltinDishes extends SlidingFragmentActivity implements OnTouchLis
             HashMap<String, Object> map = new HashMap<String, Object>(); 
                 
             if (dishes[i].isBuiltIn) {
-            	map.put("icon", dishes[i].img);//添加图像资源的ID 
+            	map.put("icon", dishes[i].img); //添加图像资源的ID 
             }
             else {
-            	Drawable tmp = Drawable.createFromPath("/sdcard/ll1x/lamp.jpg");
-            	//BitmapDrawable bd = (BitmapDrawable)(tmp);
             	BitmapDrawable bd = dishes[i].img_drawable;
-            	map.put("icon", bd.getBitmap());//添加图像资源的ID 
+            	map.put("icon", bd.getBitmap()); //添加图像资源的ID 
             }
             map.put("name", dishes[i].name_chinese);//按序号做ItemText 
             al.add(map); 

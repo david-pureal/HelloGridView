@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Properties;
+import java.util.TreeMap;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -66,6 +67,7 @@ public class Dish implements Cloneable {
 	private static Dish[] dishes = null;
 	//TODO ArrayList改为LinkedHashMap<short, Dish>
 	public static ArrayList<Dish>  dish_list = null;
+	public static TreeMap<Integer, Dish> alldish_map;
 	
 	public Dish(Integer img, String name) {
 		this.img = img;
@@ -118,21 +120,22 @@ public class Dish implements Cloneable {
 		// 用于写入文件
 		JSONObject dishj = new JSONObject();
 		try {
-			dishj.put("dishid", dishid);
+			dishj.put("dishid", dishid & 0xffff);
 			dishj.put("name_chinese", name_chinese);
 			dishj.put("name_english", name_english);
 			
-			dishj.put("zhuliao_time", zhuliao_time);
-			dishj.put("fuliao_time", fuliao_time);
-			dishj.put("zhuliao_temp", zhuliao_temp);
-			dishj.put("fuliao_temp", fuliao_temp);
-			dishj.put("zhuliao_jiaoban_speed", zhuliao_jiaoban_speed);
-			dishj.put("fuliao_jiaoban_speed", fuliao_jiaoban_speed);
+			dishj.put("zhuliao_time", zhuliao_time & 0xffff);
+			dishj.put("fuliao_time", fuliao_time & 0xffff);
+			dishj.put("zhuliao_temp", zhuliao_temp & 0xff);
+			dishj.put("fuliao_temp", fuliao_temp & 0xff);
+			dishj.put("zhuliao_jiaoban_speed", zhuliao_jiaoban_speed & 0xff);
+			dishj.put("fuliao_jiaoban_speed", fuliao_jiaoban_speed & 0xff);
 			
-			dishj.put("water", water);
+			dishj.put("water", water & 0xff);
 			dishj.put("water_weight", water_weight);
-			dishj.put("oil", oil);
-			dishj.put("qiangguoliao", qiangguoliao);
+			dishj.put("oil", oil & 0xff);
+			dishj.put("qiangguoliao", qiangguoliao & 0xff);
+			dishj.put("qiangguoliao_content", qiangguoliao_content);
 			dishj.put("sound", sound);
 			
 			dishj.put("type", type);
@@ -181,12 +184,15 @@ public class Dish implements Cloneable {
 	}
 	
 	public static Dish[] getAllDish() {
-		if (dish_list == null) {
-			dish_list = new ArrayList<Dish>();
-		} else {
-			dishes = dish_list.toArray(new Dish[dish_list.size()]);
-			return dishes;
+		if (alldish_map == null) {
+			alldish_map = new TreeMap<Integer, Dish>();
 		}
+//		if (dish_list == null) {
+//			dish_list = new ArrayList<Dish>();
+//		} else {
+//			dishes = dish_list.toArray(new Dish[dish_list.size()]);
+//			return dishes;
+//		}
 		
 		Dish dish0 = new Dish(R.drawable.tudousi, "炒土豆丝");
 		dish0.img_tiny = R.raw.tudousi_tiny;
