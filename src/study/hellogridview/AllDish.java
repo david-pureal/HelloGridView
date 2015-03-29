@@ -5,6 +5,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Random;
 
 import android.annotation.SuppressLint;
@@ -151,34 +153,56 @@ public class AllDish extends SlidingFragmentActivity {
 		tv.setText(intent.getStringExtra("title"));
 		
 		// 热门菜谱
-        Dish [] dishes = Dish.getAllDish();
-        Log.v("AllDish", "length = " + dishes.length);
+		LinkedHashMap<Integer, Dish> dishes = Dish.getAllDish();
+        Log.v("BuiltinDishes", "length = " + dishes.size());
         
         ArrayList<HashMap<String,Object>> al=new ArrayList<HashMap<String,Object>>();
-        for (int i=0;i<dishes.length;i++)
+        for (Iterator<Integer> it =  dishes.keySet().iterator();it.hasNext();)
         {
-            HashMap<String, Object> map = new HashMap<String, Object>(); 
-            
-            map.put("icon", dishes[i].img);//添加图像资源的ID 
-            map.put("name", dishes[i].name_chinese);//按序号做ItemText 
-            al.add(map); 
+             int key = it.next();
+             Dish d = dishes.get(key);
+             HashMap<String, Object> map = new HashMap<String, Object>(); 
+             
+             if (d.isAppBuiltIn()) {
+             	map.put("icon", d.img); //添加图像资源的ID 
+             }
+             else {
+             	BitmapDrawable bd = d.img_drawable;
+             	map.put("icon", bd.getBitmap()); //添加图像资源的ID 
+             }
+             map.put("name", d.name_chinese);//按序号做ItemText 
+             al.add(map);
         }
         
         SimpleAdapter sa= new SimpleAdapter(AllDish.this, al, R.layout.image_text, new String[]{"icon","name"}, new int[]{R.id.ItemImage, R.id.ItemText});
         
         gridView = (GridView)findViewById(R.id.gridview);
+        sa.setViewBinder(new ViewBinder(){  
+            @Override  
+            public boolean setViewValue(View view, Object data,  
+                    String textRepresentation) {  
+                if( (view instanceof ImageView) && (data instanceof Bitmap ) ) {  
+                    ImageView iv = (ImageView) view;  
+                    Bitmap  bm = (Bitmap ) data;  
+                    iv.setImageBitmap(bm); 
+                    return true;  
+                }  
+                return false;  
+            }  
+        });
         gridView.setAdapter(sa);
        
         //单击GridView元素的响应  
 	    gridView.setOnItemClickListener(new OnItemClickListener() {  
-	  
 	        @Override  
 	        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {  
 	            //弹出单击的GridView元素的位置  
-	            //Toast.makeText(MainActivity.this,mThumbIds[position], Toast.LENGTH_SHORT).show(); 
 	        	Log.v("OnItemClickListener", "position = " + position + "id = " + id);
-	        	Intent intent = new Intent(AllDish.this, DishActivity.class);
-	        	intent.putExtra("dish_index", String.valueOf(position)); 
+	        	Intent intent;
+	        	Dish dish = Dish.getDishByIndex(position);
+	        	if (dish.isAppBuiltIn()) intent = new Intent(AllDish.this, DishActivity.class);
+	        	else intent = new Intent(AllDish.this, MakeDishActivity.class);
+	        	intent.putExtra("dish_id", dish.dishid); 
 	        	startActivity(intent);
 	        }  
 	     });
@@ -192,18 +216,26 @@ public class AllDish extends SlidingFragmentActivity {
             		int pos = (Integer) msg.obj;
             		pos = new Random().nextInt(5); 
             		int end = Math.min(12, 2*pos + 4);
-            		Dish [] dishes = Dish.getAllDish();
-                    Log.v("AllDish", "length = " + dishes.length);
+            		LinkedHashMap<Integer, Dish> dishes = Dish.getAllDish();
+                    Log.v("AllDish", "length = " + dishes.size());
                     
-                    ArrayList<HashMap<String,Object>> al=new ArrayList<HashMap<String,Object>>();
-                    for (int i=pos;i<end;i++)
+                    ArrayList<HashMap<String, Object>> al = new ArrayList<HashMap<String,Object>>();
+                    for (Iterator<Integer> it = dishes.keySet().iterator();it.hasNext();)
                     {
-                        HashMap<String, Object> map = new HashMap<String, Object>(); 
-                       
-                        if (!dishes[i].isBuiltIn) continue;
-                        map.put("icon", dishes[i].img);//添加图像资源的ID 
-                        map.put("name", dishes[i].name_chinese);//按序号做ItemText 
-                        al.add(map); 
+                         int key = it.next();
+                         if (key < pos) continue;
+                         Dish d = dishes.get(key);
+                         
+                         HashMap<String, Object> map = new HashMap<String, Object>(); 
+                         if (d.isAppBuiltIn()) {
+                         	map.put("icon", d.img); //添加图像资源的ID 
+                         }
+                         else {
+                         	BitmapDrawable bd = d.img_drawable;
+                         	map.put("icon", bd.getBitmap()); //添加图像资源的ID 
+                         }
+                         map.put("name", d.name_chinese);//按序号做ItemText 
+                         al.add(map);
                     }
                     
                     SimpleAdapter sa= new SimpleAdapter(AllDish.this,al,R.layout.image_text,new String[]{"icon","name"},new int[]{R.id.ItemImage,R.id.ItemText});

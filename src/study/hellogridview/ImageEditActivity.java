@@ -49,10 +49,10 @@ public class ImageEditActivity extends Activity {
 		edit_title = (TextView) findViewById(R.id.edit_title);
 		Intent intent = getIntent();
 		edit_title.setText(intent.getStringExtra("edit_title"));
-		int dish_index = intent.getIntExtra("dish_index", 0);
+		int dish_id = intent.getIntExtra("dish_id", 1);
 		material_index = intent.getIntExtra("material_index", -1);
 		if (intent.getStringExtra("edit_title").equals("±¸ÁÏÍ¼ÎÄ")) {
-			dish = Dish.getAllDish()[dish_index];
+			dish = Dish.getDishById(dish_id);
 			material_list = dish.prepare_material_detail;
 		}
 		

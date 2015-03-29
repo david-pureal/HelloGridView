@@ -1,5 +1,7 @@
 package study.hellogridview;
 
+import java.util.LinkedHashMap;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -43,14 +45,34 @@ public class SplashActivity extends Activity {
         splash_text = (TextView) findViewById(R.id.splash_text);
         
         new AsyncTask<Void, Void, Integer>() {
- 
             @Override
             protected Integer doInBackground(Void... params) {
                 int result;
+                long startTime = System.currentTimeMillis();
+                result = loadLocalDish();
+                long loadingTime = System.currentTimeMillis() - startTime;
+                if (loadingTime < 2000) {
+                    try {
+                        Thread.sleep(2000 - loadingTime);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
 
-                result = loadingCache();
+                // ¸ü»»Í¼Æ¬
+                handler.sendEmptyMessage(0x789);
                 
-
+                result = getWebDish();
+                startTime = System.currentTimeMillis();
+                loadingTime = System.currentTimeMillis() - startTime;
+                if (loadingTime < 2000) {
+                    try {
+                        Thread.sleep(2000 - loadingTime);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                
                 return result;
             }
  
@@ -62,26 +84,17 @@ public class SplashActivity extends Activity {
             };
         }.execute(new Void[]{});
     }
-	
-	private int loadingCache() {
-		int result;
-		long startTime = System.currentTimeMillis();
-        long loadingTime = System.currentTimeMillis() - startTime;
-        if (loadingTime < 2000) {
-            try {
-                Thread.sleep(2000 - loadingTime);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
 
-        handler.sendEmptyMessage(0x789);
-        
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+	private int loadLocalDish() {
+		Tool.getInstance().dm = this.getResources().getDisplayMetrics();
+		Tool.getInstance().loadLocalDish();
+		HttpUtils.getAllDish();
         return 0;
     }
+	
+	protected int getWebDish() {
+		// TODO Auto-generated method stub
+		Tool.getInstance().getWebDish();
+		return 0;
+	}
 }

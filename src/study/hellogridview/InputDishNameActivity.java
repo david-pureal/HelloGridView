@@ -49,14 +49,13 @@ public class InputDishNameActivity extends Activity {
             	
             	Dish new_dish = new Dish(0, "");
             	new_dish.name_chinese = InputDishNameActivity.this.name;
-        		new_dish.isBuiltIn = false;
         		new_dish.img_drawable = (BitmapDrawable) InputDishNameActivity.this.getResources().getDrawable(R.drawable.camera);
+        		
         		int new_dish_id = Dish.addDish(new_dish);
-        		new_dish.img_tiny_path = Tool.getInstance().makeTinyImage(new_dish);
         		Log.v("InputDishNameActivity", "new_dish_id = " + new_dish_id);
         		
         		Intent intent = new Intent(InputDishNameActivity.this, MakeDishActivity.class);
-            	intent.putExtra("dish_index", new_dish_id); 
+            	intent.putExtra("dish_id", new_dish_id); 
             	startActivity(intent); 
             	finish();
             }  

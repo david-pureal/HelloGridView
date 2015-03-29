@@ -27,7 +27,6 @@ public class TableEditActivity extends Activity {
 	public TextView table_edit_addrow;
 	private TableLayout tableLayout;
 	
-	public int dish_index;
 	LinkedHashMap<String, String> content_map;
 	
 	@Override
@@ -40,11 +39,11 @@ public class TableEditActivity extends Activity {
 		Intent intent = getIntent();
 		String title = intent.getStringExtra("edit_title");
 		edit_title.setText(title);
-		dish_index = intent.getIntExtra("dish_index", 0);
+		int dish_id = intent.getIntExtra("dish_id", 0);
 		if (title.equals("Ö÷ÁÏ"))
-			content_map = Dish.getAllDish()[dish_index].zhuliao_content_map;
+			content_map = Dish.getDishById(dish_id).zhuliao_content_map;
 		else
-			content_map = Dish.getAllDish()[dish_index].fuliao_content_map;
+			content_map = Dish.getDishById(dish_id).fuliao_content_map;
 		row_count = content_map.size();
 		
 		

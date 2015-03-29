@@ -74,7 +74,8 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
 	Handler handler;
 	TCPClient tcpClient;
 	
-	int dish_index = 0;
+	int dish_id = 0;
+	Dish dish;
 	protected int resp_cmd108_count;
 	
 	//手指向右滑动时的最小速度  
@@ -113,19 +114,20 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
 		ShareSDK.initSDK(this);
 		
 		Intent intent = getIntent();
-		dish_index = intent.getIntExtra("dish_index", 0); 
+		dish_id = intent.getIntExtra("dish_id", 1); 
+		dish = Dish.getDishById(dish_id);
 		dish_img = (ImageView) findViewById(R.id.dish_img); 
-		Dish d = Dish.getAllDish()[dish_index];
-		if (d.isBuiltIn) dish_img.setImageResource(d.img);
+		Dish d = Dish.getDishById(dish_id);
+		if (d.isAppBuiltIn()) dish_img.setImageResource(d.img);
 		else {
 			dish_img.setImageDrawable(d.img_drawable);
 		}
 		
 		dish_detail = (TextView) findViewById(R.id.dish_detail); 
-		dish_detail.setText(Dish.getAllDish()[dish_index].text);
+		dish_detail.setText(dish.text);
 		
 		dish_title = (TextView) findViewById(R.id.dish_title); 
-		dish_title.setText(Dish.getAllDish()[dish_index].name_chinese);
+		dish_title.setText(dish.name_chinese);
 	
 		tcpClient = TCPClient.getInstance();
         tcpClient.set_dishact(this);
@@ -153,7 +155,7 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
                 		if (current_cmd == 101) {
 	                		Log.v("DishActivity", "resp_cmd108_count = " + resp_cmd108_count + " go to CurStateActivity");
 	        	        	Intent intent = new Intent(DishActivity.this, CurStateActivity.class);
-	        	        	intent.putExtra("dish_index", dish_index); 
+	        	        	intent.putExtra("dish_id", dish_id); 
 	        	        	startActivity(intent);
                 		} else if (current_cmd == 104) {
                 			Toast.makeText(DishActivity.this, "替换菜谱完成", Toast.LENGTH_SHORT).show();
@@ -161,20 +163,7 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
                 			Log.v("DishActivity", " replace done");
                     	}
                 	}
-//                	if ((rp.cmdtype_head&0xff) == 127 && (rp.cmdtype_body&0xff) == 108) {
-//                		++ DishActivity.this.resp_cmd108_count;
-//                	}
-//                	
-//                	if (DishActivity.this.resp_cmd108_count == 5) { //目前图片都是分成5个帧传输的
-//                		DishActivity.this.resp_cmd108_count = 0;
-//                		Log.v("DishActivity", "resp_cmd108_count = " + resp_cmd108_count + " go to CurStateActivity");
-//        	        	Intent intent = new Intent(DishActivity.this, CurStateActivity.class);
-//        	        	intent.putExtra("dish_index", dish_index); 
-//        	        	startActivity(intent);
-//                	}
                 } 
-                
-                
             }  
         }; 
         
@@ -210,7 +199,7 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
                     msg.what = 0x345;  
                     //msg.obj = input.getText().toString();  
                     //msg.obj = "msg content";
-                    Package data = new Package(Package.Send_Dish, Dish.getAllDish()[dish_index]);
+                    Package data = new Package(Package.Send_Dish, dish);
                     msg.obj = data.getBytes();
                     tcpClient.sendMsg(msg); 
                     
@@ -270,7 +259,7 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
             		Toast.makeText(DishActivity.this, "请先连接机器，获取内置菜谱", Toast.LENGTH_SHORT).show();
             		return;
             	}
-            	int id = Dish.getAllDish()[dish_index].dishid;
+            	int id = dish.dishid;
             	if (Arrays.binarySearch(dishids, id) >= 0) {
             		Toast.makeText(DishActivity.this, "id(" + id + ")已经在机器中内置", Toast.LENGTH_SHORT).show();
             		return;
@@ -286,7 +275,7 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
                     public void onClick(View v) {
                     	Message msg = new Message();  
 	                    msg.what = 0x345;  
-	                    Package data = new Package(Package.Update_Favorite, Dish.getAllDish()[dish_index]);
+	                    Package data = new Package(Package.Update_Favorite, dish);
 	                    data.set_replaced_id(dishids[column_1.getCurrentItem()]);
 	                    msg.obj = data.getBytes();
 	                    TCPClient.getInstance().sendMsg(msg); 
@@ -302,7 +291,7 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
 	                    	TCPClient.getInstance().sendMsg(msgtmp); 
 	                    	baos = new ByteArrayOutputStream();
 	                    }
-	                    Log.v("BuiltinDishes", "send replace req " + column_1.getCurrentItem() + " to " + Dish.getAllDish()[dish_index].dishid + " done!");
+	                    Log.v("BuiltinDishes", "send replace req " + column_1.getCurrentItem() + " to " + dish.dishid + " done!");
                     	
                         popWindow.dismiss(); //Close the Pop Window
                     }
@@ -603,31 +592,3 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
     	return this.handler;
     }
 }
-
-//
-//<TextView
-//android:id="@+id/textView4"
-//android:layout_width="wrap_content"
-//android:layout_height="wrap_content"
-//android:layout_alignBottom="@+id/textView2"
-//android:layout_alignParentLeft="true"
-//android:text="2、炝锅料：姜丝5克、蒜片5克"
-//android:textSize="20sp" />
-//
-//<TextView
-//android:id="@+id/textView2"
-//android:layout_width="wrap_content"
-//android:layout_height="wrap_content"
-//android:layout_alignParentLeft="true"
-//android:layout_below="@+id/dish_title"
-//android:text="1、底油：20克\n"
-//android:textSize="20sp" />
-//
-//<TextView
-//android:id="@+id/textView5"
-//android:layout_width="wrap_content"
-//android:layout_height="wrap_content"
-//android:layout_alignParentLeft="true"
-//android:layout_below="@+id/textView4"
-//android:text="3、主料：土豆丝230克"
-//android:textSize="20sp" />

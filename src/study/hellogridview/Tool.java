@@ -4,11 +4,20 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import study.hellogridview.Dish.Material;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -16,11 +25,13 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Environment;
+import android.util.DisplayMetrics;
 import android.util.Log;
 
 public class Tool {
@@ -31,6 +42,9 @@ public class Tool {
 	    }
 		return tool;
 	}
+	
+	public DisplayMetrics dm;
+	public String alldish_jsonstr;
 	
 	public String makeTinyImage(Dish dish/*BitmapDrawable input, short dishid*/) {
 		Bitmap src_bmp = dish.img_drawable.getBitmap();
@@ -144,6 +158,20 @@ public class Tool {
         	e.printStackTrace();
         }
 	}
+	
+	public byte [] readFile(String path) {
+		try {
+			FileInputStream inStream = new FileInputStream(path);
+			byte [] bytes = new byte[inStream.available()];
+			inStream.read(bytes);
+			inStream.close();
+			return bytes;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
 
 	public boolean isWifiConnected(Context context) { 
 		if (context != null) { 
@@ -200,6 +228,11 @@ public class Tool {
 		return pattern.matcher(str).matches();
 	}
 	
+	public boolean isDishDirName(String str) {
+		Pattern pattern = Pattern.compile("dish[\\d]{1,5}");
+		return pattern.matcher(str).matches();
+	}
+	
 	public boolean isMAC(String str) {
 		
 		str = str.trim();
@@ -248,5 +281,123 @@ public class Tool {
 		} catch (Exception e){  
 			e.printStackTrace();  
 		}  
+	}
+	
+	public void loadLocalDish() {
+		LinkedHashMap<Integer, Dish> alldish_map = Dish.getAllDish();
+		File root = new File(this.getModulePath());
+		File [] dirs = root.listFiles();
+		if (dirs == null) { return; }
+		for (int i = 0; i < dirs.length; ++i) { 
+			File dish_dir = dirs[i];
+			String dir_name = dish_dir.getName();
+			if (dish_dir.isDirectory() && isDishDirName(dir_name)) {
+				try {
+					int dishid = Integer.parseInt(dir_name.substring(4));
+					if (alldish_map.containsKey(dishid)) continue;
+					String param_path = dish_dir.getCanonicalPath() + "/" + Constants.DISH_PARAM_FILENAME;
+					String data = new String(readFile(param_path));
+
+					Dish d = new Dish(dishid, "");
+					if (jsonStringToDish(data, d)) {
+						Dish.putDish(d);
+						if (d.dishid > Dish.current_makedish_dishid) Dish.current_makedish_dishid = d.dishid;
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+					continue;
+				}
+			}
+		} // for
+	}
+
+	private boolean jsonStringToDish(String dish_str, Dish d) {
+		try {
+			JSONObject dishj = new JSONObject(dish_str);
+			d.dishid = dishj.getInt("dishid");
+			d.name_chinese = dishj.getString("name_chinese");
+			d.name_english = dishj.getString("name_english");
+			
+			d.zhuliao_time = (short) dishj.getInt("zhuliao_time");
+			d.zhuliao_temp = (byte) dishj.getInt("zhuliao_temp");
+			d.zhuliao_jiaoban_speed = (byte) dishj.getInt("zhuliao_jiaoban_speed");
+			d.fuliao_time = (short) dishj.getInt("fuliao_time");
+			d.fuliao_temp = (byte) dishj.getInt("fuliao_temp");
+			d.fuliao_jiaoban_speed = (byte) dishj.getInt("fuliao_jiaoban_speed");
+			
+			d.water = (byte) dishj.getInt("water");
+			d.water_weight = dishj.getInt("water_weight");
+			d.oil = (byte) dishj.getInt("oil");
+			d.qiangguoliao = (byte) dishj.getInt("qiangguoliao");
+			d.qiangguoliao_content = dishj.getString("qiangguoliao_content");
+			if (dishj.has("sound")) d.sound = dishj.getInt("sound");
+			
+			d.type = dishj.getInt("type");
+			
+			d.img_path = dishj.getString("img_path");
+			d.img_drawable = (BitmapDrawable) Drawable.createFromPath(d.img_path);
+			d.img_tiny_path = dishj.getString("img_tiny_path");
+			
+			// 主料，辅料和备料图文
+			if (dishj.has("zhuliao_content")) {
+				JSONArray array_zhuliao = dishj.getJSONArray("zhuliao_content");
+				for (int i = 0; i < array_zhuliao.length(); ++i) {
+					JSONObject element = array_zhuliao.getJSONObject(i);
+					String key = element.keys().next().toString();  
+	                String value = element.getString(key);
+					d.zhuliao_content_map.put(key, value);
+				}
+			}
+			if (dishj.has("fuliao_content")) {
+				JSONArray array_fuliao = dishj.getJSONArray("fuliao_content");
+				for (int i = 0; i < array_fuliao.length(); ++i) {
+					JSONObject element = array_fuliao.getJSONObject(i);
+					String key = element.keys().next().toString();  
+	                String value = element.getString(key);
+					d.fuliao_content_map.put(key, value);
+				}
+			}
+			
+			if (dishj.has("material_detail")) {
+				JSONArray array_material = dishj.getJSONArray("material_detail");
+				for (int i = 0; i < array_material.length(); ++i) {
+					JSONObject element = array_material.getJSONObject(i);
+					Material m = d.new Material();
+					m.description = element.getString("description");
+					m.path = element.getString("path");
+					
+					// done in MakeDishActivity::fill_material_table
+//					Bitmap bmp = BitmapFactory.decodeFile(m.path);
+//	        		bmp.setDensity(dm.densityDpi);
+//					m.img_drawable = new BitmapDrawable(bmp);
+					d.prepare_material_detail.add(m);
+				}
+			}
+			
+			return true;
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	public void getWebDish() {
+		try {
+			LinkedHashMap<Integer, Dish> alldish_map = Dish.getAllDish();
+			JSONArray dishes = new JSONArray(Tool.getInstance().alldish_jsonstr);
+			for (int i = 0; i < dishes.length(); ++i) {
+				String dir_name = dishes.getString(i);  
+				if (this.isDishDirName(dir_name)) {
+					int dishid = Integer.parseInt(dir_name.substring(4));
+					if (alldish_map.containsKey(dishid)) continue;
+					// download this dish
+					HttpUtils.downloadDish(dishid);
+				}
+			}
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

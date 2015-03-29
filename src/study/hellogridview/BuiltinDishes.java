@@ -17,8 +17,14 @@ import java.util.HashMap;
 
 
 
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.jeremyfeinstein.slidingmenu.lib.app.SlidingFragmentActivity;
+
+
+
 
 
 
@@ -191,7 +197,7 @@ public class BuiltinDishes extends SlidingFragmentActivity implements OnTouchLis
 	                    // 当用户按下按钮之后，将用户输入的数据封装成Message,然后发送给子线程Handler  
 	                    Message msg = new Message();  
 	                    msg.what = 0x345;  
-	                    Package data = new Package(Package.Update_Favorite, Dish.getAllDish()[12]);
+	                    Package data = new Package(Package.Update_Favorite, Dish.getDishById(12));
 	                    data.set_replaced_id(2);
 	                    msg.obj = data.getBytes();
 	                    TCPClient.getInstance().sendMsg(msg); 
@@ -319,23 +325,25 @@ public class BuiltinDishes extends SlidingFragmentActivity implements OnTouchLis
 	protected void onResume() {
 		super.onResume();
 		Log.v("BuiltinDishes", "Buildin onResume");
-		Dish [] dishes = Dish.getAllDish();
-        Log.v("BuiltinDishes", "length = " + dishes.length);
+		LinkedHashMap<Integer, Dish> dishes = Dish.getAllDish();
+        Log.v("BuiltinDishes", "length = " + dishes.size());
         
         ArrayList<HashMap<String,Object>> al=new ArrayList<HashMap<String,Object>>();
-        for (int i=0;i<dishes.length;i++)
+        for (Iterator<Integer> it =  dishes.keySet().iterator();it.hasNext();)
         {
-            HashMap<String, Object> map = new HashMap<String, Object>(); 
-                
-            if (dishes[i].isBuiltIn) {
-            	map.put("icon", dishes[i].img); //添加图像资源的ID 
-            }
-            else {
-            	BitmapDrawable bd = dishes[i].img_drawable;
-            	map.put("icon", bd.getBitmap()); //添加图像资源的ID 
-            }
-            map.put("name", dishes[i].name_chinese);//按序号做ItemText 
-            al.add(map); 
+             int key = it.next();
+             Dish d = dishes.get(key);
+             HashMap<String, Object> map = new HashMap<String, Object>(); 
+             
+             if (d.isAppBuiltIn()) {
+             	map.put("icon", d.img); //添加图像资源的ID 
+             }
+             else {
+             	BitmapDrawable bd = d.img_drawable;
+             	map.put("icon", bd.getBitmap()); //添加图像资源的ID 
+             }
+             map.put("name", d.name_chinese);//按序号做ItemText 
+             al.add(map);
         }
         
         SimpleAdapter sa= new SimpleAdapter(BuiltinDishes.this,al,R.layout.image_text,new String[]{"icon","name"},new int[]{R.id.ItemImage,R.id.ItemText});
@@ -353,7 +361,6 @@ public class BuiltinDishes extends SlidingFragmentActivity implements OnTouchLis
             }  
         });
         gridView.setAdapter(sa);
-        Log.v("BuiltinDishes", "length2 = " + dishes.length);
         
 	    //单击GridView元素的响应  
 	    gridView.setOnItemClickListener(new OnItemClickListener() {  
@@ -364,10 +371,10 @@ public class BuiltinDishes extends SlidingFragmentActivity implements OnTouchLis
 	            //Toast.makeText(MainActivity.this,mThumbIds[position], Toast.LENGTH_SHORT).show(); 
 	        	Log.v("OnItemClickListener", "position = " + position + "id = " + id);
 	        	Intent intent;
-	        	Dish dish = Dish.getAllDish()[position];
-	        	if (dish.isBuiltIn) intent = new Intent(BuiltinDishes.this, DishActivity.class);
+	        	Dish dish = Dish.getDishByIndex(position);
+	        	if (dish.isAppBuiltIn()) intent = new Intent(BuiltinDishes.this, DishActivity.class);
 	        	else intent = new Intent(BuiltinDishes.this, MakeDishActivity.class);
-	        	intent.putExtra("dish_index", position); 
+	        	intent.putExtra("dish_id", dish.dishid); 
 	        	startActivity(intent);
 	        }  
 	     });

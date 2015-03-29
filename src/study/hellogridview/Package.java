@@ -126,7 +126,7 @@ public class Package {
 				Log.v("Package", "getBytes chinese name as GB2312 error!");
 			}
 			
-			putShort(tmp, dish.dishid);
+			putShort(tmp, (short)dish.dishid);
 //			bytestream.write(tmp, 25, 2);
 			
 			putShort(tmp, dish.zhuliao_time);
@@ -181,7 +181,7 @@ public class Package {
 				bytestream.write(this.curstate_activity.temp);
 				bytestream.write(this.curstate_activity.jiaoban_speed);
 				bytestream.write(this.curstate_activity.control);
-				putShort(tmp, (short)this.curstate_activity.dish_index);
+				putShort(tmp, (short)this.curstate_activity.dish_id);
 				bytestream.write(this.curstate_activity.modify_state);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
@@ -220,7 +220,7 @@ public class Package {
 				}
 				
 				
-				putShort(tmp, dish.dishid);
+				putShort(tmp, (short)dish.dishid);
 //				bytestream.write(tmp, 25, 2);
 				
 				putShort(tmp, dish.zhuliao_time);
@@ -317,7 +317,7 @@ public class Package {
 			try {
 				tmp.write(head);
 				tmp.write(108);
-				putShort(tmp, dish.dishid);
+				putShort(tmp, (short)dish.dishid);
 				tmp.write(total+1);
 				tmp.write((byte)(img_frame_index+1));
 				Log.v("Package", "get_img_pkg write header ok");
@@ -350,7 +350,7 @@ public class Package {
 			try {
 				tmp.write(head);
 				tmp.write(109);
-				putShort(tmp, dish.dishid);
+				putShort(tmp, (short)dish.dishid);
 				tmp.write(total+1);
 				tmp.write((byte)(sound_frame_index+1));
 				Log.v("Package", "get_sound_pkg write header ok");
@@ -379,7 +379,7 @@ public class Package {
 		AssetFileDescriptor fd_sound = null;
 		FileInputStream inStream = null;
 		if (this.cmdtype == Package.Send_Dish) {
-			if (dish.isBuiltIn) {
+			if (dish.isAppBuiltIn()) {
 				fd = TCPClient.getInstance().dish_activity.getResources().openRawResourceFd(dish.img_tiny);
 				Log.i("Package", "dish.img_tiny = " + dish.img_tiny);
 				//fd_sound = TCPClient.getInstance().dish_activity.getResources().openRawResourceFd(dish.sound);
@@ -405,7 +405,7 @@ public class Package {
 		} else if (this.cmdtype == Package.Update_Favorite) {
 			//fd = TCPClient.getInstance().buildin_activity.getResources().openRawResourceFd(dish.img_tiny);
 			//fd_sound = TCPClient.getInstance().buildin_activity.getResources().openRawResourceFd(dish.sound);
-			if (dish.isBuiltIn) {
+			if (dish.isAppBuiltIn()) {
 				fd = TCPClient.getInstance().dish_activity.getResources().openRawResourceFd(dish.img_tiny);
 				Log.i("Package", "dish.img_tiny = " + dish.img_tiny);
 				//fd_sound = TCPClient.getInstance().dish_activity.getResources().openRawResourceFd(dish.sound);
@@ -452,7 +452,7 @@ public class Package {
 			}
 		}
 		
-		if (dish.sound != null) {
+		if (dish.sound != 0) {
 			try {
 				FileInputStream inStream_sound = fd_sound.createInputStream();
 				sound_data = new byte[inStream_sound.available()];

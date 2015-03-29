@@ -447,19 +447,28 @@
                 android:text="开始" />
 
             <Button
-                android:id="@+id/xxxxx"
+                android:id="@+id/makedish_upload"
                 android:layout_width="80dp"
                 android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:text=" 收藏  " />
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:text="上传" />
 
             <Button
                 android:id="@+id/makedish_replace"
                 android:layout_width="80dp"
                 android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
                 android:layout_alignParentTop="true"
+                android:layout_toRightOf="@+id/xxxxx"
                 android:text=" 替换  " />
+
+            <Button
+                android:id="@+id/xxxxx"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_toRightOf="@+id/makedish_startcook"
+                android:text=" 收藏  " />
 
         </RelativeLayout>
 

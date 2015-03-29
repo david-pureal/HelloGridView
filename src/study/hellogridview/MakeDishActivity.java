@@ -20,6 +20,8 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -27,6 +29,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -86,6 +89,7 @@ public class MakeDishActivity extends Activity {
 	TextView water_fuliao_tv;
 	
 	Button makedish_replace;
+	Button makedish_upload;
 	
 	ProgressBar progressBar1;
 	
@@ -130,10 +134,10 @@ public class MakeDishActivity extends Activity {
 		}
 		
 		Intent intent = getIntent();
-		int dish_index = intent.getIntExtra("dish_index", 0);
-		Log.v("MakeDishActivity", "dish_index = " + dish_index);
-		new_dish = Dish.getAllDish()[dish_index];
-		new_dish_id = dish_index;
+		int dish_id = intent.getIntExtra("dish_id", 0);
+		Log.v("MakeDishActivity", "dish_id = " + dish_id);
+		new_dish = Dish.getDishById(dish_id);
+		new_dish_id = dish_id;
 		
 		tcpClient = TCPClient.getInstance();
         tcpClient.set_makedishact(this);
@@ -292,7 +296,7 @@ public class MakeDishActivity extends Activity {
                 		if (current_cmd == 101) {
 	                		Log.v("MakeDishActivity", "resp_cmd108_count = " + resp_cmd108_count + " go to CurStateActivity");
 	        	        	Intent intent = new Intent(MakeDishActivity.this, CurStateActivity.class);
-	        	        	intent.putExtra("dish_index", new_dish_id); 
+	        	        	intent.putExtra("dish_id", new_dish_id); 
 	        	        	startActivity(intent);
                 		} else if (current_cmd == 104) {
                 			Toast.makeText(MakeDishActivity.this, "替换菜谱完成", Toast.LENGTH_SHORT).show();
@@ -521,7 +525,7 @@ public class MakeDishActivity extends Activity {
             	Intent intent = new Intent(MakeDishActivity.this, TableEditActivity.class);
             	intent.putExtra("edit_title", "主料");
             	//intent.putExtra("edit_content_input", new_dish.zhuliao_content);
-            	intent.putExtra("dish_index", new_dish_id);
+            	intent.putExtra("dish_id", new_dish_id);
             	startActivityForResult(intent, 3);
             }  
         });
@@ -535,7 +539,7 @@ public class MakeDishActivity extends Activity {
             public void onClick(View v) {  
             	Intent intent = new Intent(MakeDishActivity.this, TableEditActivity.class);
             	intent.putExtra("edit_title", "辅料");
-            	intent.putExtra("dish_index", new_dish_id);
+            	intent.putExtra("dish_id", new_dish_id);
             	startActivityForResult(intent, 4);
             }  
         });
@@ -547,7 +551,7 @@ public class MakeDishActivity extends Activity {
             public void onClick(View v) {  
             	Intent intent = new Intent(MakeDishActivity.this, TableEditActivity.class);
             	intent.putExtra("edit_title", "主料");
-            	intent.putExtra("dish_index", new_dish_id);
+            	intent.putExtra("dish_id", new_dish_id);
             	startActivityForResult(intent, 3);
             }  
         });
@@ -565,7 +569,7 @@ public class MakeDishActivity extends Activity {
             public void onClick(View v) {  
             	Intent intent = new Intent(MakeDishActivity.this, TableEditActivity.class);
             	intent.putExtra("edit_title", "辅料");
-            	intent.putExtra("dish_index", new_dish_id);
+            	intent.putExtra("dish_id", new_dish_id);
             	startActivityForResult(intent, 4);
             }  
         });
@@ -578,7 +582,7 @@ public class MakeDishActivity extends Activity {
             	Log.v("MakeDishActivity", "v.getId = " + v.getId());
             	Intent intent = new Intent(MakeDishActivity.this, ImageEditActivity.class);
             	intent.putExtra("edit_title", "备料图文");
-            	intent.putExtra("dish_index", new_dish_id);
+            	intent.putExtra("dish_id", new_dish_id);
             	startActivityForResult(intent, 6);
             }  
         });
@@ -650,6 +654,16 @@ public class MakeDishActivity extends Activity {
 		
 		progressBar1 = (ProgressBar) findViewById(R.id.progressBar1);
 		progressBar1.setVisibility(View.GONE);
+		
+		makedish_upload = (Button) findViewById(R.id.makedish_upload);
+		makedish_upload.setOnClickListener(new OnClickListener() {  
+            @Override  
+            public void onClick(View v) {  
+            	Log.v("MakeDishActivity", "makedish_upload");
+            	new_dish.saveDishParam();
+            	HttpUtils.uploadDish(new_dish, MakeDishActivity.this);
+            }  
+        });
 	}
 	
 	public View popupView;
@@ -766,6 +780,8 @@ public class MakeDishActivity extends Activity {
 	    	 if (data != null) {
 	    		 String  name = data.getStringExtra("edit_content_output");
 	        	 new_dish.name_chinese = name;
+	        	 new_dish.name_english = HanziToPinyin.getPinYin(name);
+	        	 if (new_dish.name_english.length() > 13) new_dish.name_english = new_dish.name_english.substring(0, 13);//英文名字有最大长度
 	        	 makedish_name.setText(name);
 	    	 }
 	         break;
@@ -799,6 +815,13 @@ public class MakeDishActivity extends Activity {
 		 
 		 for (int i = 0; i < list.size(); ++i) {
 			 Material m = list.get(i);
+			 if (!m.path.isEmpty() && m.img_drawable == null) {
+				 Log.v("MakeDishActivity", "init m.img_drawable");
+				 Bitmap bmp = BitmapFactory.decodeFile(m.path);
+        		 DisplayMetrics dm = this.getResources().getDisplayMetrics();
+        		 bmp.setDensity(dm.densityDpi);
+        		 m.img_drawable = new BitmapDrawable(this.getResources(), bmp);
+			 }
 			 add_material_row(tableLayout, m.description, m.img_drawable, i);
 			 Log.v("MakeDishActivity", "add_material : " + m.description + ", " + m.img_drawable);
 		 }
@@ -850,7 +873,7 @@ public class MakeDishActivity extends Activity {
              	Log.v("MakeDishActivity", "v.getId = " + v.getId());
              	Intent intent = new Intent(MakeDishActivity.this, ImageEditActivity.class);
              	intent.putExtra("edit_title", "备料图文");
-             	intent.putExtra("dish_index", new_dish_id);
+             	intent.putExtra("dish_id", new_dish_id);
              	intent.putExtra("material_index", v.getId());
              	startActivityForResult(intent, 6);
              }  

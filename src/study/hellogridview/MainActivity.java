@@ -2,6 +2,8 @@ package study.hellogridview;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 
 import cn.sharesdk.framework.ShareSDK;
 
@@ -13,6 +15,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Paint;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -189,17 +192,21 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
 //        viewPager.setCurrentItem(0);  
         
         // 热门菜谱
-        Dish [] dishes = Dish.getAllDish();
-        Log.v("MainActivity", "length = " + dishes.length);
+		LinkedHashMap<Integer, Dish> dishes = Dish.getAllDish();
+        Log.v("MainActivity", "length = " + dishes.size());
         
         ArrayList<HashMap<String,Object>> al=new ArrayList<HashMap<String,Object>>();
-        for (int i=0;i<dishes.length;i++)
+        for (Iterator<Integer> it = dishes.keySet().iterator();it.hasNext();)
         {
-            HashMap<String, Object> map = new HashMap<String, Object>(); 
-                
-            map.put("icon", dishes[i].img);//添加图像资源的ID 
-            map.put("name", dishes[i].name_chinese);//按序号做ItemText 
-            al.add(map); 
+             int key = it.next();
+             Dish d = dishes.get(key);
+             HashMap<String, Object> map = new HashMap<String, Object>(); 
+             
+             if (d.isAppBuiltIn()) {
+             	map.put("icon", d.img); //添加图像资源的ID 
+             	map.put("name", d.name_chinese);//按序号做ItemText 
+                al.add(map);
+             }
         }
         
         SimpleAdapter sa= new SimpleAdapter(MainActivity.this,al,R.layout.image_text,new String[]{"icon","name"},new int[]{R.id.ItemImage,R.id.ItemText});
@@ -215,7 +222,7 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
 	            //Toast.makeText(MainActivity.this,mThumbIds[position], Toast.LENGTH_SHORT).show(); 
 	        	Log.v("OnItemClickListener", "position = " + position + "id = " + id);
 	        	Intent intent = new Intent(MainActivity.this, DishActivity.class);
-	        	intent.putExtra("dish_index", position); 
+	        	intent.putExtra("dish_id", Dish.getDishByIndex(position).dishid); 
 	        	startActivity(intent);
 	        }  
 	     });

@@ -44,7 +44,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	public short time = 260;
 	public byte temp = (byte) 180;
 	public byte jiaoban_speed = 1;
-	public int dish_index = 1;
+	public int dish_id = 1;
 	public byte modify_state = (byte) 0xE0; //时间、温度、搅拌、控制。。。是否被用户改动过的标识位，最高字节为时间，以此类推
 	public byte control = 3;// 0表示开始炒菜，1表示暂停，2表示取消，3表示解锁
 	
@@ -96,12 +96,11 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 		
 		Intent intent = getIntent();
 		if (intent != null) {
-			dish_index = intent.getIntExtra("dish_index", 0); 
+			dish_id = intent.getIntExtra("dish_id", 1); 
 		} else {
-			CurStateActivity.this.dish_index = ds.dishid - 1;
-        	if (CurStateActivity.this.dish_index > 11) CurStateActivity.this.dish_index = 8;
+			dish_id = ds.dishid;
 		}
-		Log.v("CurStateActivity", "onCreate dish_index = " + dish_index + ", ds.dishid= " + ds.dishid);
+		Log.v("CurStateActivity", "onCreate dish_id = " + dish_id + ", ds.dishid= " + ds.dishid);
 		
 		//data.clear();
 		
@@ -129,8 +128,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	                	CurStateActivity.this.time = ds.time;
 	                	//CurStateActivity.this.temp = ds.temp;
 	                	CurStateActivity.this.jiaoban_speed = ds.jiaoban_speed;
-	                	CurStateActivity.this.dish_index = ds.dishid - 1;
-	                	if (CurStateActivity.this.dish_index > 11) CurStateActivity.this.dish_index = 8;
+	                	CurStateActivity.this.dish_id = ds.dishid;
                 	}
                 	
                 	CurStateActivity.this.update_seekbar();
@@ -295,9 +293,9 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         final int x2 = (int) (286.0/480 * width);
         final int x3 = (int) (428.0/480 * width);
         
-        int zhuliao_time = Dish.getAllDish()[dish_index].zhuliao_time;
+        int zhuliao_time = Dish.getDishById(dish_id).zhuliao_time;
         float x_per_seconds_zhuliao = ((float)(x2 - x))/ zhuliao_time;
-        if (Dish.getAllDish()[dish_index].fuliao_time == 0) {
+        if (Dish.getDishById(dish_id).fuliao_time == 0) {
         	x_per_seconds_zhuliao = (x3 - x)/ zhuliao_time;
         }
         
@@ -305,12 +303,12 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         int ymin = (int) (144.0/272 * height);
         float y_per_temp = (float) ((float)(ymax - ymin) / 200.0);
         
-        int zhuliao_temp = Dish.getAllDish()[dish_index].zhuliao_temp & 0x00ff;
+        int zhuliao_temp = Dish.getDishById(dish_id).zhuliao_temp & 0x00ff;
         int yend = (int) (ymin + y_per_temp*(200 - zhuliao_temp));
         canvas.drawLine(x, ymax, x, yend ,paint);
         canvas.drawLine(x, yend, x2, yend, paint);
         
-        int fuliao_temp = Dish.getAllDish()[dish_index].fuliao_temp & 0x00ff;;
+        int fuliao_temp = Dish.getDishById(dish_id).fuliao_temp & 0x00ff;;
         int yend2 = (int) (ymin + y_per_temp*(200 - fuliao_temp));
         canvas.drawLine(x2, yend, x2, yend2, paint);
         canvas.drawLine(x2, yend2, x3, yend2, paint);
@@ -343,7 +341,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         final int name_y = (int) (60.0/272 * height);
         paint.setTextSize(100);
         paint.setColor(Color.rgb(166, 246, 9));
-        canvas.drawText(Dish.getAllDish()[dish_index].name_chinese, name_x, name_y, paint) ;
+        canvas.drawText(Dish.getDishById(dish_id).name_chinese, name_x, name_y, paint) ;
         
         // dish tiny image
         Rect img_rect = new Rect();
@@ -352,7 +350,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         img_rect.top = (int) (8.0/272 * height);
         img_rect.bottom = (int) (77.0/272 * height);
         
-        Bitmap bmp=BitmapFactory.decodeResource(this.getResources(), Dish.getAllDish()[dish_index].img);
+        Bitmap bmp=BitmapFactory.decodeResource(this.getResources(), Dish.getDishById(dish_id).img);
         canvas.drawBitmap(bmp, null, img_rect, null);
         
         // add oil
