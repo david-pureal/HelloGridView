@@ -174,8 +174,7 @@ public class SmartLinkActivity extends Activity implements OnTouchListener {
 				    }
 
 					@Override
-					public void onFailure(int arg0, Header[] arg1,
-							Throwable arg2, File arg3) {
+					public void onFailure(int arg0, Header[] arg1, Throwable arg2, File arg3) {
 						Log.v("smartlink", "FileAsyncHttpResponseHandler onFailure arg0 = " + arg0);
 						arg2.printStackTrace();
 					}

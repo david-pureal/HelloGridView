@@ -45,6 +45,7 @@ public class Tool {
 	
 	public DisplayMetrics dm;
 	public String alldish_jsonstr;
+	public String downloading_dish_allfiles;
 	
 	public String makeTinyImage(Dish dish/*BitmapDrawable input, short dishid*/) {
 		Bitmap src_bmp = dish.img_drawable.getBitmap();
@@ -84,10 +85,10 @@ public class Tool {
 //      ByteArrayInputStream isBm = new ByteArrayInputStream(baos.toByteArray());//把压缩后的数据baos存放到ByteArrayInputStream中  
 //      Bitmap bitmap = BitmapFactory.decodeStream(isBm, null, null);
         Log.v("Tool", "baos.size() = " + baos.size() + ", options = " + options);
-        String filename = dish.getDishDirName() + "/" + Constants.DISH_IMG_TINY_FILENAME; 
+        String filename = Constants.DISH_IMG_TINY_FILENAME; 
         FileOutputStream fos;
         try {
-        	fos = new FileOutputStream(filename);
+        	fos = new FileOutputStream(dish.getDishDirName() + filename);
         	baos.writeTo(fos);
         	baos.flush();
         	baos.close();
@@ -112,6 +113,11 @@ public class Tool {
 	public void make_directory(String dirname) {
 		File temp = new File(dirname);
 		if (!temp.exists()) temp.mkdir();
+	}
+	
+	public boolean isPathExist(String path) {
+		File temp = new File(path);
+		return temp.exists();
 	}
 	
 	public Bitmap zoomImage(Bitmap bgimage, double newWidth,  double newHeight) { 
@@ -147,11 +153,11 @@ public class Tool {
         }
 	}
 	
-	public void writeFile(String data, String path) {
+	public void writeFile(byte[] data, String path) {
 		FileOutputStream fos;
         try {
         	fos = new FileOutputStream(path);
-        	fos.write(data.getBytes());
+        	fos.write(data);
         	fos.close();
         }
         catch (Exception e) {
@@ -296,10 +302,18 @@ public class Tool {
 					int dishid = Integer.parseInt(dir_name.substring(4));
 					if (alldish_map.containsKey(dishid)) continue;
 					String param_path = dish_dir.getCanonicalPath() + "/" + Constants.DISH_PARAM_FILENAME;
-					String data = new String(readFile(param_path));
+					byte [] res = readFile(param_path);
+					if (res == null) {
+						Log.v("Tool", "directory dish" + dishid + " is damaged, skip and remove it");
+						File dir = new File(dish_dir.getCanonicalPath());
+						this.deleteDirectory(dir);
+						continue;
+					}
+					String data = new String(res);
 
 					Dish d = new Dish(dishid, "");
 					if (jsonStringToDish(data, d)) {
+						d.img_drawable = (BitmapDrawable) Drawable.createFromPath(d.getDishDirName() + d.img_path);
 						Dish.putDish(d);
 						if (d.dishid > Dish.current_makedish_dishid) Dish.current_makedish_dishid = d.dishid;
 					}
@@ -311,7 +325,7 @@ public class Tool {
 		} // for
 	}
 
-	private boolean jsonStringToDish(String dish_str, Dish d) {
+	public boolean jsonStringToDish(String dish_str, Dish d) {
 		try {
 			JSONObject dishj = new JSONObject(dish_str);
 			d.dishid = dishj.getInt("dishid");
@@ -335,7 +349,6 @@ public class Tool {
 			d.type = dishj.getInt("type");
 			
 			d.img_path = dishj.getString("img_path");
-			d.img_drawable = (BitmapDrawable) Drawable.createFromPath(d.img_path);
 			d.img_tiny_path = dishj.getString("img_tiny_path");
 			
 			// 主料，辅料和备料图文
@@ -388,10 +401,15 @@ public class Tool {
 			JSONArray dishes = new JSONArray(Tool.getInstance().alldish_jsonstr);
 			for (int i = 0; i < dishes.length(); ++i) {
 				String dir_name = dishes.getString(i);  
-				if (this.isDishDirName(dir_name)) {
+				if (this.isDishDirName(dir_name) && !this.isPathExist(this.getModulePath() + dir_name)) {
 					int dishid = Integer.parseInt(dir_name.substring(4));
-					if (alldish_map.containsKey(dishid)) continue;
+					//if (alldish_map.containsKey(dishid)) continue;
 					// download this dish
+					File dir = new File(this.getModulePath() + dir_name);
+					if (dir.exists() && dir.listFiles() == null) {
+						dir.delete();
+					}
+					this.make_directory(this.getModulePath() + dir_name);
 					HttpUtils.downloadDish(dishid);
 				}
 			}
@@ -399,5 +417,34 @@ public class Tool {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	public void rename(int old_dishid, int new_dishid) {
+		String old = this.getModulePath() + "/dish" + old_dishid;
+		String newpath = this.getModulePath() + "/dish" + new_dishid;
+		File newdir = new File(newpath);
+		if (newdir.isDirectory() && newdir.exists()) {
+			this.deleteDirectory(newdir);
+		}
+		
+		File olddir = new File(old);
+		olddir.renameTo(newdir);
+	}
+	
+	public boolean deleteDirectory(File directory) {
+	    if(directory.exists()){
+	        File[] files = directory.listFiles();
+	        if(null!=files){
+	            for(int i=0; i<files.length; i++) {
+	                if(files[i].isDirectory()) {
+	                    deleteDirectory(files[i]);
+	                }
+	                else {
+	                    files[i].delete();
+	                }
+	            }
+	        }
+	    }
+	    return(directory.delete());
 	}
 }

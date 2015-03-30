@@ -1,7 +1,6 @@
 package study.hellogridview;
 
 import java.util.ArrayList;
-
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 
@@ -11,6 +10,7 @@ import org.json.JSONObject;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.util.Log;
 import study.hellogridview.R;
 
 public class Dish implements Cloneable {
@@ -40,7 +40,7 @@ public class Dish implements Cloneable {
 	public int sound = 0;
 	
 	//public boolean isBuiltIn = true;
-	public int type = Constants.DISH_APP_BUILTIN & Constants.DISH_DEVICE_BUILTIN & Constants.DISH_FAVORITE;
+	public int type = Constants.DISH_APP_BUILTIN | Constants.DISH_DEVICE_BUILTIN | Constants.DISH_FAVORITE;
 	
 	public String text = "1、底油：20克\n2、炝锅料：姜丝5克、蒜片5克\n3、主料：土豆丝230克,青椒丝20克，\n      红椒丝20克\n4、调料：鸡精2克、盐2克";
 	public String qiangguoliao_content = "姜丝5克、蒜片5克";
@@ -86,10 +86,12 @@ public class Dish implements Cloneable {
 		Tool.getInstance().make_directory(d.getDishDirName());
 		
 		// 菜谱默认图片
-		d.img_path = d.getDishDirName() + "/" + Constants.DISH_IMG_FILENAME;
+		// 此处为相对路径
+		d.img_path = Constants.DISH_IMG_FILENAME;
 		Bitmap btm = d.img_drawable.getBitmap();
-		Tool.getInstance().savaBitmap(btm, d.img_path);
-		d.img_tiny_path = Tool.getInstance().makeTinyImage(d);
+		String path = d.getDishDirName() + d.img_path;
+		Tool.getInstance().savaBitmap(btm, path);
+		d.img_tiny_path = Tool.getInstance().makeTinyImage(d);// 此处为相对路径
 		
 		d.type = Constants.DISH_MADE_BY_USER;
 		
@@ -98,18 +100,27 @@ public class Dish implements Cloneable {
 	}
 	
 	public String getDishDirName() {
-		return Tool.getInstance().getModulePath() + "/dish" + (dishid & 0xffff);
+		return Tool.getInstance().getModulePath() + "/dish" + dishid + "/";
+	}
+	public String getDishDirRelativeName() {
+		return "/dish" + dishid + "/";
 	}
 	public static String getDishNameById(int id) {
 		return alldish_map.get(id).name_chinese + id;
 	}
-	public static Dish getDishById(int id) { return alldish_map.get(id); }
+	public static Dish getDishById(int id) {
+		if (!alldish_map.containsKey(id)) Log.v("Dish", "dishid = " + id + " not exist");
+		return alldish_map.get(id);
+	}
 	public static Dish getDishByIndex(int index) {
 		int key = (Integer) alldish_map.keySet().toArray()[index];
 		return alldish_map.get(key);
 	}
 	public static void putDish(Dish d) {
 		alldish_map.put(d.dishid, d);
+	}
+	public static void removeDish(Dish d) {
+		alldish_map.remove(d.dishid);
 	}
 	
 	public void saveDishParam() {
@@ -172,7 +183,7 @@ public class Dish implements Cloneable {
 			dishj.put("material_detail", material_array);
 			
 			String param_path = getDishDirName() + "/" + Constants.DISH_PARAM_FILENAME;
-			Tool.getInstance().writeFile(dishj.toString(), param_path);
+			Tool.getInstance().writeFile(dishj.toString().getBytes(), param_path);
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -335,7 +346,7 @@ public class Dish implements Cloneable {
 	}
 
 	public boolean isAppBuiltIn() {
-		return (type & Constants.DISH_MADE_BY_USER) == 0x00;
+		return (type & Constants.DISH_APP_BUILTIN) == 0x01;
 	}
 
 }

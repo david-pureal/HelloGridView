@@ -8,10 +8,11 @@ public final class Constants {
 	
 	// message id
 	public static final int MSG_ID_STA_IP = 100;
+	public static final int MSG_ID_UPLOAD_RESULT = 200;
 	
 	// dish related
-	public static final int DISH_APP_BUILTIN    = 0x00;   // APP内置菜谱
-	public static final int DISH_MADE_BY_USER   = 0x01;   // 用户自编菜谱，还未上传
+	public static final int DISH_APP_BUILTIN    = 0x01;   // APP内置菜谱
+	public static final int DISH_MADE_BY_USER   = 0x02;   // 用户自编菜谱，还未上传
 	public static final int DISH_UPLOAD_BY_USER = 0x10;   // 用户自编菜谱，已上传
 	public static final int DISH_DEVICE_BUILTIN = 0x100;  // 机器内置菜谱
 	public static final int DISH_FAVORITE       = 0x1000; // 用户收藏的菜谱

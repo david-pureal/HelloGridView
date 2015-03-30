@@ -160,8 +160,8 @@ public class ImageEditActivity extends Activity {
 		innerIntent.putExtra("scale", true);
 		innerIntent.putExtra("scaleUpIfNeeded", true);
         innerIntent.setType("image/*");      // 查看类型 详细的类型在 com.google.android.mms.ContentType 
-        img_path = dish.getDishDirName() + "/material_" + material_index + ".jpg";
-        tempFile = new File(img_path); // 以时间秒为文件名  
+        img_path = "material_" + material_index + ".jpg";
+        tempFile = new File(dish.getDishDirName() + img_path);  
         innerIntent.putExtra("output", Uri.fromFile(tempFile));  // 专入目标文件     
         innerIntent.putExtra("outputFormat", "JPEG"); //输入文件格式    
         

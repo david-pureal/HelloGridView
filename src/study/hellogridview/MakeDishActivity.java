@@ -304,7 +304,21 @@ public class MakeDishActivity extends Activity {
                 			Log.v("MakeDishActivity", " replace done");
                     	}
                 	}
-                }  
+                }// if (msg.what == 0x123)
+                else if (msg.what == Constants.MSG_ID_UPLOAD_RESULT) {
+                	String state = (String)msg.obj;
+                	if (state.equals("success")) {
+                		MakeDishActivity.this.makedish_upload.setEnabled(false);
+                		Toast.makeText(MakeDishActivity.this, "上传完成", Toast.LENGTH_SHORT).show();
+                	}
+                	else if (state.equals("fail")) {
+                		Toast.makeText(MakeDishActivity.this, "上传失败，请重试", Toast.LENGTH_SHORT).show();
+                	}
+                	else {
+                		// TODO progress bar 
+                	}
+                	
+                }
             }  
         }; 
         
@@ -660,10 +674,18 @@ public class MakeDishActivity extends Activity {
             @Override  
             public void onClick(View v) {  
             	Log.v("MakeDishActivity", "makedish_upload");
+            	if (new_dish.zhuliao_content_map.isEmpty()) {
+            		Toast.makeText(MakeDishActivity.this, "不能没有主料哦~", Toast.LENGTH_SHORT).show();
+            		return;
+            	}
             	new_dish.saveDishParam();
             	HttpUtils.uploadDish(new_dish, MakeDishActivity.this);
             }  
         });
+		if ((new_dish.type & Constants.DISH_UPLOAD_BY_USER) != 0) {
+			// 已经上传过的暂不能再更新
+			makedish_upload.setEnabled(false);
+		}
 	}
 	
 	public View popupView;
@@ -817,7 +839,7 @@ public class MakeDishActivity extends Activity {
 			 Material m = list.get(i);
 			 if (!m.path.isEmpty() && m.img_drawable == null) {
 				 Log.v("MakeDishActivity", "init m.img_drawable");
-				 Bitmap bmp = BitmapFactory.decodeFile(m.path);
+				 Bitmap bmp = BitmapFactory.decodeFile(new_dish.getDishDirName() + m.path);
         		 DisplayMetrics dm = this.getResources().getDisplayMetrics();
         		 bmp.setDensity(dm.densityDpi);
         		 m.img_drawable = new BitmapDrawable(this.getResources(), bmp);

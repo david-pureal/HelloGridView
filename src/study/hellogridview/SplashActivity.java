@@ -49,10 +49,11 @@ public class SplashActivity extends Activity {
             protected Integer doInBackground(Void... params) {
                 int result;
                 long startTime = System.currentTimeMillis();
-                result = loadLocalDish();
+                result = getWebDish();
                 long loadingTime = System.currentTimeMillis() - startTime;
                 if (loadingTime < 2000) {
                     try {
+                    	Log.v("SplashActivity", "loadingTime = " +  loadingTime);
                         Thread.sleep(2000 - loadingTime);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
@@ -62,7 +63,7 @@ public class SplashActivity extends Activity {
                 // ¸ü»»Í¼Æ¬
                 handler.sendEmptyMessage(0x789);
                 
-                result = getWebDish();
+                result = loadLocalDish();
                 startTime = System.currentTimeMillis();
                 loadingTime = System.currentTimeMillis() - startTime;
                 if (loadingTime < 2000) {
@@ -72,7 +73,6 @@ public class SplashActivity extends Activity {
                         e.printStackTrace();
                     }
                 }
-                
                 return result;
             }
  
@@ -88,12 +88,11 @@ public class SplashActivity extends Activity {
 	private int loadLocalDish() {
 		Tool.getInstance().dm = this.getResources().getDisplayMetrics();
 		Tool.getInstance().loadLocalDish();
-		HttpUtils.getAllDish();
         return 0;
     }
 	
 	protected int getWebDish() {
-		// TODO Auto-generated method stub
+		HttpUtils.getAllDish();
 		Tool.getInstance().getWebDish();
 		return 0;
 	}
