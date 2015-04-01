@@ -44,8 +44,8 @@ public class Tool {
 	}
 	
 	public DisplayMetrics dm;
-	public String alldish_jsonstr;
-	public String downloading_dish_allfiles;
+	public String alldish_jsonstr = "";
+	public String downloading_dish_allfiles = "";
 	
 	public String makeTinyImage(Dish dish/*BitmapDrawable input, short dishid*/) {
 		Bitmap src_bmp = dish.img_drawable.getBitmap();
