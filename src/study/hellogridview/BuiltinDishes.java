@@ -2,6 +2,7 @@ package study.hellogridview;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 
@@ -22,6 +23,7 @@ import java.util.LinkedHashMap;
 
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.jeremyfeinstein.slidingmenu.lib.app.SlidingFragmentActivity;
+
 
 
 
@@ -87,6 +89,8 @@ public class BuiltinDishes extends SlidingFragmentActivity implements OnTouchLis
     private VelocityTracker mVelocityTracker;
 
     public SlidingMenu sm;
+    
+    TextView tv;
     
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -166,7 +170,7 @@ public class BuiltinDishes extends SlidingFragmentActivity implements OnTouchLis
 		
 		gridView = (GridView)findViewById(R.id.gridview);  
 		replace_builtin = (Button)findViewById(R.id.replace_builtin); 
-		TextView tv = (TextView) findViewById(R.id.replace_builtin_tv); 
+		tv = (TextView) findViewById(R.id.replace_builtin_tv); 
 		Intent intent = getIntent();
 		tv.setText(intent.getStringExtra("title"));
 		
@@ -328,12 +332,23 @@ public class BuiltinDishes extends SlidingFragmentActivity implements OnTouchLis
 		LinkedHashMap<Integer, Dish> dishes = Dish.getAllDish();
         Log.v("BuiltinDishes", "length = " + dishes.size());
         
+        DeviceState ds = DeviceState.getInstance();
+        String title = tv.getText().toString();
+        if (title.equals("快捷菜谱") && !ds.got_builtin) {
+        	for (int i = 0;i < ds.builtin_dishids.length;++i) ds.builtin_dishids[i] = (short) (i + 1);
+        }
         ArrayList<HashMap<String,Object>> al=new ArrayList<HashMap<String,Object>>();
         for (Iterator<Integer> it =  dishes.keySet().iterator();it.hasNext();)
         {
              int key = it.next();
              Dish d = dishes.get(key);
              HashMap<String, Object> map = new HashMap<String, Object>(); 
+             if (title.equals("快捷菜谱")) {
+            	 int pos = Arrays.binarySearch(ds.builtin_dishids, (short)key);
+            	 if (pos < 0) {
+            		 continue;
+            	 }
+             }
              
              if (d.isAppBuiltIn()) {
              	map.put("icon", d.img); //添加图像资源的ID 

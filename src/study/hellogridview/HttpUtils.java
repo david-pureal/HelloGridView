@@ -169,12 +169,12 @@ public class HttpUtils {
 			@Override
 			public void onSuccess(int arg0, Header[] arg1, byte[] arg2) {
 				String alldish_jsonstr = new String(arg2);
+				Log.v("HttpUtils", "getAllDish res=" + alldish_jsonstr);
 				JSONArray dishes;
 				try {
 					dishes = new JSONArray(alldish_jsonstr);
 					for (int i = 0; i < dishes.length(); ++i) {
-						String dir_name = dishes.getString(i);  
-						int dishid = Integer.parseInt(dir_name.substring(4));
+						int dishid = Integer.parseInt(dishes.getString(i));
 						Dish.alldish_web.add(dishid);
 					}
 				} catch (JSONException e) {
