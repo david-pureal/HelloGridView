@@ -14,6 +14,7 @@ import android.util.Log;
 import study.hellogridview.R;
 
 public class Dish implements Cloneable {
+	public static ArrayList<Integer> alldish_web = new ArrayList<Integer>();
 	// 用户自编的菜谱在上传前的临时id，上传后由服务端重新分配id
 	public static final int USER_MAKE_DISH_START_ID = 60000; 
 	public static int current_makedish_dishid = USER_MAKE_DISH_START_ID;

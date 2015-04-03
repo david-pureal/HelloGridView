@@ -44,7 +44,7 @@ public class Tool {
 	}
 	
 	public DisplayMetrics dm;
-	public String alldish_jsonstr = "";
+	//public String alldish_jsonstr = "";
 	public String downloading_dish_allfiles = "";
 	
 	public String makeTinyImage(Dish dish/*BitmapDrawable input, short dishid*/) {
@@ -301,6 +301,8 @@ public class Tool {
 				try {
 					int dishid = Integer.parseInt(dir_name.substring(4));
 					if (alldish_map.containsKey(dishid)) continue;
+					if (Dish.alldish_web.indexOf(dishid) == -1) continue;
+					
 					String param_path = dish_dir.getCanonicalPath() + "/" + Constants.DISH_PARAM_FILENAME;
 					byte [] res = readFile(param_path);
 					if (res == null) {
@@ -397,12 +399,12 @@ public class Tool {
 	
 	public void getWebDish() {
 		try {
-			LinkedHashMap<Integer, Dish> alldish_map = Dish.getAllDish();
-			JSONArray dishes = new JSONArray(Tool.getInstance().alldish_jsonstr);
-			for (int i = 0; i < dishes.length(); ++i) {
-				String dir_name = dishes.getString(i);  
+			//LinkedHashMap<Integer, Dish> alldish_map = Dish.getAllDish();
+			//JSONArray dishes = new JSONArray(Tool.getInstance().alldish_jsonstr);
+			for (int i = 0; i < Dish.alldish_web.size(); ++i) {
+				int dishid = Dish.alldish_web.get(i).intValue();
+				String dir_name = "dish" + dishid;
 				if (this.isDishDirName(dir_name) && !this.isPathExist(this.getModulePath() + dir_name)) {
-					int dishid = Integer.parseInt(dir_name.substring(4));
 					//if (alldish_map.containsKey(dishid)) continue;
 					// download this dish
 					File dir = new File(this.getModulePath() + dir_name);
@@ -413,7 +415,7 @@ public class Tool {
 					HttpUtils.downloadDish(dishid);
 				}
 			}
-		} catch (JSONException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
