@@ -107,7 +107,6 @@ public class MakeDishActivity extends Activity {
 	public Integer[] dishids = new Integer[12];
 	public final String dish_names[] = {"","","","","","","","","","","",""};
 	public final String jiaoban[] = {"0不搅拌", "1最慢速", "2较慢速", "3中慢速", "4中速", "5中快速", "6较快速", "7最快速", "8连续搅拌"};
-	protected int resp_cmd104_count = 0;
 	protected int current_cmd;
 	
 	@SuppressLint("HandlerLeak")
@@ -271,6 +270,7 @@ public class MakeDishActivity extends Activity {
             }
         });
 		
+		// 消息处理
         handler = new Handler() {  
             @Override  
             public void handleMessage(Message msg) {  
@@ -289,12 +289,13 @@ public class MakeDishActivity extends Activity {
                 		progressBar1.incrementProgressBy(1);
                 	}
                 	
+                	Log.v("MakeDishActivity", "current_cmd=" + current_cmd + ", resp_cmd108_count=" + resp_cmd108_count);
                 	if (MakeDishActivity.this.resp_cmd108_count == 5) { //目前图片都是分成5个帧传输的
                 		MakeDishActivity.this.resp_cmd108_count = 0;
             			progressBar1.setVisibility(View.GONE);
             			progressBar1.setProgress(0);
                 		if (current_cmd == 101) {
-	                		Log.v("MakeDishActivity", "resp_cmd108_count = " + resp_cmd108_count + " go to CurStateActivity");
+	                		Log.v("MakeDishActivity", "start cook dish(" + new_dish_id + ") done, go to CurStateActivity");
 	        	        	Intent intent = new Intent(MakeDishActivity.this, CurStateActivity.class);
 	        	        	intent.putExtra("dish_id", new_dish_id); 
 	        	        	startActivity(intent);
@@ -690,7 +691,7 @@ public class MakeDishActivity extends Activity {
 	
 	public View popupView;
 	
-	protected int resp_cmd108_count = 0;
+	protected int resp_cmd108_count = 0; // 图片数据响应计数
 	TCPClient tcpClient;
 	Handler handler;
 	

@@ -98,7 +98,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 		if (intent != null) {
 			dish_id = intent.getIntExtra("dish_id", 1); 
 		} else {
-			dish_id = ds.dishid;
+			dish_id = ds.dishid & 0xffff;
 		}
 		Log.v("CurStateActivity", "onCreate dish_id = " + dish_id + ", ds.dishid= " + ds.dishid);
 		
@@ -128,7 +128,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	                	CurStateActivity.this.time = ds.time;
 	                	//CurStateActivity.this.temp = ds.temp;
 	                	CurStateActivity.this.jiaoban_speed = ds.jiaoban_speed;
-	                	CurStateActivity.this.dish_id = ds.dishid;
+	                	CurStateActivity.this.dish_id = ds.dishid & 0xffff;
                 	}
                 	
                 	CurStateActivity.this.update_seekbar();
@@ -342,15 +342,21 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         paint.setTextSize(100);
         paint.setColor(Color.rgb(166, 246, 9));
         canvas.drawText(Dish.getDishById(dish_id).name_chinese, name_x, name_y, paint) ;
-        
-        // dish tiny image
-        Rect img_rect = new Rect();
-        img_rect.left = (int) (368.0/480 * width);
-        img_rect.right = (int) (469.0/480 * width);
-        img_rect.top = (int) (8.0/272 * height);
-        img_rect.bottom = (int) (77.0/272 * height);
-        
-        Bitmap bmp=BitmapFactory.decodeResource(this.getResources(), Dish.getDishById(dish_id).img);
+
+	    // dish tiny image
+	    Rect img_rect = new Rect();
+	    img_rect.left = (int) (368.0/480 * width);
+	    img_rect.right = (int) (469.0/480 * width);
+	    img_rect.top = (int) (8.0/272 * height);
+	    img_rect.bottom = (int) (77.0/272 * height);
+	    
+        Bitmap bmp;
+        if (Dish.getDishById(dish_id).isAppBuiltIn()) {
+        	bmp = BitmapFactory.decodeResource(this.getResources(), Dish.getDishById(dish_id).img);
+        }
+        else {
+        	bmp = Dish.getDishById(dish_id).img_drawable.getBitmap();
+        }
         canvas.drawBitmap(bmp, null, img_rect, null);
         
         // add oil

@@ -301,7 +301,6 @@ public class Tool {
 				try {
 					int dishid = Integer.parseInt(dir_name.substring(4));
 					if (alldish_map.containsKey(dishid)) continue;
-					if (Dish.alldish_web.indexOf(dishid) == -1) continue;
 					
 					String param_path = dish_dir.getCanonicalPath() + "/" + Constants.DISH_PARAM_FILENAME;
 					byte [] res = readFile(param_path);
@@ -316,6 +315,9 @@ public class Tool {
 					Dish d = new Dish(dishid, "");
 					if (jsonStringToDish(data, d)) {
 						d.img_drawable = (BitmapDrawable) Drawable.createFromPath(d.getDishDirName() + d.img_path);
+						
+						// skip local uploaded dish if it's not in web dish_list
+						if (Dish.alldish_web.indexOf(dishid) == -1 && d.isAppBuiltIn()) continue;
 						Dish.putDish(d);
 						if (d.dishid > Dish.current_makedish_dishid) Dish.current_makedish_dishid = d.dishid;
 					}

@@ -392,7 +392,7 @@ public class Package {
 						Log.i("Package", "dish.img_tiny_path is null use tudousi_tiny ");
 					}
 					else {
-						inStream = new FileInputStream(dish.img_tiny_path);
+						inStream = new FileInputStream(dish.getDishDirName() + dish.img_tiny_path);
 						Log.i("Package", "dish.img_tiny_path = " + dish.img_tiny_path);
 					}
 				} catch (IOException e) {
@@ -418,7 +418,7 @@ public class Package {
 						Log.i("Package", "dish.img_tiny_path is null use tudousi_tiny ");
 					}
 					else {
-						inStream = new FileInputStream(dish.img_tiny_path);
+						inStream = new FileInputStream(dish.getDishDirName() + dish.img_tiny_path);
 						Log.i("Package", "dish.img_tiny_path = " + dish.img_tiny_path);
 					}
 				} catch (IOException e) {

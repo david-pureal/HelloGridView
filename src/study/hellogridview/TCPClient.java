@@ -600,7 +600,7 @@ public class TCPClient {
 				ds.dishid = this.gotShort(bs, 24);
 				int tmp = ds.time;
 				//机器状态： 0，正在做菜；1暂停；2待机
-				Log.e("tcpclient", "Machine_Stat = " + bs[15] + ",time = " + tmp + "bs[20]=" + (bs[22] & 0x00ff) + "bs[21]=" + (bs[23] & 0x00ff) + ", dishid=" + ds.dishid);
+				Log.e("tcpclient", "Machine_Stat = " + bs[15] + ",time = " + tmp + "bs[20]=" + (bs[22] & 0x00ff) + "bs[21]=" + (bs[23] & 0x00ff) + ", dishid=" + (ds.dishid&0xffff));
 				ds.working_state = bs[15];
 				ds.temp = bs[22];
 				ds.jiaoban_speed = bs[23];
