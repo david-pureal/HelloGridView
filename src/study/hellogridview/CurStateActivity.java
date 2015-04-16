@@ -573,7 +573,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         
 	    
         main.setImageBitmap(bitmap);
-        //if (last_bmp != null) last_bmp.recycle();
+        if (last_bmp != null) last_bmp.recycle();
         last_bmp = bitmap;
 	}
 	boolean waiting = false;
