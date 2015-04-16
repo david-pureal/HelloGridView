@@ -274,6 +274,9 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	MediaPlayer player;
 	MediaPlayer player1;
 	private int zhuliao_i;
+	
+	Bitmap last_bmp = null;
+	
 	// 画设定的温度线，用绿色线
 	private void draw_temp_baselin() {
 		paint.setStyle(Paint.Style.STROKE); 
@@ -283,7 +286,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         
         int width = dip2px(465/*403*/);
         int height = dip2px(272/*240*/);
-        Bitmap bitmap = Bitmap.createBitmap(width, height, Config.ARGB_8888); 
+        Bitmap bitmap = Bitmap.createBitmap(width, height, Config.ARGB_8888); // 每次都创建会导致OutOfMemoryError
         Canvas canvas = new Canvas(bitmap);
         //Log.v("CurStateActivity", "canvas.width = " + canvas.getWidth() + "canvas.height = " + canvas.getHeight());
         //canvas.drawText("原先的画图区域--红色部分", 50, 100, paint) ;
@@ -352,10 +355,11 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	    
         Bitmap bmp;
         if (Dish.getDishById(dish_id).isAppBuiltIn()) {
-        	bmp = BitmapFactory.decodeResource(this.getResources(), Dish.getDishById(dish_id).img);
+        	BitmapFactory.Options options = new BitmapFactory.Options(); options.inPurgeable = true; 
+        	bmp = BitmapFactory.decodeResource(this.getResources(), Dish.getDishById(dish_id).img, options);
         }
         else {
-        	bmp = Dish.getDishById(dish_id).img_drawable.getBitmap();
+        	bmp = Dish.getDishById(dish_id).img_bmp;
         }
         canvas.drawBitmap(bmp, null, img_rect, null);
         
@@ -569,6 +573,8 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         
 	    
         main.setImageBitmap(bitmap);
+        //if (last_bmp != null) last_bmp.recycle();
+        last_bmp = bitmap;
 	}
 	boolean waiting = false;
 	int count = 0;

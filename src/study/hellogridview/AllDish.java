@@ -167,8 +167,8 @@ public class AllDish extends SlidingFragmentActivity {
              	map.put("icon", d.img); //添加图像资源的ID 
              }
              else {
-             	BitmapDrawable bd = d.img_drawable;
-             	map.put("icon", bd.getBitmap()); //添加图像资源的ID 
+             	//BitmapDrawable bd = d.img_drawable;
+             	map.put("icon", d.img_bmp); //添加图像资源的ID 
              }
              map.put("name", d.name_chinese);//按序号做ItemText 
              al.add(map);
@@ -181,9 +181,9 @@ public class AllDish extends SlidingFragmentActivity {
             @Override  
             public boolean setViewValue(View view, Object data,  
                     String textRepresentation) {  
-                if( (view instanceof ImageView) && (data instanceof Bitmap ) ) {  
+                if( (view instanceof ImageView) && (data instanceof Bitmap) ) {  
                     ImageView iv = (ImageView) view;  
-                    Bitmap  bm = (Bitmap ) data;  
+                    Bitmap  bm = (Bitmap) data;  
                     iv.setImageBitmap(bm); 
                     return true;  
                 }  
@@ -231,8 +231,8 @@ public class AllDish extends SlidingFragmentActivity {
                          	map.put("icon", d.img); //添加图像资源的ID 
                          }
                          else {
-                         	BitmapDrawable bd = d.img_drawable;
-                         	map.put("icon", bd.getBitmap()); //添加图像资源的ID 
+                         	//BitmapDrawable bd = d.img_drawable;
+                         	map.put("icon", d.img_bmp); //添加图像资源的ID 
                          }
                          map.put("name", d.name_chinese);//按序号做ItemText 
                          al.add(map);

@@ -2,6 +2,7 @@ package study.hellogridview;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -49,7 +50,8 @@ public class InputDishNameActivity extends Activity {
             	
             	Dish new_dish = new Dish(0, "");
             	new_dish.name_chinese = InputDishNameActivity.this.name;
-        		new_dish.img_drawable = (BitmapDrawable) InputDishNameActivity.this.getResources().getDrawable(R.drawable.camera);
+            	BitmapFactory.Options options = new BitmapFactory.Options(); options.inPurgeable = true; 
+        		new_dish.img_bmp = BitmapFactory.decodeResource(InputDishNameActivity.this.getResources(), R.drawable.camera, options);
         		
         		int new_dish_id = Dish.addDish(new_dish);
         		Log.v("InputDishNameActivity", "new_dish_id = " + new_dish_id);

@@ -48,7 +48,7 @@ public class Tool {
 	public String downloading_dish_allfiles = "";
 	
 	public String makeTinyImage(Dish dish/*BitmapDrawable input, short dishid*/) {
-		Bitmap src_bmp = dish.img_drawable.getBitmap();
+		Bitmap src_bmp = dish.img_bmp;
 		
 		// 先调整大小
 		int width_tiny = 102;
@@ -314,7 +314,8 @@ public class Tool {
 
 					Dish d = new Dish(dishid, "");
 					if (jsonStringToDish(data, d)) {
-						d.img_drawable = (BitmapDrawable) Drawable.createFromPath(d.getDishDirName() + d.img_path);
+						BitmapFactory.Options options = new BitmapFactory.Options(); options.inPurgeable = true; 
+						d.img_bmp = BitmapFactory.decodeFile(d.getDishDirName() + d.img_path, options);
 						
 						// skip local uploaded dish if it's not in web dish_list
 						if (Dish.alldish_web.indexOf(dishid) == -1 && d.isAppBuiltIn()) continue;

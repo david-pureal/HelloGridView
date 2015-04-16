@@ -120,7 +120,7 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
 		Dish d = Dish.getDishById(dish_id);
 		if (d.isAppBuiltIn()) dish_img.setImageResource(d.img);
 		else {
-			dish_img.setImageDrawable(d.img_drawable);
+			dish_img.setImageBitmap(d.img_bmp);
 		}
 		
 		dish_detail = (TextView) findViewById(R.id.dish_detail); 

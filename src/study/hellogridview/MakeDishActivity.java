@@ -142,7 +142,8 @@ public class MakeDishActivity extends Activity {
         tcpClient.set_makedishact(this);
 		
 		makedish_img = (ImageView) findViewById(R.id.makedish_img); 
-		makedish_img.setImageDrawable(new_dish.img_drawable);
+		//makedish_img.setImageDrawable(new_dish.img_drawable);
+		makedish_img.setImageBitmap(new_dish.img_bmp);
 		makedish_img.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) {  
@@ -769,7 +770,9 @@ public class MakeDishActivity extends Activity {
          case 1:  
         	 //makedish_img.setImageDrawable();
         	 if (resultCode == -1) {
-        		 new_dish.img_drawable = (BitmapDrawable) Drawable.createFromPath(tempFile.getAbsolutePath());
+        		 //new_dish.img_drawable = (BitmapDrawable) Drawable.createFromPath(tempFile.getAbsolutePath());
+        		 BitmapFactory.Options options = new BitmapFactory.Options(); options.inPurgeable = true; 
+        		 new_dish.img_bmp = BitmapFactory.decodeFile(tempFile.getAbsolutePath(), options);
         		 new_dish.img_tiny_path = Tool.getInstance().makeTinyImage(new_dish);
         	 }
              break;  
@@ -809,7 +812,8 @@ public class MakeDishActivity extends Activity {
 	    	 }
 	         break;
 	     }
-         makedish_img.setImageDrawable(new_dish.img_drawable);
+         //makedish_img.setImageDrawable(new_dish.img_drawable);
+         makedish_img.setImageBitmap(new_dish.img_bmp);
      }
 	 
 	 public Handler getHandler() {
@@ -840,7 +844,8 @@ public class MakeDishActivity extends Activity {
 			 Material m = list.get(i);
 			 if (!m.path.isEmpty() && m.img_drawable == null) {
 				 Log.v("MakeDishActivity", "init m.img_drawable");
-				 Bitmap bmp = BitmapFactory.decodeFile(new_dish.getDishDirName() + m.path);
+				 BitmapFactory.Options options = new BitmapFactory.Options(); options.inPurgeable = true; 
+				 Bitmap bmp = BitmapFactory.decodeFile(new_dish.getDishDirName() + m.path, options);
         		 DisplayMetrics dm = this.getResources().getDisplayMetrics();
         		 bmp.setDensity(dm.densityDpi);
         		 m.img_drawable = new BitmapDrawable(this.getResources(), bmp);

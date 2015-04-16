@@ -33,7 +33,7 @@ public class Dish implements Cloneable {
 	public byte qiangguoliao = 1;//炝锅料 0表示无， 1表示有
 	
 	public Integer img = R.drawable.tudousi;   // APP自带的菜谱
-	public BitmapDrawable img_drawable = null; // 自编菜谱，用来在APP上展示
+	public Bitmap img_bmp = null; // 自编菜谱，用来在APP上展示
 	public String img_path; //自编菜谱，用于存储
 	
 	public Integer img_tiny = R.drawable.tudousi;   //机器上显示的小图片，大小为106*76
@@ -89,7 +89,7 @@ public class Dish implements Cloneable {
 		// 菜谱默认图片
 		// 此处为相对路径
 		d.img_path = Constants.DISH_IMG_FILENAME;
-		Bitmap btm = d.img_drawable.getBitmap();
+		Bitmap btm = d.img_bmp;
 		String path = d.getDishDirName() + d.img_path;
 		Tool.getInstance().savaBitmap(btm, path);
 		d.img_tiny_path = Tool.getInstance().makeTinyImage(d);// 此处为相对路径
@@ -286,7 +286,7 @@ public class Dish implements Cloneable {
 			dish10.dishid = 11;
 			alldish_map.put(dish10.dishid, dish10);
 			
-			Dish dish11 = new Dish(R.drawable.xiqinxiaren, "菜十二");
+			Dish dish11 = new Dish(R.drawable.xiqinxiaren, "西芹虾仁");
 			dish11.img_tiny = R.raw.xiqinxiaren_tiny;
 			dish11.text = "1、底油：30克\n2、炝锅料：姜片5克、蒜片5克 \n3、主料：虾仁150克（加10克料酒腌制5分钟）\n4、辅料：西芹段100克、红萝卜菱形片20克\n5、水和调料：水10克、盐2克、鸡精2克"; 
 			dish11.name_english = "Celery shrimp";

@@ -338,7 +338,7 @@ public class BuiltinDishes extends SlidingFragmentActivity implements OnTouchLis
         	for (int i = 0;i < ds.builtin_dishids.length;++i) ds.builtin_dishids[i] = (short) (i + 1);
         }
         ArrayList<HashMap<String,Object>> al=new ArrayList<HashMap<String,Object>>();
-        for (Iterator<Integer> it =  dishes.keySet().iterator();it.hasNext();)
+        for (Iterator<Integer> it = dishes.keySet().iterator();it.hasNext();)
         {
              int key = it.next();
              Dish d = dishes.get(key);
@@ -354,8 +354,8 @@ public class BuiltinDishes extends SlidingFragmentActivity implements OnTouchLis
              	map.put("icon", d.img); //添加图像资源的ID 
              }
              else {
-             	BitmapDrawable bd = d.img_drawable;
-             	map.put("icon", bd.getBitmap()); //添加图像资源的ID 
+             	//BitmapDrawable bd = d.img_drawable;
+             	map.put("icon", d.img_bmp); //添加图像资源的ID 
              }
              map.put("name", d.name_chinese);//按序号做ItemText 
              al.add(map);
@@ -369,7 +369,7 @@ public class BuiltinDishes extends SlidingFragmentActivity implements OnTouchLis
                 if( (view instanceof ImageView) && (data instanceof Bitmap ) ) {  
                     ImageView iv = (ImageView) view;  
                     Bitmap  bm = (Bitmap ) data;  
-                    iv.setImageBitmap(bm); 
+                    iv.setImageBitmap(bm);
                     return true;  
                 }  
                 return false;  
