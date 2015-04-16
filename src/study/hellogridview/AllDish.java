@@ -1,8 +1,5 @@
 package study.hellogridview;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -12,9 +9,6 @@ import java.util.Random;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -215,7 +209,6 @@ public class AllDish extends SlidingFragmentActivity {
             		Log.v("AllDish", "pos = " + right_fragment.getId()); 
             		int pos = (Integer) msg.obj;
             		pos = new Random().nextInt(5); 
-            		int end = Math.min(12, 2*pos + 4);
             		LinkedHashMap<Integer, Dish> dishes = Dish.getAllDish();
                     Log.v("AllDish", "length = " + dishes.size());
                     

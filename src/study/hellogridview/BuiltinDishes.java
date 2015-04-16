@@ -394,4 +394,11 @@ public class BuiltinDishes extends SlidingFragmentActivity implements OnTouchLis
 	        }  
 	     });
 	}
+	
+	@Override
+	protected void onPause() {
+		Log.v("BuiltinDishes", "Buildin onPause");
+		super.onPause();
+		this.finish();
+	}
 }

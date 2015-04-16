@@ -3,16 +3,13 @@ package study.hellogridview;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 
 import android.content.Intent;
-import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -77,13 +74,12 @@ public class MenuFragment extends Fragment {
 		m_buildin.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) {  
-            	sm.toggle(); 
             	Intent intent = new Intent(getActivity(),BuiltinDishes.class);
             	intent.putExtra("title", String.valueOf("¿ì½Ý²ËÆ×")); 
-            	if (getActivity().getClass() != BuiltinDishes.class)
+            	//if (getActivity().getClass() != BuiltinDishes.class)
             		startActivity(intent); 
-            	else 
-            		sm.toggle(); 
+            	//else 
+            		//sm.toggle(); 
             	 
             }
         });	
@@ -91,13 +87,12 @@ public class MenuFragment extends Fragment {
 		builtin_tv.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) {  
-            	sm.toggle(); 
             	Intent intent = new Intent(getActivity(),BuiltinDishes.class);
             	intent.putExtra("title", String.valueOf("¿ì½Ý²ËÆ×")); 
-            	if (getActivity().getClass() != BuiltinDishes.class)
+            	//if (getActivity().getClass() != BuiltinDishes.class)
             		startActivity(intent); 
-            	else 
-            		sm.toggle(); 
+            	//else 
+            	//	sm.toggle(); 
             	 
             }
         });
