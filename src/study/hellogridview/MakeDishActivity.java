@@ -842,7 +842,7 @@ public class MakeDishActivity extends Activity {
 		 
 		 for (int i = 0; i < list.size(); ++i) {
 			 Material m = list.get(i);
-			 if (!m.path.isEmpty() && m.img_drawable == null) {
+			 if (m.path != null && !m.path.isEmpty() && m.img_drawable == null) {
 				 Log.v("MakeDishActivity", "init m.img_drawable");
 				 BitmapFactory.Options options = new BitmapFactory.Options(); options.inPurgeable = true; 
 				 Bitmap bmp = BitmapFactory.decodeFile(new_dish.getDishDirName() + m.path, options);
