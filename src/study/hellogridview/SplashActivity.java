@@ -63,8 +63,9 @@ public class SplashActivity extends Activity {
                 // ¸ü»»Í¼Æ¬
                 handler.sendEmptyMessage(0x789);
                 
-                result = loadLocalDish();
                 startTime = System.currentTimeMillis();
+                result = loadLocalDish();
+                Tool.preload_common_res(SplashActivity.this);
                 loadingTime = System.currentTimeMillis() - startTime;
                 if (loadingTime < 2000) {
                     try {

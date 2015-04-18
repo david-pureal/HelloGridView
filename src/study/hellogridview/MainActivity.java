@@ -310,6 +310,7 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
     protected void onDestroy() {  
         super.onDestroy();  
         Log.v("MainActivity", "onDestroy");  
+        System.exit(0);
     }
  
 }

@@ -261,17 +261,6 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         }); 
 		
 		dish_id = Math.max(1, dish_id);
-		
-        if (Dish.getDishById(dish_id) != null) {
-	        if (Dish.getDishById(dish_id).isAppBuiltIn()) {
-	        	BitmapFactory.Options options = new BitmapFactory.Options(); options.inPurgeable = true; 
-	        	bmp = BitmapFactory.decodeResource(this.getResources(), Dish.getDishById(dish_id).img, options);
-	        }
-	        else {
-	        	bmp = Dish.getDishById(dish_id).img_bmp;
-	        }
-        }
-        
         draw_temp_baselin(); 
 	} // oncreate
 
@@ -287,9 +276,8 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	MediaPlayer player1;
 	private int zhuliao_i;
 	
-	private Bitmap bmp;
-	Bitmap canvas_bmp = null;
-	ByteBuffer background_buffer; // 缓冲，每次绘制后canvas_bmp会被修改， 下次绘制时使用该buffer把canvas_bmp还原到初始状态
+	static Bitmap canvas_bmp = null;
+	static ByteBuffer background_buffer; // 缓冲，每次绘制后canvas_bmp会被修改， 下次绘制时使用该buffer把canvas_bmp还原到初始状态
 	
 	// 画设定的温度线，用绿色线
 	private void draw_temp_baselin() {
@@ -301,10 +289,10 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 		int width = dip2px(465/*403*/);
         int height = dip2px(272/*240*/);
         Log.v("CurStateActivity", "width=" + width + ", height=" + height);
-        if (this.canvas_bmp == null) {
+        if (canvas_bmp == null) {
         	Log.v("CurStateActivity", "canvas_bmp is null, create one");
-        	this.canvas_bmp = Bitmap.createBitmap(width, height, Config.ARGB_8888); // 每次都创建会的话导致OutOfMemoryError
-        	this.background_buffer = ByteBuffer.allocate(canvas_bmp.getByteCount());
+        	canvas_bmp = Bitmap.createBitmap(width, height, Config.ARGB_8888); // 每次都创建会的话导致OutOfMemoryError
+        	background_buffer = ByteBuffer.allocate(canvas_bmp.getByteCount());
         }
 
 		paint.setStyle(Paint.Style.STROKE); 
@@ -312,8 +300,8 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         paint.setColor(Color.GREEN);
         paint.setStrokeWidth(3);
         
-        this.background_buffer.position(0);
-        canvas_bmp.copyPixelsFromBuffer(this.background_buffer);
+        background_buffer.position(0);
+        canvas_bmp.copyPixelsFromBuffer(background_buffer);
         Canvas canvas = new Canvas(canvas_bmp);
         
         //Log.v("CurStateActivity", "canvas.width = " + canvas.getWidth() + "canvas.height = " + canvas.getHeight());
@@ -381,9 +369,10 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	    img_rect.top = (int) (8.0/272 * height);
 	    img_rect.bottom = (int) (77.0/272 * height);
 	    
-        //Bitmap bmp;
-
-        canvas.drawBitmap(bmp, null, img_rect, null);
+	    if (Dish.getDishById(dish_id).isAppBuiltIn() && Dish.getDishById(dish_id).img_bmp == null) {
+        	Dish.getDishById(dish_id).img_bmp = Tool.decode_res_bitmap(Dish.getDishById(dish_id).img, this);
+        }
+        canvas.drawBitmap(Dish.getDishById(dish_id).img_bmp, null, img_rect, null);
         
         // add oil
         int cur_temp = ds.temp & 0xff;
@@ -420,9 +409,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	        img_rect.top = (int) (198.0/272 * height);
 	        img_rect.bottom = (int) (262.0/272 * height);
         
-	        BitmapFactory.Options options = new BitmapFactory.Options(); options.inPurgeable = true;
-	        Bitmap bmp2 = BitmapFactory.decodeResource(this.getResources(), R.drawable.add_oil, options);
-	        canvas.drawBitmap(bmp2, null, img_rect, null);
+	        canvas.drawBitmap(Tool.get_res_bitmap(R.drawable.add_oil), null, img_rect, null);
         }
         
         // add zhuliao_tiaoliao
@@ -443,9 +430,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	        img_rect.top = (int) (154.0/272 * height);
 	        img_rect.bottom = (int) (240.0/272 * height);
         
-	        BitmapFactory.Options options = new BitmapFactory.Options(); options.inPurgeable = true;
-	        Bitmap bmp2 = BitmapFactory.decodeResource(this.getResources(), R.drawable.zhuliao_tiaoliao, options);
-	        canvas.drawBitmap(bmp2, null, img_rect, null);
+	        canvas.drawBitmap(Tool.get_res_bitmap(R.drawable.zhuliao_tiaoliao), null, img_rect, null);
         }
 
         // temp curve

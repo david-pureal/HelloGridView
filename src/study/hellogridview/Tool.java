@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Properties;
@@ -46,6 +47,8 @@ public class Tool {
 	public DisplayMetrics dm;
 	//public String alldish_jsonstr = "";
 	public String downloading_dish_allfiles = "";
+
+	public static HashMap<Integer, Bitmap> image_res_mgr = new HashMap<Integer, Bitmap>(); //一些可以公用的图片资源，比如提示语，启动时加载
 	
 	public String makeTinyImage(Dish dish/*BitmapDrawable input, short dishid*/) {
 		Bitmap src_bmp = dish.img_bmp;
@@ -451,5 +454,19 @@ public class Tool {
 	        }
 	    }
 	    return(directory.delete());
+	}
+	
+	// 加载提示语图片资源
+	public static void preload_common_res(Context context) {
+		image_res_mgr.put(R.drawable.zhuliao_tiaoliao, decode_res_bitmap(R.drawable.zhuliao_tiaoliao, context));
+		image_res_mgr.put(R.drawable.add_oil, decode_res_bitmap(R.drawable.add_oil, context));
+	}
+	
+	public static Bitmap get_res_bitmap(int resid) {
+		return image_res_mgr.get(resid);
+	}
+	
+	public static Bitmap decode_res_bitmap(int resid, Context context) {
+		return BitmapFactory.decodeStream(context.getResources().openRawResource(resid));
 	}
 }

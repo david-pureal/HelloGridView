@@ -56,7 +56,8 @@
             android:name=".CurStateActivity"
             android:screenOrientation="sensorLandscape"
             android:label="@string/title_activity_cur_state"
-            android:launchMode="singleTask" >"
+            android:launchMode="standard"
+             >
         </activity>
         <activity
             android:name=".BuiltinDishes"
