@@ -2,6 +2,7 @@ package study.hellogridview;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -128,7 +129,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	                	CurStateActivity.this.time = ds.time;
 	                	//CurStateActivity.this.temp = ds.temp;
 	                	CurStateActivity.this.jiaoban_speed = ds.jiaoban_speed;
-	                	CurStateActivity.this.dish_id = ds.dishid & 0xffff;
+	                	CurStateActivity.this.dish_id = Math.max(1, ds.dishid & 0xffff);
                 	}
                 	
                 	CurStateActivity.this.update_seekbar();
@@ -137,7 +138,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
                 	int MaxDataSize = 800;
                 	if(ds.working_state != 0x02) {//待机中
                 		if (ds.working_state == 0x01) {
-                			CurStateActivity.this.jiaoban_speed = 1;
+                			//CurStateActivity.this.jiaoban_speed = 1;
                 		}
                 		else if (data.size() < MaxDataSize){ 
                 			data.add(Math.min(200, (int)(ds.temp & 0x00ff)));
@@ -145,7 +146,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
                 			
                 		}
                 	} else {
-                		CurStateActivity.this.jiaoban_speed = 1;
+                		//CurStateActivity.this.jiaoban_speed = 1;
                 		state = STATE_HEATING;
                 		t = 50;
                 		data.clear();
@@ -194,8 +195,8 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	            		CurStateActivity.this.temp = (byte) Math.max(0, t);
 	        		} else if (selectedRBtn.getId() == R.id.jiaoban) {
 	        			CurStateActivity.this.jiaoban_speed = (byte) (CurStateActivity.this.jiaoban_speed + i*1);
-	        			CurStateActivity.this.jiaoban_speed = (byte) Math.min(8, CurStateActivity.this.jiaoban_speed);
-	        			CurStateActivity.this.jiaoban_speed = (byte) Math.max(1, CurStateActivity.this.jiaoban_speed);
+	        			CurStateActivity.this.jiaoban_speed = (byte) Math.min(8, CurStateActivity.this.jiaoban_speed & 0xff);
+	        			CurStateActivity.this.jiaoban_speed = (byte) Math.max(1, CurStateActivity.this.jiaoban_speed & 0xff);
 	        		} else if (selectedRBtn.getId() == R.id.time) {
 	        			Log.v("CurStateActivity", "ds.time =" + ds.time);
 	        			ds.time = (short) (ds.time + i*10);
@@ -203,8 +204,8 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	        			ds.time = (short) Math.max(0, ds.time);
 	        			Log.v("CurStateActivity", "CurStateActivity set time = " + ds.time);
 	        		}
-	            	CurStateActivity.this.updateall();
-	            	CurStateActivity.this.update_seekbar();
+	            	//CurStateActivity.this.updateall();
+	            	//CurStateActivity.this.update_seekbar();
 	            	CurStateActivity.this.modify_state = (byte)0xE0;
 	            	CurStateActivity.this.onStopTrackingTouch(CurStateActivity.this.bar);
 	            	
@@ -259,8 +260,19 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
             }  
         }); 
 		
-        draw_temp_baselin();       
-
+		dish_id = Math.max(1, dish_id);
+		
+        if (Dish.getDishById(dish_id) != null) {
+	        if (Dish.getDishById(dish_id).isAppBuiltIn()) {
+	        	BitmapFactory.Options options = new BitmapFactory.Options(); options.inPurgeable = true; 
+	        	bmp = BitmapFactory.decodeResource(this.getResources(), Dish.getDishById(dish_id).img, options);
+	        }
+	        else {
+	        	bmp = Dish.getDishById(dish_id).img_bmp;
+	        }
+        }
+        
+        draw_temp_baselin(); 
 	} // oncreate
 
 	public final static int STATE_HEATING = 0;
@@ -275,19 +287,35 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	MediaPlayer player1;
 	private int zhuliao_i;
 	
-	Bitmap last_bmp = null;
+	private Bitmap bmp;
+	Bitmap canvas_bmp = null;
+	ByteBuffer background_buffer; // 缓冲，每次绘制后canvas_bmp会被修改， 下次绘制时使用该buffer把canvas_bmp还原到初始状态
 	
 	// 画设定的温度线，用绿色线
 	private void draw_temp_baselin() {
+		if (Dish.getDishById(dish_id) == null) {
+			Log.v("CurStateActivity", "dishid=" + dish_id + " is not exist, skip drawing");
+			return;
+		}
+		
+		int width = dip2px(465/*403*/);
+        int height = dip2px(272/*240*/);
+        Log.v("CurStateActivity", "width=" + width + ", height=" + height);
+        if (this.canvas_bmp == null) {
+        	Log.v("CurStateActivity", "canvas_bmp is null, create one");
+        	this.canvas_bmp = Bitmap.createBitmap(width, height, Config.ARGB_8888); // 每次都创建会的话导致OutOfMemoryError
+        	this.background_buffer = ByteBuffer.allocate(canvas_bmp.getByteCount());
+        }
+
 		paint.setStyle(Paint.Style.STROKE); 
         paint.setAntiAlias(true); //去锯齿 
         paint.setColor(Color.GREEN);
         paint.setStrokeWidth(3);
         
-        int width = dip2px(465/*403*/);
-        int height = dip2px(272/*240*/);
-        Bitmap bitmap = Bitmap.createBitmap(width, height, Config.ARGB_8888); // 每次都创建会导致OutOfMemoryError
-        Canvas canvas = new Canvas(bitmap);
+        this.background_buffer.position(0);
+        canvas_bmp.copyPixelsFromBuffer(this.background_buffer);
+        Canvas canvas = new Canvas(canvas_bmp);
+        
         //Log.v("CurStateActivity", "canvas.width = " + canvas.getWidth() + "canvas.height = " + canvas.getHeight());
         //canvas.drawText("原先的画图区域--红色部分", 50, 100, paint) ;
         //canvas.drawColor(Color.RED);
@@ -337,7 +365,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         final int jiaoban_x = (int) (20.0/480 * width);
         final int jiaoban_y = (int) (162.0/272 * height);
         paint.setTextSize(40);
-        canvas.drawText(this.jiaoban_str.get(ds.jiaoban_speed -1), jiaoban_x, jiaoban_y, paint) ;
+        canvas.drawText(this.jiaoban_str.get(Math.max(0, ds.jiaoban_speed-1)), jiaoban_x, jiaoban_y, paint) ;
         
         // dish name
         final int name_x = (int) (130.0/480 * width);
@@ -353,14 +381,8 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	    img_rect.top = (int) (8.0/272 * height);
 	    img_rect.bottom = (int) (77.0/272 * height);
 	    
-        Bitmap bmp;
-        if (Dish.getDishById(dish_id).isAppBuiltIn()) {
-        	BitmapFactory.Options options = new BitmapFactory.Options(); options.inPurgeable = true; 
-        	bmp = BitmapFactory.decodeResource(this.getResources(), Dish.getDishById(dish_id).img, options);
-        }
-        else {
-        	bmp = Dish.getDishById(dish_id).img_bmp;
-        }
+        //Bitmap bmp;
+
         canvas.drawBitmap(bmp, null, img_rect, null);
         
         // add oil
@@ -398,7 +420,8 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	        img_rect.top = (int) (198.0/272 * height);
 	        img_rect.bottom = (int) (262.0/272 * height);
         
-	        Bitmap bmp2 = BitmapFactory.decodeResource(this.getResources(), R.drawable.add_oil);
+	        BitmapFactory.Options options = new BitmapFactory.Options(); options.inPurgeable = true;
+	        Bitmap bmp2 = BitmapFactory.decodeResource(this.getResources(), R.drawable.add_oil, options);
 	        canvas.drawBitmap(bmp2, null, img_rect, null);
         }
         
@@ -420,7 +443,8 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	        img_rect.top = (int) (154.0/272 * height);
 	        img_rect.bottom = (int) (240.0/272 * height);
         
-	        Bitmap bmp2 = BitmapFactory.decodeResource(this.getResources(), R.drawable.zhuliao_tiaoliao);
+	        BitmapFactory.Options options = new BitmapFactory.Options(); options.inPurgeable = true;
+	        Bitmap bmp2 = BitmapFactory.decodeResource(this.getResources(), R.drawable.zhuliao_tiaoliao, options);
 	        canvas.drawBitmap(bmp2, null, img_rect, null);
         }
 
@@ -471,7 +495,6 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 		    //当前的画图区域为Rect裁剪的区域，而不是我们之前赋值的bitmap  
 		    canvas.clipRect(rect); 
 		    paint.setStyle(Paint.Style.FILL);
-		    //canvas.drawColor(Color.YELLOW);
 		    
 		    int radius = (int) (5.0 * width/480);
 		    int radius3 = (int) (49.0 * width/480);
@@ -570,12 +593,9 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 		    canvas.drawLine(cx, cy, bx, by, paint);
         }
 
-        
-	    
-        main.setImageBitmap(bitmap);
-        if (last_bmp != null) last_bmp.recycle(); 
-        last_bmp = bitmap;
+        main.setImageBitmap(canvas_bmp);
 	}
+	
 	boolean waiting = false;
 	int count = 0;
 	int stopcount = 0;
@@ -596,7 +616,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 			pos = (this.temp & 0xff)/2;
 			Log.v("CurStateActivity", "now temp=" + pos);
 		} else if (selectedRBtn.getId() == R.id.jiaoban) {
-			pos = (int) ((float)(this.jiaoban_speed) / 7 * 100);
+			pos = (int) ((float)(this.jiaoban_speed) / 8 * 100);
 		} else if (selectedRBtn.getId() == R.id.time) {
 			pos = (int) ((float)(ds.time) / 3599 * 100);
 			Log.v("CurStateActivity", "now time=" + pos);
@@ -651,7 +671,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         is_changing_seekbar = false;
         zhuliao_index = 0;
         
-        this.handler.sendEmptyMessage(0x234);
+        //this.handler.sendEmptyMessage(0x234);
     }
 
 	@Override
@@ -664,7 +684,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 		if (selectedRBtn.getId() == R.id.temp) {
 			this.temp = (byte) (progress*2);
 		} else if (selectedRBtn.getId() == R.id.jiaoban) {
-			this.jiaoban_speed = (byte) ((((float)(progress)/100) * 7) + 1);
+			this.jiaoban_speed = (byte) ((((float)(progress)/100) * 8) + 1);
 		} else if (selectedRBtn.getId() == R.id.time) {
 			ds.time = (short) (((float)(progress)/100) * 3599);
 		}
@@ -700,7 +720,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	
 	@Override  
     protected void onPause() {  
-        super.onPause();  
+        super.onPause(); 
         Log.v("CurStateActivity", "onPause");  
     }  
     @Override  
@@ -711,6 +731,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
     @Override  
     protected void onDestroy() {  
         super.onDestroy();  
+        //if (canvas_bmp != null) canvas_bmp.recycle();
         Log.v("CurStateActivity", "onDestroy");  
     }
 }

@@ -33,6 +33,7 @@ import com.jeremyfeinstein.slidingmenu.lib.app.SlidingFragmentActivity;
 
 
 
+
 //import android.R;
 import android.app.Activity;
 import android.content.Intent;
@@ -44,6 +45,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
@@ -91,6 +93,7 @@ public class BuiltinDishes extends SlidingFragmentActivity implements OnTouchLis
     public SlidingMenu sm;
     
     TextView tv;
+	private boolean back_key_clicked = false; //纪录是否点了返回键
     
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -395,10 +398,21 @@ public class BuiltinDishes extends SlidingFragmentActivity implements OnTouchLis
 	     });
 	}
 	
+	@Override  
+    public boolean onKeyDown(int keyCode, KeyEvent event) {  
+		if (keyCode == KeyEvent.KEYCODE_BACK) {
+			back_key_clicked = true;
+		}
+        return super.onKeyDown(keyCode, event);  
+    }
+	
 	@Override
 	protected void onPause() {
 		Log.v("BuiltinDishes", "Buildin onPause");
 		super.onPause();
-		this.finish();
+		if (back_key_clicked) {
+			this.finish();
+			back_key_clicked = false;
+		}
 	}
 }
