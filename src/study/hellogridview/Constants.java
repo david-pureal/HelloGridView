@@ -9,13 +9,17 @@ public final class Constants {
 	// message id
 	public static final int MSG_ID_STA_IP = 100;
 	public static final int MSG_ID_UPLOAD_RESULT = 200;
+	public static final int MSG_ID_DOWNLOAD_ICON = 300;
+	public static final int MSG_ID_VERIFY_DONE = 400;
 	
 	// dish related
-	public static final int DISH_APP_BUILTIN    = 0x01;   // APP内置菜谱
-	public static final int DISH_MADE_BY_USER   = 0x02;   // 用户自编菜谱，还未上传
-	public static final int DISH_UPLOAD_BY_USER = 0x10;   // 用户自编菜谱，已上传
-	public static final int DISH_DEVICE_BUILTIN = 0x100;  // 机器内置菜谱
-	public static final int DISH_FAVORITE       = 0x1000; // 用户收藏的菜谱
+	public static final int DISH_APP_BUILTIN      = 0x01;   // APP内置菜谱
+	public static final int DISH_MADE_BY_USER     = 0x02;   // 用户自编菜谱，还未上传
+	public static final int DISH_UPLOAD_VERIFYING = 0x10;   // 用户自编菜谱，已上传，审核中。。。
+	public static final int DISH_VERIFY_ACCEPT    = 0x20;   // 用户自编菜谱，已上传，审核通过
+	public static final int DISH_VERIFY_REJECT    = 0x40;   // 用户自编菜谱，已上传，审核未通过
+	public static final int DISH_DEVICE_BUILTIN   = 0x100;  // 机器内置菜谱
+	public static final int DISH_FAVORITE         = 0x1000; // 用户收藏的菜谱
 	
 	public static final String DISH_PARAM_FILENAME = "dish.param";
 	public static final String DISH_IMG_FILENAME = "main.jpg";

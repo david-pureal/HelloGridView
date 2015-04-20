@@ -58,6 +58,7 @@ public class HttpUtils {
     // upload dish.param, main image and material images
     public static void uploadDish(final Dish dish, final Context context) {
     	if (dish.isAppBuiltIn()) return;
+    	
     	new Thread() {
 			@Override
 			public void run() {
@@ -129,7 +130,7 @@ public class HttpUtils {
 							Dish dish = Dish.getDishById(dishid); 
 							Dish.removeDish(dish);
 							dish.dishid = jsonres.getInt("new_dishid");
-							dish.type = Constants.DISH_UPLOAD_BY_USER;
+							dish.type = Constants.DISH_UPLOAD_VERIFYING;
 							dish.saveDishParam();
 							Dish.putDish(dish);
 							
@@ -217,7 +218,8 @@ public class HttpUtils {
 				String filename = subfiles.getString(i);  
 				// download
 				String path_param = dir_name + filename;
-				downloadFile(path_param, dishid);
+				String url = "http://182.92.231.24:8889/download";
+				downloadFile(url, path_param);
 			}
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
@@ -225,8 +227,7 @@ public class HttpUtils {
 		}
 	}
 
-	private static void downloadFile(final String filename, int dishid) {
-		String url = "http://182.92.231.24:8889/download";
+	public static void downloadFile(final String url, final String filename) {
 		RequestParams params = new RequestParams();
 		params.put("filename", filename);
 		
@@ -236,7 +237,6 @@ public class HttpUtils {
 				arg3.printStackTrace();
 				Log.v("HttpUtil", "downloadFile " + filename + " fail");
 			}
-
 			@Override
 			public void onSuccess(int arg0, Header[] arg1, byte[] arg2) {
 				String path = Tool.getInstance().getModulePath() + filename;
@@ -244,6 +244,63 @@ public class HttpUtils {
 				Log.v("HttpUtil", "downloadFile " + filename + " done");
 			}
     	});
-		
 	}
+	
+	public static void register(final String id, final String name) {
+		RequestParams params = new RequestParams();
+		params.put("userId", id);
+		params.put("userName", name);
+		
+		String url = "http://182.92.231.24:8889/register";
+		
+    	HttpUtils.getSync(url, params, new AsyncHttpResponseHandler() {
+			@Override
+			public void onFailure(int arg0, Header[] arg1, byte[] arg2, Throwable arg3) {
+				arg3.printStackTrace();
+				Log.v("HttpUtil", "register fail");
+			}
+			@Override
+			public void onSuccess(int arg0, Header[] arg1, byte[] arg2) {
+				Log.v("HttpUtil", "register done. userId=" + id + ", userName=" + name);
+			}
+    	});
+	}
+	
+	public static void VerifyDish(final Dish dish, final boolean is_accept, final MakeDishActivity context) {
+    	if (dish.isAppBuiltIn()) return;
+    	
+    	new Thread() {
+			@Override
+			public void run() {
+				RequestParams params = new RequestParams();
+				params.put("is_accept", is_accept ? "true" : "false");
+				params.put("dishid", "" + dish.dishid);
+				
+				String url = "http://182.92.231.24:8889/verify";
+				
+				int retry_times = 0;
+				while (Dish.getDishById(dish.dishid).isVerifying() && retry_times++ < 2) {
+					Log.v("HttpUtil", "retry_times = " + retry_times);
+			    	HttpUtils.getSync(url, params, new AsyncHttpResponseHandler() {
+						@Override
+						public void onFailure(int arg0, Header[] arg1, byte[] arg2, Throwable arg3) {
+							arg3.printStackTrace();
+							Log.v("HttpUtil", "verify onFailure");
+						}
+						@Override
+						public void onSuccess(int arg0, Header[] arg1, byte[] arg2) {
+							String res = new String(arg2);
+							Log.v("HttpUtil", "verify done. res=" + res + ", dishid=" + dish.dishid);
+							Dish d = Dish.getDishById(dish.dishid);
+							//d.type = (d.type & ~Constants.DISH_UPLOAD_VERIFYING) | (is_accept ? Constants.DISH_VERIFY_ACCEPT : Constants.DISH_VERIFY_REJECT);
+							d.type = is_accept ? Constants.DISH_VERIFY_ACCEPT : Constants.DISH_VERIFY_REJECT;
+							d.saveDishParam();
+						}
+			    	});
+				} //while
+				
+				context.handler.sendEmptyMessage(Constants.MSG_ID_VERIFY_DONE);
+			}
+		}.start();
+    }
 }

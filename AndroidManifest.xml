@@ -113,6 +113,12 @@
         </activity>
         
         <activity
+            android:name=".LoginActivity"
+            android:screenOrientation="sensorPortrait"
+            android:label="登录" >
+        </activity>
+        
+        <activity
 			 android:name="cn.sharesdk.framework.ShareSDKUIShell"
 			 android:theme="@android:style/Theme.Translucent.NoTitleBar"
 			 android:configChanges="keyboardHidden|orientation|screenSize"
@@ -132,11 +138,7 @@
 			 android:theme="@android:style/Theme.Translucent.NoTitleBar"
 			 android:configChanges="keyboardHidden|orientation|screenSize"
 			 android:exported="true"
-			 android:screenOrientation="portrait" /> 
-			 
-		 <activity
-            android:name=".Main"
-            android:label="@string/title_activity_alldish" >
+			 android:screenOrientation="portrait" > 
         </activity>
     </application>
 

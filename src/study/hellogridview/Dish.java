@@ -49,6 +49,9 @@ public class Dish implements Cloneable {
 	protected String zhuliao_content = "土豆丝: 230克\n青椒丝: 20克";
 	public String fuliao_content = "";
 	
+	public String author_id = "";
+	public String author_name = "";
+	
 	// 材料是有序的
 	public LinkedHashMap<String, String> zhuliao_content_map = new LinkedHashMap<String, String>();
 	public LinkedHashMap<String, String> fuliao_content_map = new LinkedHashMap<String, String>();
@@ -126,6 +129,9 @@ public class Dish implements Cloneable {
 	}
 	
 	public void saveDishParam() {
+		this.author_id = Account.userid;
+		this.author_name = Account.username;
+		
 		// 用于写入文件
 		JSONObject dishj = new JSONObject();
 		try {
@@ -151,6 +157,9 @@ public class Dish implements Cloneable {
 			
 			dishj.put("img_path", img_path);
 			dishj.put("img_tiny_path", img_tiny_path);
+			
+			dishj.put("author_id", author_id);
+			dishj.put("author_name", author_name);
 
 			// 主料，辅料和备料图文写入文件
 			JSONArray zhuliao_array = new JSONArray();
@@ -349,6 +358,12 @@ public class Dish implements Cloneable {
 
 	public boolean isAppBuiltIn() {
 		return (type & Constants.DISH_APP_BUILTIN) == 0x01;
+	}
+	public boolean isVerifying() {
+		return (type & Constants.DISH_UPLOAD_VERIFYING) != 0;
+	}
+	public boolean isVerifyDone() {
+		return (type & Constants.DISH_VERIFY_ACCEPT) != 0;
 	}
 
 }

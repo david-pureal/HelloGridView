@@ -193,6 +193,12 @@ public class BuiltinDishes extends SlidingFragmentActivity implements OnTouchLis
 	              }  
 	          });
 		}
+		else if (intent.getStringExtra("title").equalsIgnoreCase("²ËÆ×ÉóºË")) {
+			 Log.v("BuiltinDishes", "²ËÆ×ÉóºË");
+			 replace_builtin.setVisibility(View.GONE);
+			 make_new_dish.setVisibility(View.GONE);
+		}
+		
 		replace_builtin = (Button)findViewById(R.id.replace_builtin);  
 		replace_builtin.setOnClickListener(new OnClickListener() {  
       	  
@@ -328,6 +334,8 @@ public class BuiltinDishes extends SlidingFragmentActivity implements OnTouchLis
     	return this.handler;
     }
 	
+	ArrayList<Integer> index_id_list = new ArrayList<Integer>();
+	
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -340,6 +348,8 @@ public class BuiltinDishes extends SlidingFragmentActivity implements OnTouchLis
         if (title.equals("¿ì½Ý²ËÆ×") && !ds.got_builtin) {
         	for (int i = 0;i < ds.builtin_dishids.length;++i) ds.builtin_dishids[i] = (short) (i + 1);
         }
+        index_id_list.clear();
+        
         ArrayList<HashMap<String,Object>> al=new ArrayList<HashMap<String,Object>>();
         for (Iterator<Integer> it = dishes.keySet().iterator();it.hasNext();)
         {
@@ -352,6 +362,9 @@ public class BuiltinDishes extends SlidingFragmentActivity implements OnTouchLis
             		 continue;
             	 }
              }
+             else if (title.equals("²ËÆ×ÉóºË") && !d.isVerifying()) {
+            	 continue;
+             }
              
              if (d.isAppBuiltIn()) {
              	map.put("icon", d.img); //Ìí¼ÓÍ¼Ïñ×ÊÔ´µÄID 
@@ -361,6 +374,9 @@ public class BuiltinDishes extends SlidingFragmentActivity implements OnTouchLis
              	map.put("icon", d.img_bmp); //Ìí¼ÓÍ¼Ïñ×ÊÔ´µÄID 
              }
              map.put("name", d.name_chinese);//°´ÐòºÅ×öItemText 
+             
+             index_id_list.add(d.dishid);
+             
              al.add(map);
         }
         
@@ -389,10 +405,18 @@ public class BuiltinDishes extends SlidingFragmentActivity implements OnTouchLis
 	            //Toast.makeText(MainActivity.this,mThumbIds[position], Toast.LENGTH_SHORT).show(); 
 	        	Log.v("OnItemClickListener", "position = " + position + "id = " + id);
 	        	Intent intent;
-	        	Dish dish = Dish.getDishByIndex(position);
+	        	Dish dish;
+	        	if (tv.getText().toString().equals("²ËÆ×ÉóºË")) {
+	        		dish = Dish.getDishById(index_id_list.get(position));
+	        	}
+	        	else {
+	        		dish = Dish.getDishByIndex(position);
+	        	}
+	        	
 	        	if (dish.isAppBuiltIn()) intent = new Intent(BuiltinDishes.this, DishActivity.class);
 	        	else intent = new Intent(BuiltinDishes.this, MakeDishActivity.class);
 	        	intent.putExtra("dish_id", dish.dishid); 
+	        	intent.putExtra("title", tv.getText().toString()); 
 	        	startActivity(intent);
 	        }  
 	     });

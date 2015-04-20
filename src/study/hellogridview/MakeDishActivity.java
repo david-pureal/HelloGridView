@@ -2,6 +2,7 @@ package study.hellogridview;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -9,6 +10,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 
+import cn.sharesdk.onekeyshare.OnekeyShare;
 import study.hellogridview.Dish.Material;
 import kankan.wheel.widget.OnWheelChangedListener;
 import kankan.wheel.widget.OnWheelClickedListener;
@@ -23,10 +25,12 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Bitmap.CompressFormat;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.util.DisplayMetrics;
@@ -90,10 +94,13 @@ public class MakeDishActivity extends Activity {
 	
 	Button makedish_replace;
 	Button makedish_upload;
+	Button makedish_verify;
+	ImageView makedish_share;
 	
 	ProgressBar progressBar1;
 	
 	public int new_dish_id;
+	boolean editable = true;
 	
 	private TableLayout tableLayout_zhuliao;
 	private TableLayout tableLayout_fuliao;
@@ -319,7 +326,10 @@ public class MakeDishActivity extends Activity {
                 	else {
                 		// TODO progress bar 
                 	}
-                	
+                }
+                else if (msg.what == Constants.MSG_ID_VERIFY_DONE) {
+                	makedish_verify.setText("审核已通过");
+                	makedish_verify.setEnabled(false);
                 }
             }  
         }; 
@@ -681,20 +691,81 @@ public class MakeDishActivity extends Activity {
             		return;
             	}
             	new_dish.saveDishParam();
-            	HttpUtils.uploadDish(new_dish, MakeDishActivity.this);
+            	
+            	// 先登录后上传
+            	if (!Account.is_login) {
+            		Intent intent = new Intent(MakeDishActivity.this, LoginActivity.class);
+                	intent.putExtra("header", "登录后才能上传哦～");
+                	startActivityForResult(intent, 8);
+            	} else {
+            		HttpUtils.uploadDish(new_dish, MakeDishActivity.this);
+            	}
             }  
         });
-		if ((new_dish.type & Constants.DISH_UPLOAD_BY_USER) != 0) {
+		if (new_dish.isVerifying() || new_dish.isVerifyDone()) {
 			// 已经上传过的暂不能再更新
 			makedish_upload.setEnabled(false);
 		}
-	}
+		
+		makedish_verify = (Button) findViewById(R.id.makedish_verify);
+		makedish_verify.setOnClickListener(new OnClickListener() {  
+            @Override  
+            public void onClick(View v) {  
+            	Log.v("MakeDishActivity", "make verify done");
+            	HttpUtils.VerifyDish(new_dish, true, MakeDishActivity.this);
+            }  
+        });
+		
+		if (!intent.getStringExtra("title").equals("菜谱审核")) {
+			makedish_verify.setVisibility(View.GONE);
+		}
+		
+		makedish_share = (ImageView) findViewById(R.id.makedish_share);
+		makedish_share.setOnClickListener(new OnClickListener() {  
+            @Override  
+            public void onClick(View v) {  
+            	Log.v("MakeDishActivity", "make dish share");
+            	 OnekeyShare oks = new OnekeyShare();
+        		 //关闭sso授权
+        		 oks.disableSSOWhenAuthorize(); 
+        		 
+        		// 分享时Notification的图标和文字  2.5.9以后的版本不调用此方法
+        		 //oks.setNotification(R.drawable.ic_launcher, getString(R.string.app_name));
+        		 // title标题，印象笔记、邮箱、信息、微信、人人网和QQ空间使用
+        		 oks.setTitle(getString(R.string.share));
+        		 // titleUrl是标题的网络链接，仅在人人网和QQ空间使用
+        		 oks.setTitleUrl("http://sharesdk.cn");
+        		 // text是分享文本，所有平台都需要这个字段
+        		 oks.setText("我是分享文本");
+        		 // imagePath是图片的本地路径，Linked-In以外的平台都支持此参数
+        		 oks.setImagePath(Environment.getExternalStorageDirectory().getAbsolutePath() + "/share_pic.jpg");//确保SDcard下面存在此张图片
+        		 // url仅在微信（包括好友和朋友圈）中使用
+        		 oks.setUrl("http://sharesdk.cn");
+        		 // comment是我对这条分享的评论，仅在人人网和QQ空间使用
+        		 oks.setComment("我是测试评论文本");
+        		 // site是分享此内容的网站名称，仅在QQ空间使用
+        		 oks.setSite(getString(R.string.app_name));
+        		 // siteUrl是分享此内容的网站地址，仅在QQ空间使用
+        		 oks.setSiteUrl("http://sharesdk.cn");
+        		 
+        		// 启动分享GUI
+        		 oks.show(MakeDishActivity.this);
+            }  
+        });
+		
+		new Thread() {
+			public void run() {
+				initImagePath();
+			}
+		}.start();
+		
+	} // onCreate
 	
 	public View popupView;
 	
 	protected int resp_cmd108_count = 0; // 图片数据响应计数
 	TCPClient tcpClient;
-	Handler handler;
+	public Handler handler;
 	
 	public void init_param() {
 		table_zhuliao_param.setVisibility(new_dish.zhuliao_content_map.isEmpty() ? View.GONE : View.VISIBLE);
@@ -811,6 +882,12 @@ public class MakeDishActivity extends Activity {
 	        	 makedish_name.setText(name);
 	    	 }
 	         break;
+	     case 8: // 登录返回
+	    	 if (Account.is_login) {
+	    		 Log.v("MakeDishActivity", "login return success, do upload");
+	    		 new_dish.saveDishParam(); // 用户登录后要保存创建者信息
+	    		 HttpUtils.uploadDish(new_dish, MakeDishActivity.this);
+	    	 }
 	     }
          //makedish_img.setImageDrawable(new_dish.img_drawable);
          makedish_img.setImageBitmap(new_dish.img_bmp);
@@ -926,4 +1003,32 @@ public class MakeDishActivity extends Activity {
 	     Log.v("MakeDishActivity", "onDestroy saveDishParam to file"); 
 	     new_dish.saveDishParam();
 	 } 
+	 
+	 private static final String FILE_NAME = "/share_pic.jpg";
+	 public static String TEST_IMAGE;
+		
+	 private void initImagePath() {
+			try {
+				if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())
+						&& Environment.getExternalStorageDirectory().exists()) {
+					TEST_IMAGE = Environment.getExternalStorageDirectory().getAbsolutePath() + FILE_NAME;
+				}
+				else {
+					TEST_IMAGE = getApplication().getFilesDir().getAbsolutePath() + FILE_NAME;
+				}
+				File file = new File(TEST_IMAGE);
+				//if (!file.exists()) {
+					file.createNewFile();
+					//Bitmap pic = BitmapFactory.decodeResource(getResources(), R.drawable.pic);
+					Bitmap pic = new_dish.img_bmp;
+					FileOutputStream fos = new FileOutputStream(file);
+					pic.compress(CompressFormat.JPEG, 100, fos);
+					fos.flush();
+					fos.close();
+				//}
+			} catch(Throwable t) {
+				t.printStackTrace();
+				TEST_IMAGE = null;
+			}
+		}
 }

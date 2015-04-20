@@ -196,14 +196,25 @@ public class MenuFragment extends Fragment {
                 //finish();//关闭当前Activity  
             }  
         });
+		
 		temp = (ImageView) getView().findViewById(R.id.login);
-//		temp.setOnClickListener(new OnClickListener() {  
-//            @Override  
-//            public void onClick(View v) {  
-//                startActivity(new Intent(getActivity(),BuiltinDishes.class));  
-//                //finish();//关闭当前Activity  
-//            }  
-//        });
+		temp.setOnClickListener(new OnClickListener() {  
+            @Override  
+            public void onClick(View v) {  
+                startActivity(new Intent(getActivity(), LoginActivity.class));  
+                //finish();//关闭当前Activity  
+            }  
+        });
+		
+		TextView login_tv = (TextView) getView().findViewById(R.id.login_tv);
+		login_tv.setOnClickListener(new OnClickListener() {  
+            @Override  
+            public void onClick(View v) {  
+                startActivity(new Intent(getActivity(), LoginActivity.class));  
+                //finish();//关闭当前Activity  
+            }  
+        });
+		
 		temp = (ImageView) getView().findViewById(R.id.setting);
 		temp.setOnClickListener(new OnClickListener() {  
             @Override  

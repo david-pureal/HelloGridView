@@ -359,6 +359,11 @@ public class Tool {
 			d.img_path = dishj.getString("img_path");
 			d.img_tiny_path = dishj.getString("img_tiny_path");
 			
+			if (dishj.has("author_id") && dishj.has("author_name")) {
+				d.author_id = dishj.getString("author_id");
+				d.author_name = dishj.getString("author_name");
+			}
+			
 			// 主料，辅料和备料图文
 			if (dishj.has("zhuliao_content")) {
 				JSONArray array_zhuliao = dishj.getJSONArray("zhuliao_content");
@@ -468,5 +473,21 @@ public class Tool {
 	
 	public static Bitmap decode_res_bitmap(int resid, Context context) {
 		return BitmapFactory.decodeStream(context.getResources().openRawResource(resid));
+	}
+	
+	public static Bitmap decode_path_bitmap(String path) {
+		String abs_path = Tool.getInstance().getModulePath() + path;
+//		if (!Tool.getInstance().isPathExist(path)) {
+//			return null;
+//		}
+		FileInputStream fis;
+		try {
+			fis = new FileInputStream(abs_path);
+			return BitmapFactory.decodeStream(fis);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 }
