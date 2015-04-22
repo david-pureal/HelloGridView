@@ -213,7 +213,7 @@ public class LoginActivity extends Activity implements PlatformActionListener, O
         if (mVelocityTracker == null) {  
             mVelocityTracker = VelocityTracker.obtain();  
         }  
-        mVelocityTracker.addMovement(event);  
+        mVelocityTracker.addMovement(event);     
     }  
       
     /** 
