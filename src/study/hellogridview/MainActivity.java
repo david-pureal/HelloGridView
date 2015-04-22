@@ -14,6 +14,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
@@ -36,6 +37,7 @@ import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.SimpleAdapter.ViewBinder;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.GridView;
@@ -74,6 +76,8 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
     public SlidingMenu sm;
     
     Handler handler;
+    
+    ArrayList<Integer> index_id_list = new ArrayList<Integer>();
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -197,6 +201,8 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
 		LinkedHashMap<Integer, Dish> dishes = Dish.getAllDish();
         Log.v("MainActivity", "length = " + dishes.size());
         
+        index_id_list.clear();
+        
         ArrayList<HashMap<String,Object>> al=new ArrayList<HashMap<String,Object>>();
         for (Iterator<Integer> it = dishes.keySet().iterator();it.hasNext();)
         {
@@ -206,13 +212,32 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
              
              if (d.isAppBuiltIn()) {
              	map.put("icon", d.img); //添加图像资源的ID 
-             	map.put("name", d.name_chinese);//按序号做ItemText 
-                al.add(map);
              }
+             else if (d.isVerifyDone()) {
+            	 map.put("icon", d.img_bmp); //添加图像资源的ID
+             }
+             else { continue;}
+             
+             map.put("name", d.name_chinese);//按序号做ItemText 
+             al.add(map);
+             index_id_list.add(d.dishid);
         }
         
         SimpleAdapter sa= new SimpleAdapter(MainActivity.this,al,R.layout.image_text,new String[]{"icon","name"},new int[]{R.id.ItemImage,R.id.ItemText});
         GridView gridView2 = (GridView)findViewById(R.id.gridview2);
+        sa.setViewBinder(new ViewBinder(){  
+            @Override  
+            public boolean setViewValue(View view, Object data,  
+                    String textRepresentation) {  
+                if( (view instanceof ImageView) && (data instanceof Bitmap ) ) {  
+                    ImageView iv = (ImageView) view;  
+                    Bitmap  bm = (Bitmap ) data;  
+                    iv.setImageBitmap(bm);
+                    return true;  
+                }  
+                return false;  
+            }  
+        });
         gridView2.setAdapter(sa);
        
         //单击GridView元素的响应  
@@ -223,9 +248,14 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
 	            //弹出单击的GridView元素的位置  
 	            //Toast.makeText(MainActivity.this,mThumbIds[position], Toast.LENGTH_SHORT).show(); 
 	        	Log.v("OnItemClickListener", "position = " + position + "id = " + id);
-	        	Intent intent = new Intent(MainActivity.this, DishActivity.class);
-	        	intent.putExtra("dish_id", Dish.getDishByIndex(position).dishid); 
-	        	startActivity(intent);
+	        	Dish dish = Dish.getDishById(index_id_list.get(position));
+	        	
+	        	Intent intent;
+	        	if (dish.isAppBuiltIn()) intent = new Intent(MainActivity.this, DishActivity.class);
+	        	else intent = new Intent(MainActivity.this, MakeDishActivity.class);
+	        	
+	        	intent.putExtra("dish_id", dish.dishid); 
+	        	startActivity(intent);	
 	        }  
 	     });
 	    
@@ -242,7 +272,6 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
 	
 	public class MyAdapter extends PagerAdapter{  
 		  
-		
         @Override  
         public int getCount() {  
             return /*Integer.MAX_VALUE*/6;  

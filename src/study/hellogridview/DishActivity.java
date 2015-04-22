@@ -65,7 +65,6 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
 	public static String TEST_IMAGE;
 	
 	Button startCook;
-	Button addFavorite;
 	Button share_to_wechat;
 	ImageView dish_img;
 	TextView dish_title;
@@ -80,16 +79,12 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
 	
 	//手指向右滑动时的最小速度  
     private static final int XSPEED_MIN = 200;  
-      
     //手指向右滑动时的最小距离  
     private static final int XDISTANCE_MIN = 200;  
-      
     //记录手指按下时的横坐标。  
     private float xDown;  
-      
     //记录手指移动时的横坐标。  
     private float xMove;  
-      
     //用于计算手指滑动的速度。  
     private VelocityTracker mVelocityTracker;  
     
@@ -102,6 +97,8 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
 	public Integer[] dishids = new Integer[12];
 	public final String dish_names[] = {"","","","","","","","","","","",""};
 	protected int current_cmd;
+	
+	public ImageView favorite;
     
 	@SuppressLint("HandlerLeak")
 	@Override
@@ -163,7 +160,11 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
                 			Log.v("DishActivity", " replace done");
                     	}
                 	}
-                } 
+                } // if (msg.what == 0x123) {   
+                else if (msg.what == Constants.MSG_ID_FAVORITE_DONE) {
+                	Log.v("DishActivity", "got favorite result, isFavorite ="  + Account.isFavorite(dish));
+                	favorite.setImageResource(Account.isFavorite(dish) ? R.drawable.favorite_dish_72 : R.drawable.unfavorite_dish_72);
+                }
             }  
         }; 
         
@@ -187,7 +188,6 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
         });
         
 		startCook = (Button) findViewById(R.id.startcook);  
-		addFavorite = (Button) findViewById(R.id.favorite); 
         startCook.setOnClickListener(new OnClickListener() {  
         	  
             @Override  
@@ -300,11 +300,18 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
             }  
         });
         
-        addFavorite.setOnClickListener(new OnClickListener() {  
-      	  
+        favorite = (ImageView) findViewById(R.id.favorite);
+        favorite.setImageResource(Account.isFavorite(dish) ? R.drawable.favorite_dish_72 : R.drawable.unfavorite_dish_72);
+        favorite.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) {
-
+            	if (!Account.is_login) {
+            		Intent intent = new Intent(DishActivity.this, LoginActivity.class);
+                	intent.putExtra("header", "登录后才能收藏");
+                	startActivityForResult(intent, 9);
+            	} else {
+            		HttpUtils.favorite(dish, DishActivity.this.handler);
+            	}
             }  
         });
         
@@ -346,6 +353,20 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
 			t.printStackTrace();
 			TEST_IMAGE = null;
 		}
+	}
+	
+	@Override  
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {  
+        super.onActivityResult(requestCode, resultCode, data);  
+        Log.v("DishActivity", "requestCode = " + requestCode + "resultCode =" + resultCode);
+        switch (requestCode) {  
+        case 9:  
+        	if (Account.is_login) {
+	    		 Log.v("DishActivity", "login return success, do favorite");
+	    		 HttpUtils.favorite(dish, DishActivity.this.handler);
+	    	}
+            break;  
+        }
 	}
 	
 	@Override

@@ -47,10 +47,11 @@ public class Dish implements Cloneable {
 	public String text = "1、底油：20克\n2、炝锅料：姜丝5克、蒜片5克\n3、主料：土豆丝230克,青椒丝20克，\n      红椒丝20克\n4、调料：鸡精2克、盐2克";
 	public String qiangguoliao_content = "姜丝5克、蒜片5克";
 	protected String zhuliao_content = "土豆丝: 230克\n青椒丝: 20克";
-	public String fuliao_content = "";
+	public String fuliao_content;
 	
-	public String author_id = "";
-	public String author_name = "";
+	public String author_id;
+	public String author_name;
+	public String device_id;
 	
 	// 材料是有序的
 	public LinkedHashMap<String, String> zhuliao_content_map = new LinkedHashMap<String, String>();
@@ -69,6 +70,11 @@ public class Dish implements Cloneable {
 	public Dish(Integer img, String name) {
 		this.img = img;
 		this.name_chinese = name;
+		
+		fuliao_content = "";
+		author_id = "";
+		author_name = "";
+		device_id = "";
 	}
 	
 	//用户自编菜谱
@@ -79,6 +85,7 @@ public class Dish implements Cloneable {
 		//d.img_tiny = R.raw.temp_tiny;
 		d.name_english = HanziToPinyin.getPinYin(d.name_chinese);
 		if (d.name_english.length() > 13) d.name_english = d.name_english.substring(0, 13);//英文名字有最大长度
+		
 		DeviceState ds = DeviceState.getInstance();
 		short max = 0;
 		for (int i = 0; i < ds.builtin_dishids.length ; ++i) {
@@ -99,6 +106,8 @@ public class Dish implements Cloneable {
 		d.img_tiny_path = Tool.getInstance().makeTinyImage(d);// 此处为相对路径
 		
 		d.type = Constants.DISH_MADE_BY_USER;
+		
+		d.device_id = Account.device_id;
 		
 		alldish_map.put(d.dishid, d);
 		return d.dishid;
@@ -129,8 +138,11 @@ public class Dish implements Cloneable {
 	}
 	
 	public void saveDishParam() {
-		this.author_id = Account.userid;
-		this.author_name = Account.username;
+		
+		if (this.isMine()) {
+			this.author_id = Account.userid;
+			this.author_name = Account.username;
+		}
 		
 		// 用于写入文件
 		JSONObject dishj = new JSONObject();
@@ -160,6 +172,9 @@ public class Dish implements Cloneable {
 			
 			dishj.put("author_id", author_id);
 			dishj.put("author_name", author_name);
+			
+			dishj.put("device_id", device_id);
+			
 
 			// 主料，辅料和备料图文写入文件
 			JSONArray zhuliao_array = new JSONArray();
@@ -349,11 +364,30 @@ public class Dish implements Cloneable {
 			d.sound = this.sound;
 			d.text = this.text;
 			d.water = this.water;
+			
+			d.type = this.type;
+			d.author_id = this.author_id;
+			d.author_name = this.author_name;
+			d.device_id = this.device_id;
 		} catch (CloneNotSupportedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return d;
+	}
+	
+	public boolean isMine() {
+		// 手机是个非常私人的设备，不考虑两个人用同一个的app的问题，当在一台设备上时就认为是同一个人，菜谱可以相互看到
+		if (/*this.author_id.isEmpty() && */this.device_id.equals(Account.device_id)) {
+			Log.v("Dish", "dish uploaded before login, and device_id is equal");
+			return true;
+		}
+		else if (!this.author_id.isEmpty() && Account.is_login && Account.userid.equals(this.author_id)){
+			Log.v("Dish", "dish uploaded after login, and currently login as the same user.");
+			return true;
+		}
+		
+		return false;
 	}
 
 	public boolean isAppBuiltIn() {
@@ -365,5 +399,14 @@ public class Dish implements Cloneable {
 	public boolean isVerifyDone() {
 		return (type & Constants.DISH_VERIFY_ACCEPT) != 0;
 	}
+
+	public static void remove_not_uploaded_dish(Dish dish) {
+		// TODO Auto-generated method stub
+		String path = dish.getDishDirName();
+		Tool.getInstance().deleteDirectory(path);
+		
+		Dish.getAllDish().remove(dish.dishid);
+	}
+	
 
 }

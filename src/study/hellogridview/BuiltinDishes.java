@@ -34,6 +34,7 @@ import com.jeremyfeinstein.slidingmenu.lib.app.SlidingFragmentActivity;
 
 
 
+
 //import android.R;
 import android.app.Activity;
 import android.content.Intent;
@@ -105,6 +106,9 @@ public class BuiltinDishes extends SlidingFragmentActivity implements OnTouchLis
 		requestWindowFeature(Window.FEATURE_CUSTOM_TITLE); 
 		setContentView(R.layout.activity_builtin_dishes);
 		getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.titlebtn);
+		
+		Button replace_button = (Button) findViewById(R.id.replace_builtin);
+		replace_button.setVisibility(View.GONE);
 		
 		handler = new Handler() {    
             @Override  
@@ -365,6 +369,18 @@ public class BuiltinDishes extends SlidingFragmentActivity implements OnTouchLis
              else if (title.equals("²ËÆ×ÉóºË") && !d.isVerifying()) {
             	 continue;
              }
+             else if (title.equals("×Ô±à²ËÆ×")) {
+            	 if (d.isAppBuiltIn()) continue;
+            	 
+            	 Log.v("BuiltinDishes", "d.dishid=" + d.dishid + ", d.author_id=" + d.author_id + ", d.author_name=" + d.author_name);
+            	 if (!d.isMine()) {
+            		 Log.v("BuiltinDishes", "dish not my dish.");
+            		 continue;
+            	 }
+             }
+             else if (title.equals("ÊÕ²Ø²ËÆ×")) {
+            	 if (!Account.isFavorite(d)) continue;
+             }
              
              if (d.isAppBuiltIn()) {
              	map.put("icon", d.img); //Ìí¼ÓÍ¼Ïñ×ÊÔ´µÄID 
@@ -404,17 +420,13 @@ public class BuiltinDishes extends SlidingFragmentActivity implements OnTouchLis
 	            //µ¯³öµ¥»÷µÄGridViewÔªËØµÄÎ»ÖÃ  
 	            //Toast.makeText(MainActivity.this,mThumbIds[position], Toast.LENGTH_SHORT).show(); 
 	        	Log.v("OnItemClickListener", "position = " + position + "id = " + id);
-	        	Intent intent;
-	        	Dish dish;
-	        	if (tv.getText().toString().equals("²ËÆ×ÉóºË")) {
-	        		dish = Dish.getDishById(index_id_list.get(position));
-	        	}
-	        	else {
-	        		dish = Dish.getDishByIndex(position);
-	        	}
 	        	
+	        	Dish dish = Dish.getDishById(index_id_list.get(position));
+	        	
+	        	Intent intent;
 	        	if (dish.isAppBuiltIn()) intent = new Intent(BuiltinDishes.this, DishActivity.class);
 	        	else intent = new Intent(BuiltinDishes.this, MakeDishActivity.class);
+	        	
 	        	intent.putExtra("dish_id", dish.dishid); 
 	        	intent.putExtra("title", tv.getText().toString()); 
 	        	startActivity(intent);

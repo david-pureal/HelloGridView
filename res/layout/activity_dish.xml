@@ -82,12 +82,14 @@
                 android:layout_height="wrap_content"
                 android:text="开始" />
 
-            <Button
+            <ImageView
                 android:id="@+id/favorite"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
-                android:text="收藏" />
+                android:scaleType="fitXY"
+            	android:src="@drawable/unfavorite_dish_72"
+                 />
 
             <Button
                 android:id="@+id/dish_replace"

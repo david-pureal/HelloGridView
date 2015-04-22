@@ -37,7 +37,10 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
+import android.view.VelocityTracker;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.view.Window;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
@@ -47,8 +50,10 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -91,6 +96,8 @@ public class MakeDishActivity extends Activity {
 	TextView makedish_qiangguoliao;
 	TextView water_fuliao;
 	TextView water_fuliao_tv;
+	
+	public ImageView favorite;
 	
 	Button makedish_replace;
 	Button makedish_upload;
@@ -179,8 +186,6 @@ public class MakeDishActivity extends Activity {
             public void onClick(View v) {  
             	
                 try {  
-                    // 当用户按下按钮之后，将用户输入的数据封装成Message  
-                    // 然后发送给子线程Handler  
                     Message msg = new Message();  
                     msg.what = 0x345;  
                     Package data = new Package(Package.Send_Dish, MakeDishActivity.this.new_dish);
@@ -330,6 +335,10 @@ public class MakeDishActivity extends Activity {
                 else if (msg.what == Constants.MSG_ID_VERIFY_DONE) {
                 	makedish_verify.setText("审核已通过");
                 	makedish_verify.setEnabled(false);
+                }
+                else if (msg.what == Constants.MSG_ID_FAVORITE_DONE) {
+                	Log.v("MakeDishActivity", "got favorite result, isFavorite ="  + Account.isFavorite(new_dish));
+                	favorite.setImageResource(Account.isFavorite(new_dish) ? R.drawable.favorite_dish_72 : R.drawable.unfavorite_dish_72);
                 }
             }  
         }; 
@@ -623,6 +632,11 @@ public class MakeDishActivity extends Activity {
 		makedish_replace.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) {  
+            	if (!new_dish.isVerifying() && !new_dish.isVerifyDone()) {
+            		Log.v("MakeDishActivity", "can't replace before upload");
+            		Toast.makeText(MakeDishActivity.this, "未上传的菜谱不能用来替换内置菜谱", Toast.LENGTH_SHORT).show();
+            	}
+            	
             	popupView = inflater.inflate(R.layout.wheel_view_1_column, null, false);
             	final PopupWindow popWindow = new PopupWindow(popupView, 500, 700, true);
             	final WheelView column_1 = (WheelView) popupView.findViewById(R.id.column_1);
@@ -716,7 +730,7 @@ public class MakeDishActivity extends Activity {
             }  
         });
 		
-		if (!intent.getStringExtra("title").equals("菜谱审核")) {
+		if (intent.getStringExtra("title") == null || !intent.getStringExtra("title").equals("菜谱审核")) {
 			makedish_verify.setVisibility(View.GONE);
 		}
 		
@@ -753,6 +767,46 @@ public class MakeDishActivity extends Activity {
             }  
         });
 		
+		favorite = (ImageView) findViewById(R.id.favorite);
+        favorite.setImageResource(Account.isFavorite(new_dish) ? R.drawable.favorite_dish_72 : R.drawable.unfavorite_dish_72);
+        favorite.setOnClickListener(new OnClickListener() {  
+            @Override  
+            public void onClick(View v) {
+            	if (!new_dish.isVerifying() && !new_dish.isVerifyDone()) {
+            		Log.v("MakeDishActivity", "only can favorite after upload. dishid = " + new_dish.dishid);
+            		Toast.makeText(MakeDishActivity.this, "未上传的菜谱不能添加收藏，请在自编菜谱中", Toast.LENGTH_SHORT).show();
+            		return;
+            	}
+            	if (!Account.is_login) {
+            		Intent intent = new Intent(MakeDishActivity.this, LoginActivity.class);
+                	intent.putExtra("header", "登录后才能收藏");
+                	startActivityForResult(intent, 9);
+            	} else {
+            		HttpUtils.favorite(new_dish, MakeDishActivity.this.handler);
+            	}
+            }  
+        });
+        
+        TextView makedish_delete = (TextView) findViewById(R.id.makedish_delete);
+        makedish_delete.setOnClickListener(new OnClickListener() {  
+            @Override  
+            public void onClick(View v) {
+            	Dish.remove_not_uploaded_dish(new_dish);
+            	finish();
+            }  
+        });
+        
+        if (!new_dish.isVerifying() && !new_dish.isVerifyDone()) {
+    		Log.v("MakeDishActivity", "before-upload dish can't be favorited or used-as-replacement, so disable it");
+    		favorite.setVisibility(View.GONE);
+    		this.makedish_replace.setVisibility(View.GONE);
+    		
+    	}
+        else {
+        	// 只能删除未上传的
+    		makedish_delete.setVisibility(View.GONE);
+    	}
+        
 		new Thread() {
 			public void run() {
 				initImagePath();
@@ -888,6 +942,13 @@ public class MakeDishActivity extends Activity {
 	    		 new_dish.saveDishParam(); // 用户登录后要保存创建者信息
 	    		 HttpUtils.uploadDish(new_dish, MakeDishActivity.this);
 	    	 }
+	    	 break;
+	     case 9:  
+	        	if (Account.is_login) {
+		    		 Log.v("DishActivity", "login return success, do favorite");
+		    		 HttpUtils.favorite(new_dish, MakeDishActivity.this.handler);
+		    	}
+	            break;  
 	     }
          //makedish_img.setImageDrawable(new_dish.img_drawable);
          makedish_img.setImageBitmap(new_dish.img_bmp);
@@ -1008,27 +1069,27 @@ public class MakeDishActivity extends Activity {
 	 public static String TEST_IMAGE;
 		
 	 private void initImagePath() {
-			try {
-				if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())
-						&& Environment.getExternalStorageDirectory().exists()) {
-					TEST_IMAGE = Environment.getExternalStorageDirectory().getAbsolutePath() + FILE_NAME;
-				}
-				else {
-					TEST_IMAGE = getApplication().getFilesDir().getAbsolutePath() + FILE_NAME;
-				}
-				File file = new File(TEST_IMAGE);
-				//if (!file.exists()) {
-					file.createNewFile();
-					//Bitmap pic = BitmapFactory.decodeResource(getResources(), R.drawable.pic);
-					Bitmap pic = new_dish.img_bmp;
-					FileOutputStream fos = new FileOutputStream(file);
-					pic.compress(CompressFormat.JPEG, 100, fos);
-					fos.flush();
-					fos.close();
-				//}
-			} catch(Throwable t) {
-				t.printStackTrace();
-				TEST_IMAGE = null;
+		try {
+			if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())
+					&& Environment.getExternalStorageDirectory().exists()) {
+				TEST_IMAGE = Environment.getExternalStorageDirectory().getAbsolutePath() + FILE_NAME;
 			}
+			else {
+				TEST_IMAGE = getApplication().getFilesDir().getAbsolutePath() + FILE_NAME;
+			}
+			File file = new File(TEST_IMAGE);
+			//if (!file.exists()) {
+				file.createNewFile();
+				//Bitmap pic = BitmapFactory.decodeResource(getResources(), R.drawable.pic);
+				Bitmap pic = new_dish.img_bmp;
+				FileOutputStream fos = new FileOutputStream(file);
+				pic.compress(CompressFormat.JPEG, 100, fos);
+				fos.flush();
+				fos.close();
+			//}
+		} catch(Throwable t) {
+			t.printStackTrace();
+			TEST_IMAGE = null;
 		}
+	}
 }

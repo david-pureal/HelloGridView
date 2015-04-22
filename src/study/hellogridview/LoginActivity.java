@@ -33,7 +33,8 @@ public class LoginActivity extends Activity implements PlatformActionListener, O
 	TextView login_username;
 	TextView login_header;
 	
-	boolean start_by_update = false; //是否是在上传是自动触发的，如果是，在登录成功后要自动结束并返回
+	boolean start_by_upload = false; //是否是在上传是自动触发的，如果是，在登录成功后要自动结束并返回
+	boolean start_by_favorite = false;
 	
 	//static Handler handler;
 	public Handler handler;
@@ -96,11 +97,12 @@ public class LoginActivity extends Activity implements PlatformActionListener, O
 	        		login_usericon.setImageBitmap(Account.user_icon_img);
 	        		login_username.setText(Account.username);
 	        		wechat_login.setText("微信已登录");
-	        		
-	        		if (start_by_update) {
+	            } 
+	            else if (msg.what == Constants.MSG_ID_REGISTER_DONE) {
+	        		if (start_by_upload) {
 	        			finish();
 	        		}
-	            } 
+	            }
 	        }  
 	    };
 	    
@@ -115,7 +117,7 @@ public class LoginActivity extends Activity implements PlatformActionListener, O
 	    if (intent.getStringExtra("header") != null) {
 	    	login_header.setVisibility(View.VISIBLE);
 	    	login_header.setText(intent.getStringExtra("header"));
-	    	start_by_update = true;
+	    	start_by_upload = true;
 	    }
 	}
 	
@@ -123,6 +125,7 @@ public class LoginActivity extends Activity implements PlatformActionListener, O
 	public void onCancel(Platform arg0, int arg1) {
 		// TODO Auto-generated method stub
 		Log.v(this.getClass().getName(), "onCancel");
+		wechat_login.setText("用微信登录");
 	}
 
 	@Override
@@ -138,6 +141,7 @@ public class LoginActivity extends Activity implements PlatformActionListener, O
 	public void onError(Platform arg0, int arg1, Throwable arg2) {
 		// TODO Auto-generated method stub
 		Log.v(this.getClass().getName(), "onError");
+		wechat_login.setText("用微信登录");
 	}
 	
 	private void setCurrentUser(Platform plat) {
@@ -195,7 +199,7 @@ public class LoginActivity extends Activity implements PlatformActionListener, O
         	wechat.setPlatformActionListener(LoginActivity.this);
         	wechat.authorize();
         	
-        	wechat_login.setText("登录中。。。");
+        	wechat_login.setText("登录中...");
     	}
 	}
 

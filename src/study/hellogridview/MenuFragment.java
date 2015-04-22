@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -100,27 +101,33 @@ public class MenuFragment extends Fragment {
 		ImageView m_favorite = (ImageView) getView().findViewById(R.id.favorites);
 		m_favorite.setOnClickListener(new OnClickListener() {  
             @Override  
-            public void onClick(View v) {  
-            	Intent intent = new Intent(getActivity(),BuiltinDishes.class);
-            	intent.putExtra("title", String.valueOf("收藏菜谱")); 
-            	if (getActivity().getClass() != BuiltinDishes.class)
-            		startActivity(intent); 
-            	else 
-            		sm.toggle(); 
-                //finish();//关闭当前Activity  
+            public void onClick(View v) {
+            	if (!Account.is_login) {
+            		Intent intent = new Intent(getActivity(), LoginActivity.class);
+                	intent.putExtra("header", "请先登录");
+                	startActivityForResult(intent, 10);
+            	}
+            	else {
+	            	Intent intent = new Intent(getActivity(),BuiltinDishes.class);
+	            	intent.putExtra("title", String.valueOf("收藏菜谱")); 
+	            	startActivity(intent); 
+            	}
             }  
         });	
 		favorite_tv = (TextView) getView().findViewById(R.id.favorites_tv);
 		favorite_tv.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) {  
-            	Intent intent = new Intent(getActivity(),BuiltinDishes.class);
-            	intent.putExtra("title", String.valueOf("收藏菜谱")); 
-            	if (getActivity().getClass() != BuiltinDishes.class)
-            		startActivity(intent); 
-            	else 
-            		sm.toggle(); 
-                //finish();//关闭当前Activity  
+            	if (!Account.is_login) {
+            		Intent intent = new Intent(getActivity(), LoginActivity.class);
+                	intent.putExtra("header", "请先登录");
+                	startActivityForResult(intent, 10);
+            	}
+            	else {
+	            	Intent intent = new Intent(getActivity(),BuiltinDishes.class);
+	            	intent.putExtra("title", String.valueOf("收藏菜谱")); 
+	            	startActivity(intent); 
+            	}  
             }  
         });	
 		
@@ -128,7 +135,7 @@ public class MenuFragment extends Fragment {
 		m_alldishes.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) {  
-            	Intent intent = new Intent(getActivity(),AllDish.class);
+            	Intent intent = new Intent(getActivity(), AllDish.class);
             	intent.putExtra("title", String.valueOf("全部菜谱")); 
             	if (getActivity().getClass() != AllDish.class)
             		startActivity(intent); 
@@ -239,5 +246,21 @@ public class MenuFragment extends Fragment {
 //                //finish();//关闭当前Activity  
 //            }  
 //        });
+	}
+	
+	@Override  
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {  
+        super.onActivityResult(requestCode, resultCode, data);  
+        Log.v("MenuFragment", "requestCode = " + requestCode + "resultCode =" + resultCode);
+        switch (requestCode) {  
+        case 10:  
+        	if (Account.is_login) {
+	    		 Log.v("MenuFragment", "login return success, see all favorites");
+	    		 Intent intent = new Intent(getActivity(),BuiltinDishes.class);
+	             intent.putExtra("title", String.valueOf("收藏菜谱")); 
+	             startActivity(intent);
+	    	}
+            break;  
+        }
 	}
 }

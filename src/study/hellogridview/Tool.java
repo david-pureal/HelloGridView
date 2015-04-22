@@ -32,6 +32,7 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Environment;
+import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
@@ -364,6 +365,10 @@ public class Tool {
 				d.author_name = dishj.getString("author_name");
 			}
 			
+			if (dishj.has("device_id")) {
+				d.device_id = dishj.getString("device_id");
+			}
+			
 			// 主料，辅料和备料图文
 			if (dishj.has("zhuliao_content")) {
 				JSONArray array_zhuliao = dishj.getJSONArray("zhuliao_content");
@@ -461,6 +466,11 @@ public class Tool {
 	    return(directory.delete());
 	}
 	
+	public boolean deleteDirectory(String path) {
+		File olddir = new File(path);
+		return deleteDirectory(olddir);
+	}
+	
 	// 加载提示语图片资源
 	public static void preload_common_res(Context context) {
 		image_res_mgr.put(R.drawable.zhuliao_tiaoliao, decode_res_bitmap(R.drawable.zhuliao_tiaoliao, context));
@@ -489,5 +499,13 @@ public class Tool {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	public static String getDeviceId(Context context) {
+		if (Account.device_id == null || Account.device_id.isEmpty()) {
+			TelephonyManager tm = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);  
+			Account.device_id = tm.getDeviceId();
+		}
+		return Account.device_id;
 	}
 }

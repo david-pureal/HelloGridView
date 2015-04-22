@@ -1,22 +1,27 @@
 package study.hellogridview;
 
+import java.util.ArrayList;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Message;
 import android.util.Log;
 
 public class Account {
-	public static String userid;
-	public static String username;
-	public static String user_icon_link;
+	public static String userid = "";
+	public static String username = "";
+	public static String user_icon_link = "";
 	public static Bitmap user_icon_img;
 	public static boolean is_login = false;
+	public static String device_id = ""; // 标志一个手机设备，有可能会重复，在用户没有登录的情况下使用, SplashActivity 负责初始化
+	
+	public static ArrayList<Integer> favorites = new ArrayList<Integer>(); 
 	
 	// let server side remember this user's info
 	// note: do twice because the first http fails sometime, reason unknown!!
-	public static void register() {
-		HttpUtils.register(userid, username);
-		HttpUtils.register(userid, username);
+	public static void register(final LoginActivity context) {
+		HttpUtils.register(userid, username, context);
+		HttpUtils.register(userid, username, context);
 	}
 
 	public static void setUserIcon(final String userIconUrl, final LoginActivity context) {
@@ -48,10 +53,14 @@ public class Account {
 					old_icon_img.recycle();
 				}
 				
-				register();
+				register(context);
 			}
 		}.start();
 		
+	}
+	
+	public static boolean isFavorite(Dish dish) {
+		return Account.favorites.indexOf(dish.dishid) != -1;
 	}
 }
 

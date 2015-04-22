@@ -16,6 +16,7 @@ import org.json.JSONObject;
 
 import study.hellogridview.Dish.Material;
 import android.content.Context;
+import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
@@ -101,8 +102,13 @@ public class HttpUtils {
 	    	byte [] img_data = Tool.getInstance().readFile(file_path);
 	    	String filename = file_path.substring(file_path.lastIndexOf("/"));
 			params_tmp.put("myfile", new ByteArrayInputStream(img_data), filename);
-			params_tmp.put("tag", tag);
+			params_tmp.put("tag", tag); // 
 			params_tmp.put("stage", stage);
+			
+			params_tmp.put("device_id", Account.device_id);
+			params_tmp.put("author_id", Account.is_login ? Account.userid : "");
+			params_tmp.put("author_name", Account.is_login ? Account.username : "");
+			
 			String url_upload = "http://182.92.231.24:8889/upload";
 			HttpUtils.post(url_upload, params_tmp, new AsyncHttpResponseHandler() {
 				@Override
@@ -246,7 +252,7 @@ public class HttpUtils {
     	});
 	}
 	
-	public static void register(final String id, final String name) {
+	public static void register(final String id, final String name, final LoginActivity context) {
 		RequestParams params = new RequestParams();
 		params.put("userId", id);
 		params.put("userName", name);
@@ -261,7 +267,21 @@ public class HttpUtils {
 			}
 			@Override
 			public void onSuccess(int arg0, Header[] arg1, byte[] arg2) {
-				Log.v("HttpUtil", "register done. userId=" + id + ", userName=" + name);
+				String res = new String(arg2);
+				Log.v("HttpUtil", "register done. userId=" + id + ", userName=" + name + ", res=" + res);
+				JSONArray favoritesj;
+				try {
+					favoritesj = new JSONArray(res);
+					for (int i = 0; i < favoritesj.length(); ++i) {
+						int dishid = favoritesj.getInt(i);  
+						Account.favorites.add(dishid);
+					}
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				context.handler.sendEmptyMessage(Constants.MSG_ID_REGISTER_DONE);
 			}
     	});
 	}
@@ -300,6 +320,48 @@ public class HttpUtils {
 				} //while
 				
 				context.handler.sendEmptyMessage(Constants.MSG_ID_VERIFY_DONE);
+			}
+		}.start();
+    }
+	
+	public static void favorite(final Dish dish, final Handler handler) {
+    	new Thread() {
+			@Override
+			public void run() {
+				RequestParams params = new RequestParams();
+				params.put("dishId", "" + dish.dishid);
+				params.put("userId", Account.userid);
+				
+				final boolean is_favorite_before = Account.isFavorite(dish);
+				final int index = Account.favorites.indexOf(dish.dishid);
+				
+				String url = "http://182.92.231.24:8889/favorite";
+				
+				int retry_times = 0;
+				while (retry_times++ < 2) {
+					Log.v("HttpUtil", "retry_times = " + retry_times);
+			    	HttpUtils.getSync(url, params, new AsyncHttpResponseHandler() {
+						@Override
+						public void onFailure(int arg0, Header[] arg1, byte[] arg2, Throwable arg3) {
+							arg3.printStackTrace();
+							Log.v("HttpUtil", "favorite onFailure");
+						}
+						@Override
+						public void onSuccess(int arg0, Header[] arg1, byte[] arg2) {
+							String res = new String(arg2);
+							Log.v("HttpUtil", "favorite done. res=" + res + ", dishid=" + dish.dishid);
+							if (res.equals("ok")) {
+								if (is_favorite_before) Account.favorites.remove(index);
+								else Account.favorites.add(dish.dishid);
+							}
+						}
+			    	});
+			    	
+			    	boolean is_favorite_after = Account.isFavorite(dish);
+			    	if (is_favorite_after != is_favorite_before) break;
+				} //while
+				
+				handler.sendEmptyMessage(Constants.MSG_ID_FAVORITE_DONE);
 			}
 		}.start();
     }

@@ -49,7 +49,10 @@ public class SplashActivity extends Activity {
             protected Integer doInBackground(Void... params) {
                 int result;
                 long startTime = System.currentTimeMillis();
+                
+                Tool.getDeviceId(SplashActivity.this);
                 result = getWebDish();
+                
                 long loadingTime = System.currentTimeMillis() - startTime;
                 if (loadingTime < 2000) {
                     try {

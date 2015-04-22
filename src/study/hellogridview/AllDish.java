@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -45,6 +46,8 @@ public class AllDish extends SlidingFragmentActivity {
     boolean isClose = true;
     
     SampleListFragment right_fragment;
+    
+    ArrayList<Integer> index_id_list = new ArrayList<Integer>();
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -142,13 +145,18 @@ public class AllDish extends SlidingFragmentActivity {
         });
 		
 		// 小标题
-		TextView tv = (TextView) findViewById(R.id.replace_builtin); 
+		TextView tv = (TextView) findViewById(R.id.replace_builtin_tv); 
 		Intent intent = getIntent();
 		tv.setText(intent.getStringExtra("title"));
+		
+		Button replace_button = (Button) findViewById(R.id.replace_builtin);
+		replace_button.setVisibility(View.GONE);
 		
 		// 热门菜谱
 		LinkedHashMap<Integer, Dish> dishes = Dish.getAllDish();
         Log.v("BuiltinDishes", "length = " + dishes.size());
+        
+        index_id_list.clear();
         
         ArrayList<HashMap<String,Object>> al=new ArrayList<HashMap<String,Object>>();
         for (Iterator<Integer> it =  dishes.keySet().iterator();it.hasNext();)
@@ -158,14 +166,16 @@ public class AllDish extends SlidingFragmentActivity {
              HashMap<String, Object> map = new HashMap<String, Object>(); 
              
              if (d.isAppBuiltIn()) {
-             	map.put("icon", d.img); //添加图像资源的ID 
+              	 map.put("icon", d.img); //添加图像资源的ID 
              }
-             else {
-             	//BitmapDrawable bd = d.img_drawable;
-             	map.put("icon", d.img_bmp); //添加图像资源的ID 
+             else if (d.isVerifyDone()) {
+             	 map.put("icon", d.img_bmp); //添加图像资源的ID
              }
+             else { continue;}
+              
              map.put("name", d.name_chinese);//按序号做ItemText 
              al.add(map);
+             index_id_list.add(d.dishid);
         }
         
         SimpleAdapter sa= new SimpleAdapter(AllDish.this, al, R.layout.image_text, new String[]{"icon","name"}, new int[]{R.id.ItemImage, R.id.ItemText});
@@ -192,12 +202,14 @@ public class AllDish extends SlidingFragmentActivity {
 	        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {  
 	            //弹出单击的GridView元素的位置  
 	        	Log.v("OnItemClickListener", "position = " + position + "id = " + id);
+	        	Dish dish = Dish.getDishById(index_id_list.get(position));
+	        	
 	        	Intent intent;
-	        	Dish dish = Dish.getDishByIndex(position);
 	        	if (dish.isAppBuiltIn()) intent = new Intent(AllDish.this, DishActivity.class);
 	        	else intent = new Intent(AllDish.this, MakeDishActivity.class);
+	        	
 	        	intent.putExtra("dish_id", dish.dishid); 
-	        	startActivity(intent);
+	        	startActivity(intent);		
 	        }  
 	     });
 	    
@@ -212,6 +224,8 @@ public class AllDish extends SlidingFragmentActivity {
             		LinkedHashMap<Integer, Dish> dishes = Dish.getAllDish();
                     Log.v("AllDish", "length = " + dishes.size());
                     
+                    index_id_list.clear();
+                    
                     ArrayList<HashMap<String, Object>> al = new ArrayList<HashMap<String,Object>>();
                     for (Iterator<Integer> it = dishes.keySet().iterator();it.hasNext();)
                     {
@@ -221,17 +235,32 @@ public class AllDish extends SlidingFragmentActivity {
                          
                          HashMap<String, Object> map = new HashMap<String, Object>(); 
                          if (d.isAppBuiltIn()) {
-                         	map.put("icon", d.img); //添加图像资源的ID 
+                          	 map.put("icon", d.img); //添加图像资源的ID 
                          }
-                         else {
-                         	//BitmapDrawable bd = d.img_drawable;
-                         	map.put("icon", d.img_bmp); //添加图像资源的ID 
+                         else if (d.isVerifyDone()) {
+                         	 map.put("icon", d.img_bmp); //添加图像资源的ID
                          }
+                         else { continue;}
+                          
                          map.put("name", d.name_chinese);//按序号做ItemText 
                          al.add(map);
+                         index_id_list.add(d.dishid);
                     }
                     
                     SimpleAdapter sa= new SimpleAdapter(AllDish.this,al,R.layout.image_text,new String[]{"icon","name"},new int[]{R.id.ItemImage,R.id.ItemText});
+                    sa.setViewBinder(new ViewBinder(){  
+                        @Override  
+                        public boolean setViewValue(View view, Object data,  
+                                String textRepresentation) {  
+                            if( (view instanceof ImageView) && (data instanceof Bitmap) ) {  
+                                ImageView iv = (ImageView) view;  
+                                Bitmap  bm = (Bitmap) data;  
+                                iv.setImageBitmap(bm); 
+                                return true;  
+                            }  
+                            return false;  
+                        }  
+                    });
                     gridView.setAdapter(sa);
             	}
             }  
