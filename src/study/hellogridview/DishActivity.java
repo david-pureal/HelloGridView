@@ -104,6 +104,10 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
 	protected int current_cmd;
 	
 	public ImageView favorite;
+	
+	ImageView material_1;
+	ImageView material_2;
+	ImageView material_3;
     
 	@SuppressLint("HandlerLeak")
 	@Override
@@ -326,6 +330,15 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
         share_to_wechat = (Button) findViewById(R.id.share_to_wechat);
         share_to_wechat.setOnClickListener(this);
         
+        material_1 = (ImageView) findViewById(R.id.material_1); 
+        material_2 = (ImageView) findViewById(R.id.material_2); 
+        material_3 = (ImageView) findViewById(R.id.material_3); 
+        if (dish.materials != null) {
+        	if (dish.materials.size() > 0) material_1.setImageResource(dish.materials.get(0));
+        	if (dish.materials.size() > 1) material_2.setImageResource(dish.materials.get(1));
+        	if (dish.materials.size() > 2) material_3.setImageResource(dish.materials.get(2));
+        }
+        
         new Thread() {
 			public void run() {
 				initImagePath();
@@ -376,59 +389,11 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
 	
 	@Override
 	public void onClick(View v) {
-		
-//		if(v.getId() == R.id.button1){
-//			//快捷分享，没有九宫格，只有编辑页
-//			//Using onekeyshare library to share wechat
-//			OnekeyShare oks = new OnekeyShare();			
-//			// 分享时Notification的图标和文字
-//			//Settig the notification of picture and content on the status bar when share successfully
-//			oks.setNotification(R.drawable.ic_launcher, "Gtpass");			
-//			//设置默认微博平台，例如腾讯微博的，可以是TencentWeibo.NAME
-//			//Setting the share platform
-//			//If it is not been setted, that will show the Nine Grid Palace
-//			oks.setPlatform(Wechat.NAME);
-//			//分享纯文本
-//			//微信分享必须要有text和title这两个参数
-//			//不同的分享类型，分享参数不一样,可以参考sample中wechatpage这个类
-//			//参数文档：http://sharesdk.cn/androidDoc/index.html?cn/sharesdk/framework/Platform.html
-//			//Share the text and title to a wechat friend
-//			//the document of the params are required when wechat share, http://sharesdk.cn/androidDoc/index.html?cn/sharesdk/framework/Platform.html
-//			oks.setText("ShareSDK share text");
-//			oks.setTitle("ShareSDK share title");			
-//			oks.setSilent(true);
-//			oks.show(DishActivity.this);	
-//			
-//		} else if (v.equals(ctvStWm)) {
-//			//微信朋友圈,wechat moment
-//			ctvStWm.setChecked(!ctvStWm.isChecked());
-//			findViewById(R.id.btnApp).setVisibility(ctvStWm.isChecked() ? View.GONE : View.VISIBLE);
-//			findViewById(R.id.btnAppExt).setVisibility(ctvStWm.isChecked() ? View.GONE : View.VISIBLE);
-//			findViewById(R.id.btnFile).setVisibility(ctvStWm.isChecked() ? View.GONE : View.VISIBLE);
-//			return;
-//			
-//		} else{
-			//微信好友,wechat friend
-			//String name = ctvStWm.isChecked() ? WechatMoments.NAME : Wechat.NAME;
-//			Platform plat = ShareSDK.getPlatform(DishActivity.this, WechatMoments.NAME);
-//			plat.setPlatformActionListener(this);
-//			//ShareParams sp = ctvStWm.isChecked() ? getWechatMomentsShareParams(v) : getWechatShareParams(v);
-//			WechatMoments.ShareParams sp = new WechatMoments.ShareParams();
-//			//任何分享类型都需要title和text, the two params of title and text are required in every share type
-//			sp.title = "ShareSDK wechatmoment title";
-//			sp.text = "ShareSDK wechatmoment text";
-//			sp.shareType = Platform.SHARE_IMAGE;
-//			sp.imagePath = DishActivity.TEST_IMAGE;
-//			plat.share(sp);
-//			
-//		}
-		
-		
 		 OnekeyShare oks = new OnekeyShare();
 		 //关闭sso授权
 		 oks.disableSSOWhenAuthorize(); 
 		 
-		// 分享时Notification的图标和文字  2.5.9以后的版本不调用此方法
+		 // 分享时Notification的图标和文字  2.5.9以后的版本不调用此方法
 		 //oks.setNotification(R.drawable.ic_launcher, getString(R.string.app_name));
 		 // title标题，印象笔记、邮箱、信息、微信、人人网和QQ空间使用
 		 oks.setTitle(getString(R.string.share));
@@ -447,7 +412,7 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
 		 // siteUrl是分享此内容的网站地址，仅在QQ空间使用
 		 oks.setSiteUrl("http://sharesdk.cn");
 		 
-		// 启动分享GUI
+		 // 启动分享GUI
 		 oks.show(DishActivity.this);
 	}
 		

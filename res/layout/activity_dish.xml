@@ -52,6 +52,7 @@
             android:textSize="20sp" />
 
         <ImageView
+            android:id="@+id/material_1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -62,6 +63,7 @@
             android:src="@drawable/tudousi_peiliao" />
         
         <ImageView
+            android:id="@+id/material_2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -69,7 +71,18 @@
             android:layout_marginTop="10dp"
             android:layout_weight="1"
             android:scaleType="fitXY"
-            android:src="@drawable/qingjiaosi_peiliao" />
+             />
+        
+        <ImageView
+            android:id="@+id/material_3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_weight="1"
+            android:scaleType="fitXY"
+           />
 
         <RelativeLayout
             android:layout_width="match_parent"

@@ -274,6 +274,7 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
 	        	
 	        	intent.putExtra("dish_id", dish.dishid); 
 	        	startActivity(intent);	
+	        	is_element_clicked = true;
 	        }  
 	     });
 	    
@@ -368,12 +369,18 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
     }
     
     public int  main_in_stack_count = 0;
+    
+    boolean is_element_clicked = false;
     @Override  
     protected void onResume() {  
     	Log.v("MainActivity", "onResume");
         super.onResume(); 
         
-        sm.toggle(false);
+        // 如果是点了热门菜谱里的菜，然后返回的，那么不调用toggle
+        if (!is_element_clicked) {
+        	sm.toggle(false);
+        }
+        else is_element_clicked = false;
         
         tcpclient = TCPClient.getInstance(this);
         set_connect_state();
