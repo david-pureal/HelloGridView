@@ -107,4 +107,12 @@
         android:layout_marginRight="8dp"
         android:src="@drawable/minus" />
 
+    <ImageView
+        android:id="@+id/back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/back_32" />
+
 </RelativeLayout>

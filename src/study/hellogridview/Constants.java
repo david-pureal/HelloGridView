@@ -6,6 +6,12 @@ public final class Constants {
 	public static final short AP_STA_PORT = 5000;
 	public static final int BBXC_SOCKET_TIMEOUT = 5000;
 	
+	// connect related
+	public static final int CONNECTING   = 0;
+	public static final int CONNECTED    = 1;
+	public static final int DISCONNECTED = -1;
+	public static final int CONNECT_TIMEOUT = 30000;//  milliseconds
+	
 	// message id
 	public static final int MSG_ID_STA_IP = 100;
 	public static final int MSG_ID_UPLOAD_RESULT = 200;
@@ -13,6 +19,7 @@ public final class Constants {
 	public static final int MSG_ID_VERIFY_DONE = 400;
 	public static final int MSG_ID_FAVORITE_DONE = 500;
 	public static final int MSG_ID_REGISTER_DONE = 600;
+	public static final int MSG_ID_CONNECT_STATE = 700;
 	
 	// dish related
 	public static final int DISH_APP_BUILTIN      = 0x01;   // APPÄÚÖÃ²ËÆ×

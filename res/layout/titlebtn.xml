@@ -8,7 +8,7 @@
     <!-- android:background="#05428b" -->
     
     <ImageButton  
-        android:id="@+id/imageButton2"  
+        android:id="@+id/left"  
         android:layout_width="wrap_content"  
         android:layout_height="wrap_content"  
         android:background="#000000"          
@@ -34,13 +34,20 @@
          / -->
 
     <ImageButton
-        android:id="@+id/imageButton1"
+        android:id="@+id/right"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_centerInParent="true"
         android:background="#000000"
-        android:src="@drawable/machine_icon" />
+        android:src="@drawable/disconnected_32" />
 
+    <ProgressBar
+        android:id="@+id/connecting_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/left"
+        android:layout_marginRight="2dp" />
           
 </RelativeLayout>

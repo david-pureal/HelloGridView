@@ -26,6 +26,7 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
@@ -37,6 +38,7 @@ import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ProgressBar;
 import android.widget.SimpleAdapter.ViewBinder;
 import android.widget.BaseAdapter;
 import android.widget.Button;
@@ -50,8 +52,11 @@ import android.widget.Toast;
 
 public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity implements OnPageChangeListener /* implements OnTouchListener */{
 
+	TCPClient tcpclient;
+	
 	ImageButton m_deviceBtn;
 	ImageButton m_stateBtn;
+	ProgressBar connect_bar;
 	
 	/** 
      * ViewPager 
@@ -78,10 +83,14 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
     Handler handler;
     
     ArrayList<Integer> index_id_list = new ArrayList<Integer>();
-	
+    
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		Log.v("MainActivity", "onCreate");
+		
+		++ main_in_stack_count;
 		
 		ShareSDK.initSDK(this);
 		
@@ -117,9 +126,7 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
 		//设置actionBar能否跟随侧滑栏移动，如果没有，则可以去掉
 		setSlidingActionBarEnabled(false);
 		
-		
-		//device image to connect wifi
-		m_deviceBtn = (ImageButton) findViewById(R.id.imageButton1);
+		m_deviceBtn = (ImageButton) findViewById(R.id.right);
 		m_deviceBtn.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) {  
@@ -127,8 +134,7 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
                 //finish();//关闭当前Activity  
             }  
         });
-		
-		m_stateBtn = (ImageButton) findViewById(R.id.imageButton2);
+		m_stateBtn = (ImageButton) findViewById(R.id.left);
 		m_stateBtn.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) {  
@@ -136,6 +142,18 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
                 //finish();//关闭当前Activity  
             }  
         });
+		connect_bar = (ProgressBar) findViewById(R.id.connecting_bar);
+		
+		handler = new Handler() {    
+            @Override  
+            public void handleMessage(Message msg) {  
+                // 如果消息来自子线程  
+                if (msg.what == Constants.MSG_ID_CONNECT_STATE) {   
+                	Log.v("MainActivity", "got event MSG_ID_CONNECT_STATE = " + tcpclient.connect_state);
+                	set_connect_state();
+                }  
+            }  
+        };
 		
 //		// 图片 滑动切换
 //		ViewGroup group = (ViewGroup)findViewById(R.id.viewGroup);  
@@ -261,13 +279,6 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
 	    
 	}// onCreate
 	
-	@Override  
-    protected void onResume() {  
-        super.onResume();  
-        TCPClient.getInstance(this).set_mainact(this); 
-        Tool.getInstance().saveDevices(this);
-    }
-	
 	public int cur = 0;
 	
 	public class MyAdapter extends PagerAdapter{  
@@ -337,11 +348,67 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
         }  
     }  
     
+    public void set_connect_state() {
+    	if (tcpclient.connect_state == Constants.CONNECTED) {
+    		connect_bar.setVisibility(View.GONE);
+    		//m_deviceBtn.setImageResource(R.drawable.connected_32);
+    		m_deviceBtn.setImageResource(R.drawable.correct_32);
+    		m_deviceBtn.setVisibility(View.VISIBLE);
+    	}
+    	else if (tcpclient.connect_state == Constants.DISCONNECTED) {
+    		connect_bar.setVisibility(View.GONE);
+    		//m_deviceBtn.setImageResource(R.drawable.disconnected_32);
+    		m_deviceBtn.setImageResource(R.drawable.wrong_32);
+    		m_deviceBtn.setVisibility(View.VISIBLE);
+    	}
+    	else if (tcpclient.connect_state == Constants.CONNECTING) {
+    		connect_bar.setVisibility(View.VISIBLE);
+    		m_deviceBtn.setVisibility(View.GONE);
+    	}
+    }
+    
+    public int  main_in_stack_count = 0;
+    @Override  
+    protected void onResume() {  
+    	Log.v("MainActivity", "onResume");
+        super.onResume(); 
+        
+        sm.toggle(false);
+        
+        tcpclient = TCPClient.getInstance(this);
+        set_connect_state();
+        
+        Tool.getInstance().saveDevices(this);
+    }
+    
     @Override  
     protected void onDestroy() {  
         super.onDestroy();  
         Log.v("MainActivity", "onDestroy");  
-        System.exit(0);
+        -- main_in_stack_count;
+    }
+    
+    private long exitTime = 0;
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+    	Log.v("MainActivity", "main_in_stack_count = " + main_in_stack_count);
+
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN){   
+            if((System.currentTimeMillis()-exitTime) > 2000){  
+                Toast.makeText(getApplicationContext(), "再按一次退出程序", Toast.LENGTH_SHORT).show();                                
+                exitTime = System.currentTimeMillis();   
+            } else {
+                //finish();
+                System.exit(0);
+            }
+            return true;   
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+    
+    public Handler getHandler() {
+    	return handler;
     }
  
 }

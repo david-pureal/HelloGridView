@@ -39,6 +39,8 @@ public class MenuFragment extends Fragment {
 	TextView login_tv;
 	TextView setting_tv;
 	
+	String current_title = "";
+	
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		
@@ -49,10 +51,15 @@ public class MenuFragment extends Fragment {
             	
             	Intent intent = new Intent(getActivity(), MainActivity.class);
             	intent.putExtra("title", String.valueOf("热门菜谱")); 
-            	if (getActivity().getClass() != MainActivity.class)
+            	if (getActivity().getClass() == MainActivity.class) sm.toggle();
+            	else {
             		startActivity(intent); 
-            	else 
-            		sm.toggle(); 
+            		//sm.toggle();
+            		
+            		//getActivity().finish();
+            	}
+            	//else 
+            	//	sm.toggle(); 
             	 
             }
         });
@@ -63,10 +70,14 @@ public class MenuFragment extends Fragment {
             	
             	Intent intent = new Intent(getActivity(), MainActivity.class);
             	intent.putExtra("title", String.valueOf("热门菜谱")); 
-            	if (getActivity().getClass() != MainActivity.class)
+            	if (getActivity().getClass() == MainActivity.class) sm.toggle();
+            	else {
             		startActivity(intent); 
-            	else 
-            		sm.toggle(); 
+            		//sm.toggle();
+            		//getActivity().finish();
+            	}
+            	//else 
+            	//	sm.toggle(); 
             	 
             }
         });
@@ -79,6 +90,10 @@ public class MenuFragment extends Fragment {
             	intent.putExtra("title", String.valueOf("快捷菜谱")); 
             	//if (getActivity().getClass() != BuiltinDishes.class)
             		startActivity(intent); 
+//            		if (getActivity().getClass() == MainActivity.class && ((MainActivity)getActivity()).main_in_stack_count == 1)
+//                		;
+//                	else getActivity().finish();
+//            		
             	//else 
             		//sm.toggle(); 
             	 
@@ -91,7 +106,11 @@ public class MenuFragment extends Fragment {
             	Intent intent = new Intent(getActivity(),BuiltinDishes.class);
             	intent.putExtra("title", String.valueOf("快捷菜谱")); 
             	//if (getActivity().getClass() != BuiltinDishes.class)
-            		startActivity(intent); 
+            		startActivity(intent);
+//            	if (getActivity().getClass() == MainActivity.class && ((MainActivity)getActivity()).main_in_stack_count == 1)
+//            		;
+//            	else getActivity().finish();
+            		
             	//else 
             	//	sm.toggle(); 
             	 
@@ -137,10 +156,10 @@ public class MenuFragment extends Fragment {
             public void onClick(View v) {  
             	Intent intent = new Intent(getActivity(), AllDish.class);
             	intent.putExtra("title", String.valueOf("全部菜谱")); 
-            	if (getActivity().getClass() != AllDish.class)
+            	//if (getActivity().getClass() != AllDish.class)
             		startActivity(intent); 
-            	else 
-            		sm.toggle(); 
+            	//else 
+            		//sm.toggle(); 
                 //finish();//关闭当前Activity  
             }  
         });
@@ -150,10 +169,10 @@ public class MenuFragment extends Fragment {
             public void onClick(View v) {  
             	Intent intent = new Intent(getActivity(),AllDish.class);
             	intent.putExtra("title", String.valueOf("全部菜谱")); 
-            	if (getActivity().getClass() != AllDish.class)
+            	//if (getActivity().getClass() != AllDish.class)
             		startActivity(intent); 
-            	else 
-            		sm.toggle(); 
+            	//else 
+            		//sm.toggle(); 
                 //finish();//关闭当前Activity  
             }  
         });

@@ -75,6 +75,8 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	DeviceState ds = DeviceState.getInstance();
 	
 	public static int t = 50;
+	
+	ImageView back;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -221,6 +223,14 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 		
 		minus = (ImageView) findViewById(R.id.minus);
 		minus.setOnTouchListener(new PicOnTouchListener(-1));
+		
+		back = (ImageView) findViewById(R.id.back);
+		back.setOnClickListener(new OnClickListener() {  
+            @Override  
+            public void onClick(View v) {  
+            	finish(); 
+            }  
+        });
 		
 		//绑定一个匿名监听器
 		group.setOnCheckedChangeListener(new OnCheckedChangeListener() {

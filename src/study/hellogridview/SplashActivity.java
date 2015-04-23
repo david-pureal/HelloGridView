@@ -9,8 +9,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.View.OnClickListener;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -18,8 +20,11 @@ public class SplashActivity extends Activity {
 	
 	ImageView splash_img;
 	TextView splash_text;
+	TextView skip;
 	
 	Handler handler;
+	
+	boolean need_skip = false;
 	
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +49,15 @@ public class SplashActivity extends Activity {
         splash_img = (ImageView) findViewById(R.id.splash_img); 
         splash_text = (TextView) findViewById(R.id.splash_text);
         
+        skip = (TextView) findViewById(R.id.skip);
+        skip.setOnClickListener(new OnClickListener() {  
+            @Override  
+            public void onClick(View v) {  
+            	need_skip = true;
+            	skip.setVisibility(View.GONE);
+            }  
+        }); 
+        
         new AsyncTask<Void, Void, Integer>() {
             @Override
             protected Integer doInBackground(Void... params) {
@@ -57,7 +71,13 @@ public class SplashActivity extends Activity {
                 if (loadingTime < 2000) {
                     try {
                     	Log.v("SplashActivity", "loadingTime = " +  loadingTime);
-                        Thread.sleep(2000 - loadingTime);
+                    	
+                    	long total = 2000 - loadingTime;
+                    	long cur = 0;
+                    	while(!need_skip && cur < total) {
+                    		Thread.sleep(300);
+                    		cur += 300;
+                    	}
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -72,7 +92,12 @@ public class SplashActivity extends Activity {
                 loadingTime = System.currentTimeMillis() - startTime;
                 if (loadingTime < 2000) {
                     try {
-                        Thread.sleep(2000 - loadingTime);
+                    	long total = 2000 - loadingTime;
+                    	long cur = 0;
+                    	while(!need_skip && cur < total) {
+                    		Thread.sleep(300);
+                    		cur += 300;
+                    	}
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }

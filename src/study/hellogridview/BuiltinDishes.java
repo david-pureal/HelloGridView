@@ -35,6 +35,12 @@ import com.jeremyfeinstein.slidingmenu.lib.app.SlidingFragmentActivity;
 
 
 
+
+
+
+
+
+
 //import android.R;
 import android.app.Activity;
 import android.content.Intent;
@@ -63,12 +69,13 @@ import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class BuiltinDishes extends SlidingFragmentActivity implements OnTouchListener {
+public class BuiltinDishes extends SlidingFragmentActivity {
 
 	GridView gridView = null;	
 	Button replace_builtin;
@@ -95,13 +102,17 @@ public class BuiltinDishes extends SlidingFragmentActivity implements OnTouchLis
     
     TextView tv;
 	private boolean back_key_clicked = false; //纪录是否点了返回键
+	
+	TCPClient tcpclient;
+	
+	ImageButton m_deviceBtn;
+	ImageButton m_stateBtn;
+	ProgressBar connect_bar;
     
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Log.v("BuiltinDishes", "oncreate");
-		
-		TCPClient.getInstance().set_builtinact(this);
 		
 		requestWindowFeature(Window.FEATURE_CUSTOM_TITLE); 
 		setContentView(R.layout.activity_builtin_dishes);
@@ -126,7 +137,11 @@ public class BuiltinDishes extends SlidingFragmentActivity implements OnTouchLis
                 	
                 		//BuiltinDishes.this.tell(rp.is_ok);
                 	}
-                }  
+                } 
+                else if (msg.what == Constants.MSG_ID_CONNECT_STATE) {   
+                	Log.v("MainActivity", "got event MSG_ID_CONNECT_STATE = " + tcpclient.connect_state);
+                	set_connect_state();
+                } 
             }  
         };
         
@@ -156,24 +171,23 @@ public class BuiltinDishes extends SlidingFragmentActivity implements OnTouchLis
 		//设置actionBar能否跟随侧滑栏移动，如果没有，则可以去掉
 		setSlidingActionBarEnabled(false);
         
-        //device image to connect wifi
-        ImageButton m_deviceBtn = (ImageButton) findViewById(R.id.imageButton1);
-  		m_deviceBtn.setOnClickListener(new OnClickListener() {  
-              @Override  
-              public void onClick(View v) {  
-                  startActivity(new Intent(BuiltinDishes.this,SmartLinkActivity.class));  
-                  //finish();//关闭当前Activity  
-              }  
-          });
-  		
-  		ImageButton m_stateBtn = (ImageButton) findViewById(R.id.imageButton2);
-  		m_stateBtn.setOnClickListener(new OnClickListener() {  
-              @Override  
-              public void onClick(View v) {  
-                  startActivity(new Intent(BuiltinDishes.this,CurStateActivity.class));  
-                  //finish();//关闭当前Activity  
-              }  
-          });
+		m_deviceBtn = (ImageButton) findViewById(R.id.right);
+		m_deviceBtn.setOnClickListener(new OnClickListener() {  
+            @Override  
+            public void onClick(View v) {  
+                startActivity(new Intent(BuiltinDishes.this, SmartLinkActivity.class));  
+                //finish();//关闭当前Activity  
+            }  
+        });
+		m_stateBtn = (ImageButton) findViewById(R.id.left);
+		m_stateBtn.setOnClickListener(new OnClickListener() {  
+            @Override  
+            public void onClick(View v) {  
+                startActivity(new Intent(BuiltinDishes.this, CurStateActivity.class));  
+                //finish();//关闭当前Activity  
+            }  
+        });
+		connect_bar = (ProgressBar) findViewById(R.id.connecting_bar);
 		
 		gridView = (GridView)findViewById(R.id.gridview);  
 		replace_builtin = (Button)findViewById(R.id.replace_builtin); 
@@ -251,8 +265,8 @@ public class BuiltinDishes extends SlidingFragmentActivity implements OnTouchLis
             }  
         }); 
 		
-	    LinearLayout dish_layout = (LinearLayout) findViewById(R.id.layout_builtin);  
-        dish_layout.setOnTouchListener(this);
+//	    LinearLayout dish_layout = (LinearLayout) findViewById(R.id.layout_builtin);  
+//        dish_layout.setOnTouchListener(this);
 
 	} // oncreate
 	
@@ -275,32 +289,33 @@ public class BuiltinDishes extends SlidingFragmentActivity implements OnTouchLis
 		
 	}
 	
-	@Override  
-    public boolean onTouch(View v, MotionEvent event) {  
-        createVelocityTracker(event);  
-        switch (event.getAction()) {  
-        case MotionEvent.ACTION_DOWN:  
-            xDown = event.getRawX();  
-            break;  
-        case MotionEvent.ACTION_MOVE:  
-            xMove = event.getRawX();  
-            //活动的距离  
-            int distanceX = (int) (xMove - xDown);  
-            //获取顺时速度  
-            int xSpeed = getScrollVelocity();  
-            //当滑动的距离大于我们设定的最小距离且滑动的瞬间速度大于我们设定的速度时，返回到上一个activity  
-            if(distanceX > XDISTANCE_MIN && xSpeed > XSPEED_MIN) {  
-                finish();  
-            }  
-            break;  
-        case MotionEvent.ACTION_UP:  
-            recycleVelocityTracker();  
-            break;  
-        default:  
-            break;  
-        }  
-        return true;  
-    }  
+//	@Override  
+//    public boolean onTouch(View v, MotionEvent event) {  
+//        createVelocityTracker(event);  
+//        switch (event.getAction()) {  
+//        case MotionEvent.ACTION_DOWN:  
+//            xDown = event.getRawX();  
+//            break;  
+//        case MotionEvent.ACTION_MOVE:  
+//            xMove = event.getRawX();  
+//            //活动的距离  
+//            int distanceX = (int) (xMove - xDown);  
+//            //获取顺时速度  
+//            int xSpeed = getScrollVelocity();  
+//            //当滑动的距离大于我们设定的最小距离且滑动的瞬间速度大于我们设定的速度时，返回到上一个activity  
+//            if(distanceX > XDISTANCE_MIN && xSpeed > XSPEED_MIN) {  
+//            	Log.v("BuiltinDishes", "slide");
+//                finish();  
+//            }  
+//            break;  
+//        case MotionEvent.ACTION_UP:  
+//            recycleVelocityTracker();  
+//            break;  
+//        default:  
+//            break;  
+//        }  
+//        return true;  
+//    }  
       
     /** 
      * 创建VelocityTracker对象，并将触摸content界面的滑动事件加入到VelocityTracker当中。 
@@ -344,6 +359,11 @@ public class BuiltinDishes extends SlidingFragmentActivity implements OnTouchLis
 	protected void onResume() {
 		super.onResume();
 		Log.v("BuiltinDishes", "Buildin onResume");
+		
+		tcpclient = TCPClient.getInstance();
+		tcpclient.set_builtinact(this);
+        set_connect_state();
+        
 		LinkedHashMap<Integer, Dish> dishes = Dish.getAllDish();
         Log.v("BuiltinDishes", "length = " + dishes.size());
         
@@ -434,21 +454,45 @@ public class BuiltinDishes extends SlidingFragmentActivity implements OnTouchLis
 	     });
 	}
 	
-	@Override  
-    public boolean onKeyDown(int keyCode, KeyEvent event) {  
-		if (keyCode == KeyEvent.KEYCODE_BACK) {
-			back_key_clicked = true;
-		}
-        return super.onKeyDown(keyCode, event);  
+//	@Override  
+//    public boolean onKeyDown(int keyCode, KeyEvent event) {  
+//		if (keyCode == KeyEvent.KEYCODE_BACK) {
+//			back_key_clicked = true;
+//		}
+//        return super.onKeyDown(keyCode, event);  
+//    }
+	
+	public void set_connect_state() {
+    	if (tcpclient.connect_state == Constants.CONNECTED) {
+    		connect_bar.setVisibility(View.GONE);
+    		//m_deviceBtn.setImageResource(R.drawable.connected_32);
+    		m_deviceBtn.setImageResource(R.drawable.correct_32);
+    		m_deviceBtn.setVisibility(View.VISIBLE);
+    	}
+    	else if (tcpclient.connect_state == Constants.DISCONNECTED) {
+    		connect_bar.setVisibility(View.GONE);
+    		m_deviceBtn.setImageResource(R.drawable.wrong_32);
+    		m_deviceBtn.setVisibility(View.VISIBLE);
+    	}
+    	else if (tcpclient.connect_state == Constants.CONNECTING) {
+    		connect_bar.setVisibility(View.VISIBLE);
+    		m_deviceBtn.setVisibility(View.GONE);
+    	}
     }
 	
 	@Override
 	protected void onPause() {
 		Log.v("BuiltinDishes", "Buildin onPause");
 		super.onPause();
-		if (back_key_clicked) {
-			this.finish();
-			back_key_clicked = false;
-		}
+//		if (back_key_clicked) {
+//			this.finish();
+//			back_key_clicked = false;
+//		}
+	}
+	
+	@Override  
+    protected void onDestroy() {  
+        super.onDestroy();  
+        Log.v("BuiltinDishes", "onDestroy");
 	}
 }

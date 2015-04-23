@@ -122,6 +122,7 @@ public class MakeDishActivity extends Activity {
 	public final String dish_names[] = {"","","","","","","","","","","",""};
 	public final String jiaoban[] = {"0不搅拌", "1最慢速", "2较慢速", "3中慢速", "4中速", "5中快速", "6较快速", "7最快速", "8连续搅拌"};
 	protected int current_cmd;
+	private TextView makedish_delete;
 	
 	@SuppressLint("HandlerLeak")
 	@Override
@@ -217,7 +218,7 @@ public class MakeDishActivity extends Activity {
             	Log.v("MakeDishActivity", "checkbox = " + arg1 + " arg0 = " + arg0);
             	if (new_dish.water != 1 && arg1) { // 需要加水，显示加水量
             		popupView = inflater.inflate(R.layout.wheel_view_1_column, null, false);
-                	final PopupWindow popWindow = new PopupWindow(popupView, 500, 700, true);
+                	final PopupWindow popWindow = new PopupWindow(popupView, 600, 800, true);
                 	
                 	final WheelView column_1 = (WheelView) popupView.findViewById(R.id.column_1);
                 	ArrayWheelAdapter<Integer> adapter = new ArrayWheelAdapter<Integer>(MakeDishActivity.this, waters);
@@ -254,7 +255,7 @@ public class MakeDishActivity extends Activity {
             	Log.v("MakeDishActivity", "checkbox = " + arg1);
             	if (new_dish.water != 2 && arg1) { // 需要加水，显示加水量
             		popupView = inflater.inflate(R.layout.wheel_view_1_column, null, false);
-                	final PopupWindow popWindow = new PopupWindow(popupView, 500, 700, true);
+                	final PopupWindow popWindow = new PopupWindow(popupView, 600, 800, true);
                 	
                 	final WheelView column_1 = (WheelView) popupView.findViewById(R.id.column_1);
                 	ArrayWheelAdapter<Integer> adapter = new ArrayWheelAdapter<Integer>(MakeDishActivity.this, waters);
@@ -323,6 +324,7 @@ public class MakeDishActivity extends Activity {
                 	String state = (String)msg.obj;
                 	if (state.equals("success")) {
                 		MakeDishActivity.this.makedish_upload.setEnabled(false);
+                		makedish_delete.setVisibility(View.GONE);
                 		Toast.makeText(MakeDishActivity.this, "上传完成", Toast.LENGTH_SHORT).show();
                 	}
                 	else if (state.equals("fail")) {
@@ -348,7 +350,7 @@ public class MakeDishActivity extends Activity {
             @Override  
             public void onClick(View v) {  
             	popupView = inflater.inflate(R.layout.wheel_view_1_column, null, false);
-            	final PopupWindow popWindow = new PopupWindow(popupView,500,700,true);
+            	final PopupWindow popWindow = new PopupWindow(popupView,600,800,true);
             	
             	final WheelView column_1 = (WheelView) popupView.findViewById(R.id.column_1);
             	ArrayWheelAdapter<Integer> adapter = new ArrayWheelAdapter<Integer>(MakeDishActivity.this, temps);
@@ -374,7 +376,7 @@ public class MakeDishActivity extends Activity {
             @Override  
             public void onClick(View v) {  
             	popupView = inflater.inflate(R.layout.wheel_view_1_column, null, false);
-            	final PopupWindow popWindow = new PopupWindow(popupView,500,700,true);
+            	final PopupWindow popWindow = new PopupWindow(popupView,600,800,true);
             	
             	final WheelView column_1 = (WheelView) popupView.findViewById(R.id.column_1);
             	ArrayWheelAdapter<Integer> adapter = new ArrayWheelAdapter<Integer>(MakeDishActivity.this, temps);
@@ -400,7 +402,7 @@ public class MakeDishActivity extends Activity {
             @Override  
             public void onClick(View v) {  
             	popupView = inflater.inflate(R.layout.wheel_view_2_column, null, false);
-            	final PopupWindow popWindow = new PopupWindow(popupView, 800, 700, true);
+            	final PopupWindow popWindow = new PopupWindow(popupView, 900, 800, true);
             	
             	final WheelView column_1 = (WheelView) popupView.findViewById(R.id.column_1);
             	if (column_1 == null) Log.v("MakeDishActivity", "hours is null!");
@@ -466,7 +468,7 @@ public class MakeDishActivity extends Activity {
             @Override  
             public void onClick(View v) {  
             	popupView = inflater.inflate(R.layout.wheel_view_1_column, null, false);
-            	final PopupWindow popWindow = new PopupWindow(popupView,500,700,true);
+            	final PopupWindow popWindow = new PopupWindow(popupView,600,800,true);
             	
             	final WheelView column_1 = (WheelView) popupView.findViewById(R.id.column_1);
             	ArrayWheelAdapter<String> adapter = new ArrayWheelAdapter<String>(MakeDishActivity.this, jiaoban);	
@@ -492,7 +494,7 @@ public class MakeDishActivity extends Activity {
             @Override  
             public void onClick(View v) {  
             	popupView = inflater.inflate(R.layout.wheel_view_1_column, null, false);
-            	final PopupWindow popWindow = new PopupWindow(popupView,500,700,true);
+            	final PopupWindow popWindow = new PopupWindow(popupView,600,800,true);
             	
             	final WheelView column_1 = (WheelView) popupView.findViewById(R.id.column_1);
             	ArrayWheelAdapter<String> adapter = new ArrayWheelAdapter<String>(MakeDishActivity.this, jiaoban);	
@@ -518,7 +520,7 @@ public class MakeDishActivity extends Activity {
             @Override  
             public void onClick(View v) {  
             	popupView = inflater.inflate(R.layout.wheel_view_1_column, null, false);
-            	final PopupWindow popWindow = new PopupWindow(popupView, 500, 700, true);
+            	final PopupWindow popWindow = new PopupWindow(popupView, 600, 800, true);
             	
             	final WheelView column_1 = (WheelView) popupView.findViewById(R.id.column_1);
             	column_1.setViewAdapter(new ArrayWheelAdapter<Integer>(MakeDishActivity.this, oils));
@@ -638,7 +640,7 @@ public class MakeDishActivity extends Activity {
             	}
             	
             	popupView = inflater.inflate(R.layout.wheel_view_1_column, null, false);
-            	final PopupWindow popWindow = new PopupWindow(popupView, 500, 700, true);
+            	final PopupWindow popWindow = new PopupWindow(popupView, 600, 800, true);
             	final WheelView column_1 = (WheelView) popupView.findViewById(R.id.column_1);
             	
             	if (DeviceState.getInstance().got_builtin == false) {
@@ -787,7 +789,7 @@ public class MakeDishActivity extends Activity {
             }  
         });
         
-        TextView makedish_delete = (TextView) findViewById(R.id.makedish_delete);
+        makedish_delete = (TextView) findViewById(R.id.makedish_delete);
         makedish_delete.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) {

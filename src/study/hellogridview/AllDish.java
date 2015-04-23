@@ -22,6 +22,7 @@ import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.SimpleAdapter;
 import android.widget.SimpleAdapter.ViewBinder;
 import android.widget.TextView;
@@ -117,7 +118,7 @@ public class AllDish extends SlidingFragmentActivity {
 		
 		
 		//device image to connect wifi
-		m_memu = (ImageButton) findViewById(R.id.imageButton2);
+		m_memu = (ImageButton) findViewById(R.id.left);
 		//m_memu.setImageResource(R.drawable.category);
 		m_memu.setOnClickListener(new OnClickListener() {  
             @Override  
@@ -127,7 +128,7 @@ public class AllDish extends SlidingFragmentActivity {
             }  
         });
 		
-		m_search = (ImageButton) findViewById(R.id.imageButton1);
+		m_search = (ImageButton) findViewById(R.id.right);
 		//m_search.setImageResource(R.drawable.search_icon);
 		m_search.setImageResource(R.drawable.category_right);
 		m_search.setOnClickListener(new OnClickListener() {  
@@ -143,6 +144,9 @@ public class AllDish extends SlidingFragmentActivity {
                 //finish();//关闭当前Activity  
             }  
         });
+		
+		ProgressBar connect_bar = (ProgressBar) findViewById(R.id.connecting_bar);
+		connect_bar.setVisibility(View.GONE);
 		
 		// 小标题
 		TextView tv = (TextView) findViewById(R.id.replace_builtin_tv); 

@@ -63,44 +63,44 @@
 	    <!-- android:shrinkColumns="0,1" -->
 
 	    <TableRow
+	        android:id="@+id/table_row_first"
 	        android:layout_width="match_parent"
-	        android:layout_marginLeft="-2dp"
-	        android:paddingBottom="-6dp" >
+	        android:layout_height="match_parent"
+	        android:layout_marginLeft="-3dp"
+	        android:layout_marginTop="0dp" >
 
 	        <EditText
 	            android:id="@+id/table_edit_key0"
 	            android:layout_width="0dp"
 	            android:layout_height="wrap_content"
+	            android:layout_marginLeft="-5dp"
 	            android:layout_weight="1"
 	            android:hint=" 例：鸡蛋"
 	            android:imeOptions="normal"
-	            android:padding="0dp"
-	            android:paddingLeft="12dp"
 	            android:scrollHorizontally="false"
 	            android:singleLine="true"
-	            android:textColorHint="#b0b0b0"
-	            android:textSize="17dip"
-	            android:tag = "table_edit_key" />
+	            android:tag="table_edit_key"
+	            android:textColorHint="#b0b0b0" />
+
 
 	        <EditText
 	            android:id="@+id/table_edit_value0"
 	            android:layout_width="0dp"
 	            android:layout_height="wrap_content"
-	            android:layout_marginLeft="-4dp"
+	            android:layout_marginLeft="-15dp"
+	            android:layout_marginRight="-8dp"
 	            android:layout_weight="1"
 	            android:hint=" 1只"
 	            android:imeOptions="normal"
-	            android:padding="0dp"
-	            android:paddingLeft="12dp"
 	            android:scrollHorizontally="false"
 	            android:singleLine="true"
 	            android:textColorHint="#b0b0b0"
-	            android:textSize="17dip"
 	            android:tag = "table_edit_value" />
 
 	    </TableRow>
 
 	    <TableRow
+	        android:id="@+id/table_row1"
 	        android:layout_width="fill_parent"
 	        android:layout_marginLeft="-2dp"
 	        android:layout_marginTop="-7dp" >
@@ -109,30 +109,24 @@
 	            android:id="@+id/table_edit_key1"
 	            android:layout_width="0dp"
 	            android:layout_height="wrap_content"
-	            android:layout_margin="0dp"
 	            android:layout_weight="1"
 	            android:hint=" 猪肉"
 	            android:imeOptions="normal"
-	            android:padding="0dp"
 	            android:scrollHorizontally="false"
 	            android:singleLine="true"
 	            android:textColorHint="#b0b0b0"
-	            android:textSize="17dip"
 	            android:tag = "table_edit_key" />
 
 	        <EditText
 	            android:id="@+id/table_edit_value1"
 	            android:layout_width="0dp"
 	            android:layout_height="wrap_content"
-	            android:layout_marginLeft="-4dp"
 	            android:layout_weight="1"
 	            android:hint=" 500克"
 	            android:imeOptions="normal"
-	            android:padding="0dp"
 	            android:scrollHorizontally="false"
 	            android:singleLine="true"
 	            android:textColorHint="#b0b0b0"
-	            android:textSize="17dip"
 	            android:tag = "table_edit_value" />
 
 	    </TableRow>

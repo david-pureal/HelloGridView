@@ -24,6 +24,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.BitmapFactory.Options;
 import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -490,11 +491,9 @@ public class Tool {
 //		if (!Tool.getInstance().isPathExist(path)) {
 //			return null;
 //		}
-		FileInputStream fis;
 		try {
-			fis = new FileInputStream(abs_path);
-			return BitmapFactory.decodeStream(fis);
-		} catch (FileNotFoundException e) {
+			return BitmapFactory.decodeFile(abs_path);
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

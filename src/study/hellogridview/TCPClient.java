@@ -44,6 +44,11 @@ public class TCPClient {
 	
 	private DeviceState ds;
 	
+	public int connect_state = Constants.CONNECTING;
+	public long start_connecting_timestamp = System.currentTimeMillis();
+	
+	public boolean is_stop = false;
+	
 	private TCPClient() {
 		init();
 		Log.v("tcpclient", "in TCPClient()");
@@ -232,6 +237,9 @@ public class TCPClient {
 		public void set_ip_sta(String ip_sta) {
 			this.ip_sta = ip_sta;
 			if (s.isConnected() && !this.current_ip.equals(ip_sta)) {
+				connect_state = Constants.CONNECTING;
+				start_connecting_timestamp = System.currentTimeMillis();
+				notify_connect_state();
 				reconnect(ip_sta);
 			}
 		}
@@ -307,6 +315,7 @@ public class TCPClient {
 		}
 		
 		public boolean notify_buildin(BuiltinDishes act) {
+
 			if (notifycount > 10 && notifycount%3 != 0) {
 				// don't bother too often
 				++notifycount;
@@ -329,6 +338,15 @@ public class TCPClient {
 			return false;
 		}
 
+		public void notify_connect_state() {
+			if (main_activity.getHandler() != null) main_activity.getHandler().sendEmptyMessage(Constants.MSG_ID_CONNECT_STATE);
+			if (buildin_activity != null && buildin_activity.getHandler() != null) {
+				buildin_activity.getHandler().sendEmptyMessage(Constants.MSG_ID_CONNECT_STATE);
+			}
+			if (dish_activity != null && dish_activity.getHandler() != null) {
+				dish_activity.getHandler().sendEmptyMessage(Constants.MSG_ID_CONNECT_STATE);
+			}
+		}
 		@Override
 		public void run() {
 			s = new Socket();
@@ -359,6 +377,8 @@ public class TCPClient {
 						}
 						
 						if (s.isConnected()) {
+							connect_state = Constants.CONNECTED;
+							notify_connect_state();
 							break;
 						} else {
 							Thread.sleep(15000);
@@ -367,6 +387,12 @@ public class TCPClient {
 						e.printStackTrace();
 						Log.e("tcpclient", "socket connect to " + ip_ap +";" + port + " failed! try reconnect...");
 						if (notify(dish_activity) || notify_curstate(curstate_activity) || notify_buildin(buildin_activity) || notify_setting(setting_activity));
+						
+						long current = System.currentTimeMillis();
+						if (connect_state == Constants.CONNECTING && current - start_connecting_timestamp > Constants.CONNECT_TIMEOUT) {
+							connect_state = Constants.DISCONNECTED;
+							notify_connect_state();
+						}
 						Thread.sleep(15000);
 					}
 				}
@@ -404,6 +430,9 @@ public class TCPClient {
 							} catch (SocketException e) {
 								Log.v("tcpclient", "sendMsg SocketException, try to reconnect");
 								e.printStackTrace();
+								connect_state = Constants.CONNECTING;
+								start_connecting_timestamp = System.currentTimeMillis();
+								notify_connect_state();
 								reconnect(current_ip);
 							}
 							catch (Exception e) {
@@ -449,37 +478,60 @@ public class TCPClient {
 						TCPClient.getInstance().OnReceive(bytestream);
 						bytestream.reset();
 					}
+					
+					// read error
+					Log.v("tcpclient", "read package error!");
+					connect_state = Constants.CONNECTING;
+					start_connecting_timestamp = System.currentTimeMillis();
+					notify_connect_state();
+					reconnect(current_ip);
 				}
 				Log.v("tcpclient", "ReceiveThread exit");
 			}
 		} //ReceiveThread
 		
 		public void reconnect(String ip) {
-			Log.v("tcpclient", "try to reconnect to ip:" + ip);
-			try {
-				recv_data.stop = true;
-				Thread.sleep(1000);
-				if (s != null) {
-					s.close();
-				}
-				
-				s = new Socket();
-				s.connect(new InetSocketAddress(ip, port), Constants.BBXC_SOCKET_TIMEOUT);
-				
-				if (s.isConnected()) {
-					br = new BufferedInputStream(new DataInputStream(s.getInputStream()));
-					os = s.getOutputStream();
-					recv_data = new ReceiveThread();
-					recv_data.recv_thread.start();
-					Log.v("tcpclient", "successfully reconnect to ip:" + ip);
-				}
-				else {
-					Log.v("tcpclient", "failed reconnect to ip:" + ip);
-				}
-			} catch (Exception io) {
-				io.printStackTrace();
-				Log.v("tcpclient", "failed reconnect to ip:" + ip);
-			}
+			while (!is_stop) {
+				Log.v("tcpclient", "try to reconnect to ip:" + ip);
+				try {
+					recv_data.stop = true;
+					Thread.sleep(1000);
+					if (s != null) {
+						s.close();
+					}
+					
+					s = new Socket();
+					s.connect(new InetSocketAddress(ip, port), Constants.BBXC_SOCKET_TIMEOUT);
+					
+					if (s.isConnected()) {
+						br = new BufferedInputStream(new DataInputStream(s.getInputStream()));
+						os = s.getOutputStream();
+						recv_data = new ReceiveThread();
+						recv_data.recv_thread.start();
+						
+						connect_state = Constants.CONNECTED;
+						notify_connect_state();
+						Log.v("tcpclient", "successfully reconnect to ip:" + ip);
+						break;
+					}
+					else {
+						Log.v("tcpclient", "failed reconnect to ip:" + ip);
+						long current = System.currentTimeMillis();
+						if (connect_state == Constants.CONNECTING && current - start_connecting_timestamp > Constants.CONNECT_TIMEOUT) {
+							connect_state = Constants.DISCONNECTED;
+							notify_connect_state();
+						}
+					}
+				} catch (Exception io) {
+					io.printStackTrace();
+					Log.v("tcpclient", "exception failed reconnect to ip:" + ip);
+					long current = System.currentTimeMillis();
+					if (connect_state == Constants.CONNECTING && current - start_connecting_timestamp > Constants.CONNECT_TIMEOUT) {
+						connect_state = Constants.DISCONNECTED;
+						notify_connect_state();
+					}
+				} // try
+			}// while (!is_stop)
 		}
 	} // clientThead
 	
@@ -696,6 +748,7 @@ public class TCPClient {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			Log.e("tcpclient", "BufferedInputStream read error!");
+			
 			return false;
 		}
 	}

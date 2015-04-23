@@ -1,5 +1,6 @@
 package study.hellogridview;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import android.content.Context;
@@ -33,11 +34,14 @@ public class Account {
 		
 		user_icon_link = userIconUrl;
 		final Bitmap old_icon_img = user_icon_img;
-		final String filename = username + "_icon.jpg";
+		final String filename = userid + "_icon.jpg";
 		new Thread() {
 			@Override
 			public void run() {
-				HttpUtils.downloadFile(userIconUrl, filename); // 同步http请求不能在ui线程做
+				File path = new File(Tool.getInstance().getModulePath() + filename);
+				if (!path.exists()) {
+					HttpUtils.downloadFile(userIconUrl, filename); // 同步http请求不能在ui线程做
+				}
 
 				// if download success, load from file
 				user_icon_img = Tool.decode_path_bitmap(filename);

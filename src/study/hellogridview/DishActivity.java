@@ -49,6 +49,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -71,7 +72,11 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
 	TextView dish_detail;
 	
 	Handler handler;
-	TCPClient tcpClient;
+	TCPClient tcpclient;
+	
+	ImageButton m_deviceBtn;
+	ImageButton m_stateBtn;
+	ProgressBar connect_bar;
 	
 	int dish_id = 0;
 	Dish dish;
@@ -126,9 +131,6 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
 		dish_title = (TextView) findViewById(R.id.dish_title); 
 		dish_title.setText(dish.name_chinese);
 	
-		tcpClient = TCPClient.getInstance();
-        tcpClient.set_dishact(this);
-        
         handler = new Handler() {  
   
             @Override  
@@ -165,27 +167,30 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
                 	Log.v("DishActivity", "got favorite result, isFavorite ="  + Account.isFavorite(dish));
                 	favorite.setImageResource(Account.isFavorite(dish) ? R.drawable.favorite_dish_72 : R.drawable.unfavorite_dish_72);
                 }
+                else if (msg.what == Constants.MSG_ID_CONNECT_STATE) {   
+                	Log.v("DishActivity", "got event MSG_ID_CONNECT_STATE = " + tcpclient.connect_state);
+                	set_connect_state();
+                }
             }  
         }; 
         
-        //device image to connect wifi
-        ImageButton m_deviceBtn = (ImageButton) findViewById(R.id.imageButton1);
-  		m_deviceBtn.setOnClickListener(new OnClickListener() {  
-              @Override  
-              public void onClick(View v) {  
-                  startActivity(new Intent(DishActivity.this,SmartLinkActivity.class));  
-                  //finish();//关闭当前Activity  
-              }  
-          });
-  		
-  		ImageButton m_stateBtn = (ImageButton) findViewById(R.id.imageButton2);
-  	    m_stateBtn.setOnClickListener(new OnClickListener() {  
-              @Override  
-              public void onClick(View v) {  
-                  startActivity(new Intent(DishActivity.this,CurStateActivity.class));  
-                  //finish();//关闭当前Activity  
-              }  
+        m_deviceBtn = (ImageButton) findViewById(R.id.right);
+		m_deviceBtn.setOnClickListener(new OnClickListener() {  
+            @Override  
+            public void onClick(View v) {  
+                startActivity(new Intent(DishActivity.this, SmartLinkActivity.class));  
+                //finish();//关闭当前Activity  
+            }  
         });
+		m_stateBtn = (ImageButton) findViewById(R.id.left);
+		m_stateBtn.setOnClickListener(new OnClickListener() {  
+            @Override  
+            public void onClick(View v) {  
+                startActivity(new Intent(DishActivity.this, CurStateActivity.class));  
+                //finish();//关闭当前Activity  
+            }  
+        });
+		connect_bar = (ProgressBar) findViewById(R.id.connecting_bar);
         
 		startCook = (Button) findViewById(R.id.startcook);  
         startCook.setOnClickListener(new OnClickListener() {  
@@ -201,7 +206,7 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
                     //msg.obj = "msg content";
                     Package data = new Package(Package.Send_Dish, dish);
                     msg.obj = data.getBytes();
-                    tcpClient.sendMsg(msg); 
+                    tcpclient.sendMsg(msg); 
                     
                     DishActivity.this.resp_cmd108_count = 0;
                     
@@ -211,7 +216,7 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
                     	Message msgtmp = new Message();  
                     	msgtmp.what = 0x345; 
                     	msgtmp.obj = baos;
-                    	tcpClient.sendMsg(msgtmp); 
+                    	tcpclient.sendMsg(msgtmp); 
                     	baos = new ByteArrayOutputStream();
                     }
                     
@@ -605,8 +610,36 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
 		}
 		break;
 	}
-	return false;
+		return false;
 	}
+	
+	public void set_connect_state() {
+    	if (tcpclient.connect_state == Constants.CONNECTED) {
+    		connect_bar.setVisibility(View.GONE);
+    		//m_deviceBtn.setImageResource(R.drawable.connected_32);
+    		m_deviceBtn.setImageResource(R.drawable.correct_32);
+    		m_deviceBtn.setVisibility(View.VISIBLE);
+    	}
+    	else if (tcpclient.connect_state == Constants.DISCONNECTED) {
+    		connect_bar.setVisibility(View.GONE);
+    		m_deviceBtn.setImageResource(R.drawable.wrong_32);
+    		m_deviceBtn.setVisibility(View.VISIBLE);
+    	}
+    	else if (tcpclient.connect_state == Constants.CONNECTING) {
+    		connect_bar.setVisibility(View.VISIBLE);
+    		m_deviceBtn.setVisibility(View.GONE);
+    	}
+    }
+	
+	@Override  
+    protected void onResume() {  
+    	Log.v("DishActivity", "onResume");
+        super.onResume(); 
+        
+		tcpclient = TCPClient.getInstance();
+        tcpclient.set_dishact(this);
+        set_connect_state();
+    }
 
 	// 在状态栏提示分享操作,the notification on the status bar
 	private void showNotification(long cancelTime, String text) {
