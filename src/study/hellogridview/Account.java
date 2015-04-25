@@ -60,12 +60,9 @@ public class Account {
 				register(context);
 			}
 		}.start();
-		
 	}
 	
 	public static boolean isFavorite(Dish dish) {
 		return Account.favorites.indexOf(dish.dishid) != -1;
 	}
 }
-
-

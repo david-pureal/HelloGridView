@@ -10,7 +10,7 @@ public final class Constants {
 	public static final int CONNECTING   = 0;
 	public static final int CONNECTED    = 1;
 	public static final int DISCONNECTED = -1;
-	public static final int CONNECT_TIMEOUT = 30000;//  milliseconds
+	public static final int CONNECT_TIMEOUT = 20000;//  milliseconds
 	
 	// message id
 	public static final int MSG_ID_STA_IP = 100;

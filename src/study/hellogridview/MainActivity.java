@@ -21,6 +21,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.Settings;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -84,6 +85,8 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
     
     ArrayList<Integer> index_id_list = new ArrayList<Integer>();
     
+    GridView gridView2;
+    
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -130,7 +133,13 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
 		m_deviceBtn.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) {  
-                startActivity(new Intent(MainActivity.this, SmartLinkActivity.class));  
+            	is_title_button_clicked = true;
+            	if (!Tool.getInstance().isWifiConnected(MainActivity.this)) {
+            		startActivityForResult(new Intent(Settings.ACTION_WIFI_SETTINGS), 1);
+            	}
+            	else  {
+            		startActivity(new Intent(MainActivity.this, SmartLinkActivity.class));  
+            	}
                 //finish();//关闭当前Activity  
             }  
         });
@@ -138,6 +147,7 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
 		m_stateBtn.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) {  
+            	is_title_button_clicked = true;
                 startActivity(new Intent(MainActivity.this, CurStateActivity.class));  
                 //finish();//关闭当前Activity  
             }  
@@ -215,68 +225,8 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
 //        Log.v("MainActivity", "mImageViews.length = " +  mImageViews.length);
 //        viewPager.setCurrentItem(0);  
         
-        // 热门菜谱
-		LinkedHashMap<Integer, Dish> dishes = Dish.getAllDish();
-        Log.v("MainActivity", "length = " + dishes.size());
         
-        index_id_list.clear();
-        
-        ArrayList<HashMap<String,Object>> al=new ArrayList<HashMap<String,Object>>();
-        for (Iterator<Integer> it = dishes.keySet().iterator();it.hasNext();)
-        {
-             int key = it.next();
-             Dish d = dishes.get(key);
-             HashMap<String, Object> map = new HashMap<String, Object>(); 
-             
-             if (d.isAppBuiltIn()) {
-             	map.put("icon", d.img); //添加图像资源的ID 
-             }
-             else if (d.isVerifyDone()) {
-            	 map.put("icon", d.img_bmp); //添加图像资源的ID
-             }
-             else { continue;}
-             
-             map.put("name", d.name_chinese);//按序号做ItemText 
-             al.add(map);
-             index_id_list.add(d.dishid);
-        }
-        
-        SimpleAdapter sa= new SimpleAdapter(MainActivity.this,al,R.layout.image_text,new String[]{"icon","name"},new int[]{R.id.ItemImage,R.id.ItemText});
-        GridView gridView2 = (GridView)findViewById(R.id.gridview2);
-        sa.setViewBinder(new ViewBinder(){  
-            @Override  
-            public boolean setViewValue(View view, Object data,  
-                    String textRepresentation) {  
-                if( (view instanceof ImageView) && (data instanceof Bitmap ) ) {  
-                    ImageView iv = (ImageView) view;  
-                    Bitmap  bm = (Bitmap ) data;  
-                    iv.setImageBitmap(bm);
-                    return true;  
-                }  
-                return false;  
-            }  
-        });
-        gridView2.setAdapter(sa);
-       
-        //单击GridView元素的响应  
-	    gridView2.setOnItemClickListener(new OnItemClickListener() {  
-	  
-	        @Override  
-	        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {  
-	            //弹出单击的GridView元素的位置  
-	            //Toast.makeText(MainActivity.this,mThumbIds[position], Toast.LENGTH_SHORT).show(); 
-	        	Log.v("OnItemClickListener", "position = " + position + "id = " + id);
-	        	Dish dish = Dish.getDishById(index_id_list.get(position));
-	        	
-	        	Intent intent;
-	        	if (dish.isAppBuiltIn()) intent = new Intent(MainActivity.this, DishActivity.class);
-	        	else intent = new Intent(MainActivity.this, MakeDishActivity.class);
-	        	
-	        	intent.putExtra("dish_id", dish.dishid); 
-	        	startActivity(intent);	
-	        	is_element_clicked = true;
-	        }  
-	     });
+        gridView2 = (GridView)findViewById(R.id.gridview2);
 	    
 	}// onCreate
 	
@@ -371,21 +321,86 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
     public int  main_in_stack_count = 0;
     
     boolean is_element_clicked = false;
+	private boolean is_title_button_clicked = false;
+	
     @Override  
     protected void onResume() {  
     	Log.v("MainActivity", "onResume");
         super.onResume(); 
         
         // 如果是点了热门菜谱里的菜，然后返回的，那么不调用toggle
-        if (!is_element_clicked) {
+        if (!is_element_clicked && !is_title_button_clicked ) {
         	sm.toggle(false);
         }
-        else is_element_clicked = false;
+        else {
+        	is_element_clicked = false;
+        	is_title_button_clicked = false;
+        }
         
         tcpclient = TCPClient.getInstance(this);
         set_connect_state();
         
         Tool.getInstance().saveDevices(this);
+        
+        // 热门菜谱
+ 		LinkedHashMap<Integer, Dish> dishes = Dish.getAllDish();
+        Log.v("MainActivity", "length = " + dishes.size());
+         
+        index_id_list.clear();
+         
+        ArrayList<HashMap<String,Object>> al=new ArrayList<HashMap<String,Object>>();
+        for (Iterator<Integer> it = dishes.keySet().iterator();it.hasNext();)
+        {
+             int key = it.next();
+             Dish d = dishes.get(key);
+             HashMap<String, Object> map = new HashMap<String, Object>(); 
+              
+             if (d.isAppBuiltIn()) {
+               	 map.put("icon", d.img); //添加图像资源的ID 
+             }
+             else if (d.isVerifyDone()) {
+             	 map.put("icon", d.img_bmp); //添加图像资源的ID
+             }
+             else { continue;}
+              
+             map.put("name", d.name_chinese);//按序号做ItemText 
+             al.add(map);
+             index_id_list.add(d.dishid);
+         }
+         
+         SimpleAdapter sa= new SimpleAdapter(MainActivity.this, al, R.layout.image_text,new String[]{"icon","name"},new int[]{R.id.ItemImage,R.id.ItemText});
+         sa.setViewBinder(new ViewBinder(){  
+             @Override  
+             public boolean setViewValue(View view, Object data,  
+                     String textRepresentation) {  
+                 if( (view instanceof ImageView) && (data instanceof Bitmap ) ) {  
+                     ImageView iv = (ImageView) view;  
+                     Bitmap  bm = (Bitmap ) data;  
+                     iv.setImageBitmap(bm);
+                     return true;  
+                 }  
+                 return false;  
+             }  
+         });
+         gridView2.setAdapter(sa);
+         //单击GridView元素的响应  
+ 	     gridView2.setOnItemClickListener(new OnItemClickListener() {  
+ 	        @Override  
+ 	        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {  
+ 	            //弹出单击的GridView元素的位置  
+ 	            //Toast.makeText(MainActivity.this,mThumbIds[position], Toast.LENGTH_SHORT).show(); 
+ 	        	Log.v("OnItemClickListener", "position = " + position + "id = " + id);
+ 	        	Dish dish = Dish.getDishById(index_id_list.get(position));
+ 	        	
+ 	        	Intent intent;
+ 	        	if (dish.isAppBuiltIn()) intent = new Intent(MainActivity.this, DishActivity.class);
+ 	        	else intent = new Intent(MainActivity.this, MakeDishActivity.class);
+ 	        	
+ 	        	intent.putExtra("dish_id", dish.dishid); 
+ 	        	startActivity(intent);	
+ 	        	is_element_clicked = true;
+ 	        }  
+ 	     });
     }
     
     @Override  
@@ -417,5 +432,22 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
     public Handler getHandler() {
     	return handler;
     }
+    
+    @Override  
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {  
+        super.onActivityResult(requestCode, resultCode, data);  
+        Log.v("MainActivity", "requestCode = " + requestCode + "resultCode =" + resultCode);
+        switch (requestCode) {  
+        case 1:  
+        	Log.v("MainActivity", "return from system wifi settings");
+        	if (Tool.getInstance().isWifiConnected(MainActivity.this)) {
+	    		 Log.v("MenuFragment", "login return success, see all favorites");
+	    		 Intent intent = new Intent(MainActivity.this, BuiltinDishes.class);
+	             intent.putExtra("title", String.valueOf("收藏菜谱")); 
+	             startActivity(intent);
+	    	}
+            break;  
+        }
+	}
  
 }

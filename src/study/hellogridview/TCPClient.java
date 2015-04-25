@@ -356,7 +356,14 @@ public class TCPClient {
 					try {
 						if (!Tool.getInstance().isWifiConnected(main_activity)) {
 							Log.v("tcpclient", "not connected to any wifi, don't try to connect device");
-							Thread.sleep(15000);
+							
+							long current = System.currentTimeMillis();
+							if (connect_state == Constants.CONNECTING /*&& current - start_connecting_timestamp > Constants.CONNECT_TIMEOUT / 2*/) {
+								connect_state = Constants.DISCONNECTED;
+								notify_connect_state();
+							}
+							
+							Thread.sleep(3000);
 							continue;
 						}
 						
@@ -372,6 +379,13 @@ public class TCPClient {
 						else {
 							udpBroadcast.send(Constants.CMD_SCAN_MODULES);
 							Log.v("tcpclient", "尝试查找附近的设备，或使用Smartlink模式连接设备");
+							
+							long current = System.currentTimeMillis();
+							if (connect_state == Constants.CONNECTING && current - start_connecting_timestamp > Constants.CONNECT_TIMEOUT) {
+								connect_state = Constants.DISCONNECTED;
+								notify_connect_state();
+							}
+							
 							Thread.sleep(5000);
 							continue;
 						}
@@ -381,7 +395,12 @@ public class TCPClient {
 							notify_connect_state();
 							break;
 						} else {
-							Thread.sleep(15000);
+							long current = System.currentTimeMillis();
+							if (connect_state == Constants.CONNECTING && current - start_connecting_timestamp > Constants.CONNECT_TIMEOUT) {
+								connect_state = Constants.DISCONNECTED;
+								notify_connect_state();
+							}
+							Thread.sleep(10000);
 						}
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -393,7 +412,7 @@ public class TCPClient {
 							connect_state = Constants.DISCONNECTED;
 							notify_connect_state();
 						}
-						Thread.sleep(15000);
+						Thread.sleep(10000);
 					}
 				}
 				Log.e("tcpclient", "socket connected");

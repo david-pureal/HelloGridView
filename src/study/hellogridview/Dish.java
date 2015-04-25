@@ -284,8 +284,8 @@ public class Dish implements Cloneable {
 			dish5.text = "1、底油：50克\n2、炝锅料：姜片10克、蒜片10克\n3、主料：鱼块500克\n4、辅料：红椒50克、青椒50克\n5、水：50克\n6、调料：盐3克、鸡精2克、生抽20克"; 
 			dish5.name_english = "Fish block";
 			dish5.dishid = 6;
-			dish5.materials.add(R.drawable.hongshaojichi_1);
-			dish5.materials.add(R.drawable.hongshaojichi_2);
+			dish5.materials.add(R.drawable.hongshaoyukuai_1);
+			dish5.materials.add(R.drawable.hongshaoyukuai_2);
 			dish5.materials.add(R.drawable.qiangguoliao);
 			alldish_map.put(dish5.dishid, dish5);
 			

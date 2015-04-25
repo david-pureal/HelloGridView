@@ -106,7 +106,7 @@ public class MakeDishActivity extends Activity {
 	
 	ProgressBar progressBar1;
 	
-	public int new_dish_id;
+	//public int new_dish_id;
 	boolean editable = true;
 	
 	private TableLayout tableLayout_zhuliao;
@@ -151,7 +151,7 @@ public class MakeDishActivity extends Activity {
 		int dish_id = intent.getIntExtra("dish_id", 0);
 		Log.v("MakeDishActivity", "dish_id = " + dish_id);
 		new_dish = Dish.getDishById(dish_id);
-		new_dish_id = dish_id;
+		//new_dish_id = dish_id;
 		
 		tcpClient = TCPClient.getInstance();
         tcpClient.set_makedishact(this);
@@ -309,9 +309,9 @@ public class MakeDishActivity extends Activity {
             			progressBar1.setVisibility(View.GONE);
             			progressBar1.setProgress(0);
                 		if (current_cmd == 101) {
-	                		Log.v("MakeDishActivity", "start cook dish(" + new_dish_id + ") done, go to CurStateActivity");
+	                		Log.v("MakeDishActivity", "start cook dish(" + new_dish.dishid + ") done, go to CurStateActivity");
 	        	        	Intent intent = new Intent(MakeDishActivity.this, CurStateActivity.class);
-	        	        	intent.putExtra("dish_id", new_dish_id); 
+	        	        	intent.putExtra("dish_id", new_dish.dishid); 
 	        	        	startActivity(intent);
                 		} else if (current_cmd == 104) {
                 			Toast.makeText(MakeDishActivity.this, "替换菜谱完成", Toast.LENGTH_SHORT).show();
@@ -562,7 +562,7 @@ public class MakeDishActivity extends Activity {
             	Intent intent = new Intent(MakeDishActivity.this, TableEditActivity.class);
             	intent.putExtra("edit_title", "主料");
             	//intent.putExtra("edit_content_input", new_dish.zhuliao_content);
-            	intent.putExtra("dish_id", new_dish_id);
+            	intent.putExtra("dish_id", new_dish.dishid);
             	startActivityForResult(intent, 3);
             }  
         });
@@ -576,7 +576,7 @@ public class MakeDishActivity extends Activity {
             public void onClick(View v) {  
             	Intent intent = new Intent(MakeDishActivity.this, TableEditActivity.class);
             	intent.putExtra("edit_title", "辅料");
-            	intent.putExtra("dish_id", new_dish_id);
+            	intent.putExtra("dish_id", new_dish.dishid);
             	startActivityForResult(intent, 4);
             }  
         });
@@ -588,7 +588,7 @@ public class MakeDishActivity extends Activity {
             public void onClick(View v) {  
             	Intent intent = new Intent(MakeDishActivity.this, TableEditActivity.class);
             	intent.putExtra("edit_title", "主料");
-            	intent.putExtra("dish_id", new_dish_id);
+            	intent.putExtra("dish_id", new_dish.dishid);
             	startActivityForResult(intent, 3);
             }  
         });
@@ -606,7 +606,7 @@ public class MakeDishActivity extends Activity {
             public void onClick(View v) {  
             	Intent intent = new Intent(MakeDishActivity.this, TableEditActivity.class);
             	intent.putExtra("edit_title", "辅料");
-            	intent.putExtra("dish_id", new_dish_id);
+            	intent.putExtra("dish_id", new_dish.dishid);
             	startActivityForResult(intent, 4);
             }  
         });
@@ -619,7 +619,7 @@ public class MakeDishActivity extends Activity {
             	Log.v("MakeDishActivity", "v.getId = " + v.getId());
             	Intent intent = new Intent(MakeDishActivity.this, ImageEditActivity.class);
             	intent.putExtra("edit_title", "备料图文");
-            	intent.putExtra("dish_id", new_dish_id);
+            	intent.putExtra("dish_id", new_dish.dishid);
             	startActivityForResult(intent, 6);
             }  
         });
@@ -1041,7 +1041,7 @@ public class MakeDishActivity extends Activity {
              	Log.v("MakeDishActivity", "v.getId = " + v.getId());
              	Intent intent = new Intent(MakeDishActivity.this, ImageEditActivity.class);
              	intent.putExtra("edit_title", "备料图文");
-             	intent.putExtra("dish_id", new_dish_id);
+             	intent.putExtra("dish_id", new_dish.dishid);
              	intent.putExtra("material_index", v.getId());
              	startActivityForResult(intent, 6);
              }  

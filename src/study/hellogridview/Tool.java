@@ -319,11 +319,16 @@ public class Tool {
 
 					Dish d = new Dish(dishid, "");
 					if (jsonStringToDish(data, d)) {
+						// skip local uploaded dish if it's not in web dish_list
+						// don't bother the not uploaded local dish.
+						if (Dish.alldish_web.indexOf(dishid) == -1 && dishid < Dish.USER_MAKE_DISH_START_ID) {
+							Log.v("Tool", "local dishid=" + dishid + " is not in weblist, so skip it.");
+							continue;
+						}
+						
 						BitmapFactory.Options options = new BitmapFactory.Options(); options.inPurgeable = true; 
 						d.img_bmp = BitmapFactory.decodeFile(d.getDishDirName() + d.img_path, options);
 						
-						// skip local uploaded dish if it's not in web dish_list
-						if (Dish.alldish_web.indexOf(dishid) == -1 && d.isAppBuiltIn()) continue;
 						Dish.putDish(d);
 						if (d.dishid > Dish.current_makedish_dishid) Dish.current_makedish_dishid = d.dishid;
 					}

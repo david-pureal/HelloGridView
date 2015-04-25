@@ -38,6 +38,7 @@ public class HttpUtils {
     static
     {
         client.setTimeout(10*000);   //设置链接超时，如果不设置，默认为10s
+        sync_client.setTimeout(30*1000);
     }
     
     public static void get(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
@@ -73,13 +74,19 @@ public class HttpUtils {
 		    		Log.v("HttpUtil", "uploadFile 0 threadid=" + Thread.currentThread().getId());
 			    	uploadFile(param_path, dish.dishid, upload_uuid, "start");
 			    	
+			    	String main_img_tiny_path = dish.getDishDirName() + Constants.DISH_IMG_TINY_FILENAME;
+			    	
 			    	//HttpUtils.upload_semphore.acquire();
 			    	Log.v("HttpUtil", "uploadFile 1 uuid =" + upload_uuid);
 			    	String main_img_path = dish.getDishDirName() + Constants.DISH_IMG_FILENAME;
 			    	uploadFile(main_img_path, dish.dishid, upload_uuid, "uploading");
+			    	// for test
+			    	//uploadFile(main_img_tiny_path, dish.dishid, upload_uuid, "uploading");
+			    	//uploadFile(param_path, dish.dishid, upload_uuid, "uploading");
+			    	//uploadFile(param_path, dish.dishid, upload_uuid, "uploading");
 			    	
 					Log.v("HttpUtil", "uploadFile 2 uuid =" + upload_uuid);
-			    	String main_img_tiny_path = dish.getDishDirName() + Constants.DISH_IMG_TINY_FILENAME;
+			    	
 			    	uploadFile(main_img_tiny_path, dish.dishid, upload_uuid, 
 			    			dish.prepare_material_detail.isEmpty() ? "end" : "uploading");
 			    	
@@ -131,7 +138,10 @@ public class HttpUtils {
 						Message m = new Message();
 						m.what = Constants.MSG_ID_UPLOAD_RESULT;
 						JSONObject jsonres = new JSONObject(res);
-						if (jsonres.getString("stage").equals("end")) {
+						if (jsonres.getString("stage").equals("ignore")) {
+							return;
+						}
+						else if (jsonres.getString("stage").equals("end")) {
 							Tool.getInstance().rename(dishid, jsonres.getInt("new_dishid"));
 							Dish dish = Dish.getDishById(dishid); 
 							Dish.removeDish(dish);
