@@ -135,6 +135,7 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
             public void onClick(View v) {  
             	is_title_button_clicked = true;
             	if (!Tool.getInstance().isWifiConnected(MainActivity.this)) {
+            	//if (TCPClient.getInstance().connect_state == Constants.DISCONNECTED) {
             		startActivityForResult(new Intent(Settings.ACTION_WIFI_SETTINGS), 1);
             	}
             	else  {
@@ -441,7 +442,7 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
         case 1:  
         	Log.v("MainActivity", "return from system wifi settings");
         	if (Tool.getInstance().isWifiConnected(MainActivity.this)) {
-	    		 Log.v("MenuFragment", "login return success, see all favorites");
+	    		 Log.v("MainActivity", "login return success, see all favorites");
 	    		 Intent intent = new Intent(MainActivity.this, BuiltinDishes.class);
 	             intent.putExtra("title", String.valueOf("ÊÕ²Ø²ËÆ×")); 
 	             startActivity(intent);

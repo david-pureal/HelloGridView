@@ -176,6 +176,16 @@ public class TCPClient {
         TCPClient.getInstance().sendMsg(msg);
 	}
 	
+	public void notify_connect_state() {
+		if (main_activity.getHandler() != null) main_activity.getHandler().sendEmptyMessage(Constants.MSG_ID_CONNECT_STATE);
+		if (buildin_activity != null && buildin_activity.getHandler() != null) {
+			buildin_activity.getHandler().sendEmptyMessage(Constants.MSG_ID_CONNECT_STATE);
+		}
+		if (dish_activity != null && dish_activity.getHandler() != null) {
+			dish_activity.getHandler().sendEmptyMessage(Constants.MSG_ID_CONNECT_STATE);
+		}
+	}
+	
 	/**
 	 * decode pagkets to mudoles
 	 * @param packets
@@ -338,15 +348,6 @@ public class TCPClient {
 			return false;
 		}
 
-		public void notify_connect_state() {
-			if (main_activity.getHandler() != null) main_activity.getHandler().sendEmptyMessage(Constants.MSG_ID_CONNECT_STATE);
-			if (buildin_activity != null && buildin_activity.getHandler() != null) {
-				buildin_activity.getHandler().sendEmptyMessage(Constants.MSG_ID_CONNECT_STATE);
-			}
-			if (dish_activity != null && dish_activity.getHandler() != null) {
-				dish_activity.getHandler().sendEmptyMessage(Constants.MSG_ID_CONNECT_STATE);
-			}
-		}
 		@Override
 		public void run() {
 			s = new Socket();

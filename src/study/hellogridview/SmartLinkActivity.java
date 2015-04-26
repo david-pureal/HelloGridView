@@ -20,8 +20,10 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -134,6 +136,7 @@ public class SmartLinkActivity extends Activity implements OnTouchListener {
 		pswd = (EditText) findViewById(R.id.pswd);
 		
 		button_http = (Button) findViewById(R.id.button_http);
+		button_http.setText("WiFI设置");
 		button_http.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -144,7 +147,9 @@ public class SmartLinkActivity extends Activity implements OnTouchListener {
 //				NetworkInterface.getHardwareAddress();
 //				Toast.makeText(SmartLinkActivity.this, "MAC=" + info.getMacAddress(), Toast.LENGTH_SHORT).show();
 				
-	            Toast.makeText(SmartLinkActivity.this, "deviceId=" + Account.device_id, Toast.LENGTH_SHORT).show();
+	            //Toast.makeText(SmartLinkActivity.this, "deviceId=" + Account.device_id, Toast.LENGTH_SHORT).show();
+				
+				startActivityForResult(new Intent(Settings.ACTION_WIFI_SETTINGS), 1);
 			}
 		});
 		//获取实例
