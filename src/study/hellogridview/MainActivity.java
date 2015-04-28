@@ -134,13 +134,14 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
             @Override  
             public void onClick(View v) {  
             	is_title_button_clicked = true;
-            	if (!Tool.getInstance().isWifiConnected(MainActivity.this)) {
-            	//if (TCPClient.getInstance().connect_state == Constants.DISCONNECTED) {
-            		startActivityForResult(new Intent(Settings.ACTION_WIFI_SETTINGS), 1);
-            	}
-            	else  {
-            		startActivity(new Intent(MainActivity.this, SmartLinkActivity.class));  
-            	}
+            	startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
+//            	if (!Tool.getInstance().isWifiConnected(MainActivity.this)) {
+//            	//if (TCPClient.getInstance().connect_state == Constants.DISCONNECTED) {
+//            		startActivityForResult(new Intent(Settings.ACTION_WIFI_SETTINGS), 1);
+//            	}
+//            	else  {
+//            		startActivity(new Intent(MainActivity.this, SmartLinkActivity.class));  
+//            	}
                 //finish();//关闭当前Activity  
             }  
         });
@@ -433,22 +434,5 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
     public Handler getHandler() {
     	return handler;
     }
-    
-    @Override  
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {  
-        super.onActivityResult(requestCode, resultCode, data);  
-        Log.v("MainActivity", "requestCode = " + requestCode + "resultCode =" + resultCode);
-        switch (requestCode) {  
-        case 1:  
-        	Log.v("MainActivity", "return from system wifi settings");
-        	if (Tool.getInstance().isWifiConnected(MainActivity.this)) {
-	    		 Log.v("MainActivity", "login return success, see all favorites");
-	    		 Intent intent = new Intent(MainActivity.this, BuiltinDishes.class);
-	             intent.putExtra("title", String.valueOf("收藏菜谱")); 
-	             startActivity(intent);
-	    	}
-            break;  
-        }
-	}
  
 }

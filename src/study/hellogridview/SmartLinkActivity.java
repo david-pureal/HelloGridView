@@ -48,18 +48,17 @@ public class SmartLinkActivity extends Activity implements OnTouchListener {
 	SmartLinkManipulator sm;
 	boolean isconncting = false;
 	
+	TextView smartlink_tv;
+	
+	
 	//手指向右滑动时的最小速度  
     private static final int XSPEED_MIN = 200;  
-      
     //手指向右滑动时的最小距离  
     private static final int XDISTANCE_MIN = 150;  
-      
     //记录手指按下时的横坐标。  
     private float xDown;  
-      
     //记录手指移动时的横坐标。  
     private float xMove;  
-      
     //用于计算手指滑动的速度。  
     private VelocityTracker mVelocityTracker; 
     
@@ -150,10 +149,24 @@ public class SmartLinkActivity extends Activity implements OnTouchListener {
 	            //Toast.makeText(SmartLinkActivity.this, "deviceId=" + Account.device_id, Toast.LENGTH_SHORT).show();
 				
 				startActivityForResult(new Intent(Settings.ACTION_WIFI_SETTINGS), 1);
+				finish();
 			}
 		});
 		//获取实例
 //		sm = SmartLinkManipulator.getInstence(MainActivity.this);
+		
+		smartlink_tv = (TextView) findViewById(R.id.smartlink_tv);
+		if (TCPClient.getInstance().connect_state == Constants.CONNECTED) {
+			String ssid = Tool.getInstance().getSSid(this);
+			if (ssid.equals(Constants.AP_NAME)) {
+				smartlink_tv.setText("已通过直连模式与机器相连");
+			} else {
+				smartlink_tv.setText("已通过WiFi( " + ssid + " )与机器相连");
+			}
+		} 
+		else if (!Tool.getInstance().isWifiConnected(this)) {
+			smartlink_tv.setText("当前没有连接到任何WiFi，请先连接到WiFi");
+		}
 		
 		
 		m_startBtn.setOnClickListener(new OnClickListener() {

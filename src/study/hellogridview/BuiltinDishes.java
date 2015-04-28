@@ -41,6 +41,7 @@ import com.jeremyfeinstein.slidingmenu.lib.app.SlidingFragmentActivity;
 
 
 
+
 //import android.R;
 import android.app.Activity;
 import android.content.Intent;
@@ -50,6 +51,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.Settings;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -175,7 +177,7 @@ public class BuiltinDishes extends SlidingFragmentActivity {
 		m_deviceBtn.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) {  
-                startActivity(new Intent(BuiltinDishes.this, SmartLinkActivity.class));  
+            	startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));  
                 //finish();//¹Ø±Õµ±Ç°Activity  
             }  
         });

@@ -479,8 +479,23 @@ public class Tool {
 	
 	// 加载提示语图片资源
 	public static void preload_common_res(Context context) {
+		// 标准界面第一版
 		image_res_mgr.put(R.drawable.zhuliao_tiaoliao, decode_res_bitmap(R.drawable.zhuliao_tiaoliao, context));
 		image_res_mgr.put(R.drawable.add_oil, decode_res_bitmap(R.drawable.add_oil, context));
+		
+		// 标准界面更新后
+		// 8个提示语图片和语音文件
+		image_res_mgr.put(R.raw.add_fuliao_tiaoliao_chn, decode_res_bitmap(R.raw.add_fuliao_tiaoliao_chn, context));
+		image_res_mgr.put(R.raw.add_fuliao_water_tiaoliao_chn, decode_res_bitmap(R.raw.add_fuliao_water_tiaoliao_chn, context));
+		image_res_mgr.put(R.raw.add_oil_chn, decode_res_bitmap(R.raw.add_oil_chn, context));
+		image_res_mgr.put(R.raw.add_oil_qgl_chn, decode_res_bitmap(R.raw.add_oil_qgl_chn, context));
+		image_res_mgr.put(R.raw.add_zhuliao_chn, decode_res_bitmap(R.raw.add_zhuliao_chn, context));
+		image_res_mgr.put(R.raw.add_zhuliao_tiaoliao_chn, decode_res_bitmap(R.raw.add_zhuliao_tiaoliao_chn, context));
+		image_res_mgr.put(R.raw.add_zhuliao_water_tiaoliao_chn, decode_res_bitmap(R.raw.add_zhuliao_water_tiaoliao_chn, context));
+		image_res_mgr.put(R.raw.add_zhuliao_water_chn, decode_res_bitmap(R.raw.add_zhuliao_water_chn, context));
+		
+		// 简洁界面
+		image_res_mgr.put(R.drawable.simple_bkg, decode_res_bitmap(R.drawable.simple_bkg, context));
 	}
 	
 	public static Bitmap get_res_bitmap(int resid) {

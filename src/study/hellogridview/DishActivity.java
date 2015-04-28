@@ -35,6 +35,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Handler.Callback;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -182,7 +183,8 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
 		m_deviceBtn.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) {  
-                startActivity(new Intent(DishActivity.this, SmartLinkActivity.class));  
+                //startActivity(new Intent(DishActivity.this, SmartLinkActivity.class));
+                startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS)); 
                 //finish();//¹Ø±Õµ±Ç°Activity  
             }  
         });

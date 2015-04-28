@@ -8,6 +8,13 @@
     android:background="#f0f0f0"
     android:orientation="vertical" >
 
+    <TextView
+        android:id="@+id/smartlink_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:text="" />
+、
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -61,6 +68,8 @@
         android:paddingTop="10dp"
         android:text="start" />
     
+    
+    
 <RelativeLayout 
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
@@ -83,7 +92,7 @@
           <TextView 
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="上海汉枫电子科技有限公司"
+            android:text="珠海福龙电器有限公司"
             />
     </LinearLayout>
 

@@ -1,62 +1,54 @@
 package study.hellogridview;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Bitmap.Config;
+import android.graphics.Path;
 import android.graphics.Rect;
-import android.media.AudioManager;
+import android.graphics.RectF;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.Toast;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.TextView;
 
 public class CurStateActivity extends Activity implements OnSeekBarChangeListener {
-	public short time = 260;
+	public int total_time = 260;
 	public byte temp = (byte) 180;
 	public byte jiaoban_speed = 1;
 	public int dish_id = 1;
+	public Dish dish;
 	public byte modify_state = (byte) 0xE0; //时间、温度、搅拌、控制。。。是否被用户改动过的标识位，最高字节为时间，以此类推
-	public byte control = 3;// 0表示开始炒菜，1表示暂停，2表示取消，3表示解锁
+	public byte control = 3;                // 0表示开始炒菜，1表示暂停，2表示取消，3表示解锁
 	
-	public final String net_mode = "AP";// wifi模块的工作模式：AP或者STA
-	public final int MAX_TIME = 3599; // in seconds
+	public final String net_mode = "AP";    // wifi模块的工作模式：AP或者STA
+	public final int MAX_TIME = 3599;       // in seconds
 	
 	public List<String> jiaoban_str = new ArrayList<String>();
 
 	RadioGroup group;
 	RadioButton selectedRBtn;
-	
 	
 	VerticalSeekBar bar;
 	//SeekBar bar;
@@ -77,6 +69,9 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	public static int t = 50;
 	
 	ImageView back;
+	
+	public TextView switch_ui_tv;
+	public boolean is_standard_ui = true;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -115,9 +110,54 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 			jiaoban_str.add("5中快速");
 			jiaoban_str.add("6较快速");
 			jiaoban_str.add("7特快速");
-			jiaoban_str.add("8连续搅拌");
+			jiaoban_str.add("8连续搅");
 		}
 		
+		width = dip2px(Constants.UI_WIDTH);
+        height = dip2px(Constants.UI_HEIGHT);
+        Log.v("CurStateActivity", "width=" + width + ", height=" + height);
+        
+        x_start  = (int) (198.0/Constants.UI_WIDTH * width);
+        x_middle = (int) (316.0/Constants.UI_WIDTH * width);
+        x_end    = (int) (458.0/Constants.UI_WIDTH * width);
+        
+        y_min = (int) (153.0/Constants.UI_HEIGHT * height);
+        y_max = (int) (260.0/Constants.UI_HEIGHT * height);
+        
+        temperature_x = (int) (180.0/Constants.UI_WIDTH * width);  // 左下角坐标
+        temperature_x_2 = (int) (195.0/Constants.UI_WIDTH * width);
+    	temperature_y = (int) (118.0/Constants.UI_HEIGHT * height);
+    	
+    	time_x = (int) (376.0/Constants.UI_WIDTH * width);
+    	time_y = (int) (118.0/Constants.UI_HEIGHT * height);
+    	zhuliao_time_x = (int) (296.0/Constants.UI_WIDTH * width);
+    	zhuliao_time_y = (int) (144.0/Constants.UI_HEIGHT * height);
+    	fuliao_time_x = (int) (426.0/Constants.UI_WIDTH * width);
+    	fuliao_time_y = (int) (144.0/Constants.UI_HEIGHT * height);
+    	
+    	jiaoban_x = (int) (21.0/Constants.UI_WIDTH * width);
+    	jiaoban_y = (int) (182.0/Constants.UI_HEIGHT * height);
+    	
+    	img_tiny_rect.left   = (int) (368.0/Constants.UI_WIDTH  * width);
+    	img_tiny_rect.right  = (int) (470.0/Constants.UI_WIDTH  * width);
+    	img_tiny_rect.top    = (int) (8.0  /Constants.UI_HEIGHT * height);
+    	img_tiny_rect.bottom = (int) (78.0 /Constants.UI_HEIGHT * height);
+    	
+    	jianban_angles.add(85);
+    	jianban_angles.add(45);
+    	jianban_angles.add(0);
+    	jianban_angles.add(-45);
+    	jianban_angles.add(-85);
+    	
+    	simple_time_x        = (int) (28.0/Constants.UI_WIDTH  * width);
+    	simple_time_x_4      = (int) (5.0/Constants.UI_WIDTH  * width);
+    	simple_time_y        = (int) (116.0/Constants.UI_HEIGHT * height);
+        simple_temperature_x = (int) (184.0/Constants.UI_WIDTH  * width);
+    	simple_temperature_y = (int) (253.0/Constants.UI_HEIGHT * height);
+    	simple_temperature_x_2 = (int) (210.0/Constants.UI_WIDTH  * width);
+    	simple_jiaoban_x     = (int) (388.0/Constants.UI_WIDTH  * width);
+    	simple_jiaoban_y     = (int) (131.0/Constants.UI_HEIGHT * height);
+    	
 		handler = new Handler() {    
             @Override  
             public void handleMessage(Message msg) {  
@@ -128,24 +168,22 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
                 	
                 	Log.v("CurStateActivity", "got Machine state event time=" + ds.time + "temp=" + (ds.temp & 0x00ff) + "jiaoban=" + ds.jiaoban_speed);
                 	synchronized (this) {
-	                	CurStateActivity.this.time = ds.time;
+	                	//CurStateActivity.this.time = ds.time;
 	                	//CurStateActivity.this.temp = ds.temp;
 	                	CurStateActivity.this.jiaoban_speed = ds.jiaoban_speed;
 	                	CurStateActivity.this.dish_id = Math.max(1, ds.dishid & 0xffff);
                 	}
                 	
                 	CurStateActivity.this.update_seekbar();
-                	CurStateActivity.this.update_radio();
                 	
                 	int MaxDataSize = 800;
-                	if(ds.working_state != 0x02) {//待机中
-                		if (ds.working_state == 0x01) {
+                	if(ds.working_state != Constants.MACHINE_WORK_STATE_STOP) {//待机中
+                		if (ds.working_state == Constants.MACHINE_WORK_STATE_PAUSE) {
                 			//CurStateActivity.this.jiaoban_speed = 1;
                 		}
                 		else if (data.size() < MaxDataSize){ 
                 			data.add(Math.min(200, (int)(ds.temp & 0x00ff)));
                 			//t += 5; data.add(Math.min(190, t));
-                			
                 		}
                 	} else {
                 		//CurStateActivity.this.jiaoban_speed = 1;
@@ -159,9 +197,6 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
                 	//main.invalidate();
                 	draw_temp_baselin();
                 	//draw_temp_curve();
-                } else if (msg.what == 0x345) {
-                	//main.invalidate();
-                	
                 }
                 
             }  
@@ -206,8 +241,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	        			ds.time = (short) Math.max(0, ds.time);
 	        			Log.v("CurStateActivity", "CurStateActivity set time = " + ds.time);
 	        		}
-	            	//CurStateActivity.this.updateall();
-	            	//CurStateActivity.this.update_seekbar();
+	            	
 	            	CurStateActivity.this.modify_state = (byte)0xE0;
 	            	CurStateActivity.this.onStopTrackingTouch(CurStateActivity.this.bar);
 	            	
@@ -243,23 +277,21 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 				selectedRBtn = (RadioButton)CurStateActivity.this.findViewById(radioButtonId);
 				// update seekbar progress
 				CurStateActivity.this.update_seekbar();
-				CurStateActivity.this.update_radio();
 			}
 		});
 		
 		//android:src="@drawable/state_bg"
 		main = (ImageView) findViewById(R.id.main);
-		main.setBackgroundResource(R.drawable.state_bg);
+		main.setBackgroundResource(R.drawable.standard_bkg);
 		
 		start_pause = (ImageView) findViewById(R.id.start_pause);
 		//start_pause.setOnTouchListener(new PicOnTouchListener(2));
 		start_pause.setOnClickListener(new OnClickListener() {  
-      	  
             @Override  
             public void onClick(View v) {  
-            	if (ds.working_state == 0x00) CurStateActivity.this.control = 0x01;
-            	else if (ds.working_state == 0x01) CurStateActivity.this.control = 0x00;
-            	else if (ds.working_state == 0x02) CurStateActivity.this.control = 0x00;//return;
+            	if (ds.working_state == Constants.MACHINE_WORK_STATE_COOKING) control = Constants.MACHINE_WORK_STATE_PAUSE;
+            	else if (ds.working_state == Constants.MACHINE_WORK_STATE_PAUSE) control = Constants.MACHINE_WORK_STATE_COOKING;
+            	else if (ds.working_state == Constants.MACHINE_WORK_STATE_STOP) control = Constants.MACHINE_WORK_STATE_COOKING;
             	modify_state = (byte) 0x10;
             	
             	Message msg = new Message();  
@@ -270,9 +302,25 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
             }  
         }); 
 		
+		switch_ui_tv = (TextView) findViewById (R.id.switch_ui_tv);
+		switch_ui_tv.setOnClickListener(new OnClickListener() {  
+            @Override  
+            public void onClick(View v) {  
+            	is_standard_ui = !is_standard_ui;
+            	switch_ui_tv.setText(is_standard_ui ? "简洁界面" : "标准界面");
+            	//main.setImageResource(is_standard_ui ? R.drawable.standard_bkg : R.drawable.simple_bkg);
+            	ui_changed = true;
+            	handler.sendEmptyMessage(0x234);
+            }  
+        });
+		
 		dish_id = Math.max(1, dish_id);
+		dish = Dish.getDishById(dish_id);
+		this.total_time = dish.zhuliao_time + dish.fuliao_time;
         draw_temp_baselin(); 
 	} // oncreate
+	
+	public boolean ui_changed = false;
 
 	public final static int STATE_HEATING = 0;
 	public final int STATE_ADD_OIL = 1;
@@ -282,111 +330,200 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	public static int state = STATE_HEATING;
 	private static boolean zhuliao_voice_done = false;
 	
-	MediaPlayer player;
-	MediaPlayer player1;
+	MediaPlayer player_oil;
+	MediaPlayer player_zhuliao;
+	MediaPlayer player_fuliao;
 	private int zhuliao_i;
 	
 	static Bitmap canvas_bmp = null;
+	static Bitmap simple_bkg_bmp = null;
 	static ByteBuffer background_buffer; // 缓冲，每次绘制后canvas_bmp会被修改， 下次绘制时使用该buffer把canvas_bmp还原到初始状态
+	static ByteBuffer simple_background_buffer;
+	
+	int width     = 0;
+	int height    = 0;
+	int x_start   = 0; // 横轴起点，预热的x轴
+	int x_middle  = 0; // 主料和辅料分界x轴位置
+	int x_end     = 0; // 辅料结束的x
+	
+	int y_min     = 0; // 温度曲线的最高和最低点
+	int y_max     = 0;
+	
+	int temperature_x = 0;
+	int temperature_x_2 = 0;
+	int temperature_y = 0;
+	int time_x = 0;
+	int time_y = 0;
+	int zhuliao_time_x = 0;
+	int zhuliao_time_y = 0;
+	int fuliao_time_x  = 0;
+	int fuliao_time_y  = 0;
+	int jiaoban_x = 0;
+	int jiaoban_y = 0;
+	
+	// 简洁界面的位置
+	int simple_time_x = 0;
+	int simple_time_x_4 = 0;
+	int simple_time_y = 0;
+	int simple_temperature_x = 0;
+	int simple_temperature_x_2 = 0;
+	int simple_temperature_y = 0;
+	int simple_jiaoban_x = 0;
+	int simple_jiaoban_y = 0;
+	
+	Rect img_tiny_rect = new Rect();
+	
+	ArrayList<Integer> jianban_angles = new ArrayList<Integer>();
+	boolean jiaoban_goright = true;
+	int jiaoban_current_pos = 0;
+	int wait_count = 0;
 	
 	// 画设定的温度线，用绿色线
 	private void draw_temp_baselin() {
-		if (Dish.getDishById(dish_id) == null) {
+		if (dish == null) {
 			Log.v("CurStateActivity", "dishid=" + dish_id + " is not exist, skip drawing");
 			return;
 		}
 		
-		int width = dip2px(465/*403*/);
-        int height = dip2px(272/*240*/);
-        Log.v("CurStateActivity", "width=" + width + ", height=" + height);
+		if (ui_changed) {
+			ui_changed = false;
+			if (!is_standard_ui && simple_background_buffer == null) {
+				//canvas_bmp = Bitmap.createBitmap(width, height, Config.ARGB_8888);
+				//simple_background_buffer = ByteBuffer.allocate(canvas_bmp.getByteCount()); 
+			}
+		}
+        
         if (canvas_bmp == null) {
         	Log.v("CurStateActivity", "canvas_bmp is null, create one");
         	canvas_bmp = Bitmap.createBitmap(width, height, Config.ARGB_8888); // 每次都创建会的话导致OutOfMemoryError
         	background_buffer = ByteBuffer.allocate(canvas_bmp.getByteCount());
+        	simple_bkg_bmp = Tool.get_res_bitmap(R.drawable.simple_bkg);
         }
-
-		paint.setStyle(Paint.Style.STROKE); 
-        paint.setAntiAlias(true); //去锯齿 
-        paint.setColor(Color.GREEN);
-        paint.setStrokeWidth(3);
+        else {
+        	background_buffer.position(0);
+        	if (simple_background_buffer !=null ) simple_background_buffer.position(0);
+            canvas_bmp.copyPixelsFromBuffer(background_buffer);
+        }
         
-        background_buffer.position(0);
-        canvas_bmp.copyPixelsFromBuffer(background_buffer);
         Canvas canvas = new Canvas(canvas_bmp);
-        
-        //Log.v("CurStateActivity", "canvas.width = " + canvas.getWidth() + "canvas.height = " + canvas.getHeight());
-        //canvas.drawText("原先的画图区域--红色部分", 50, 100, paint) ;
-        //canvas.drawColor(Color.RED);
-        //canvas.drawLine(0, 0, width, height ,paint); 
-        final int x = (int) (169.0/480 * width);
-        final int x2 = (int) (286.0/480 * width);
-        final int x3 = (int) (428.0/480 * width);
-        
-        int zhuliao_time = Dish.getDishById(dish_id).zhuliao_time;
-        float x_per_seconds_zhuliao = ((float)(x2 - x))/ zhuliao_time;
-        if (Dish.getDishById(dish_id).fuliao_time == 0) {
-        	x_per_seconds_zhuliao = (x3 - x)/ zhuliao_time;
+        paint.setStyle(Paint.Style.STROKE); 
+        paint.setAntiAlias(false); //去锯齿 
+        paint.setStrokeWidth(3);
+
+        float scale = 1; //(float) (480.0 / width * 0.7);
+        if (!is_standard_ui) {
+        	// draw simple background
+        	Rect rect = new Rect(0, 0, width, height);
+        	canvas.drawBitmap(simple_bkg_bmp, null, rect, null);
+        	
+        	// 温度
+        	int temp = ds.temp & 0xff;
+            paint.setColor(Color.WHITE); // 字的颜色
+            paint.setTextSize(220 * scale);
+            paint.setStyle(Paint.Style.FILL_AND_STROKE);
+            paint.setStrokeWidth(12);
+            paint.setAntiAlias(true);
+            if (temp >= 100) {
+            	canvas.drawText("" + temp, simple_temperature_x, simple_temperature_y, paint);
+            }
+            else {
+            	canvas.drawText("" + temp, simple_temperature_x_2, simple_temperature_y, paint);
+            }
+
+            // jiaoban
+    		paint.setTextSize(170 * scale);
+            canvas.drawText("" + ds.jiaoban_speed, simple_jiaoban_x, simple_jiaoban_y, paint);
+            
+            // time
+            
+            int minites = ds.time / 60;
+    		int seconds = ds.time - minites * 60;
+    		String separator = seconds < 10 ? ":0" : ":";
+    		//minites += 10;
+    		if (minites < 10)
+    			canvas.drawText(minites + separator + seconds, simple_time_x, simple_time_y, paint);
+    		else {
+    			paint.setTextSize(168 * scale);
+                paint.setStrokeWidth(6);
+    			canvas.drawText(minites + separator + seconds, simple_time_x_4, simple_time_y, paint);
+    		}
+            
+            main.setImageBitmap(canvas_bmp);
+        	return;
         }
         
-        int ymax = (int) (252.0/272 * height);
-        int ymin = (int) (144.0/272 * height);
-        float y_per_temp = (float) ((float)(ymax - ymin) / 200.0);
+        // 绿色的标准线段
+        paint.setColor(Color.GREEN);
+        int zhuliao_time = dish.zhuliao_time & 0xffff;
+        float x_per_seconds_zhuliao = ((float)(x_middle - x_start)) / zhuliao_time;
+        if (dish.fuliao_time == 0) {
+        	x_per_seconds_zhuliao = ((float)(x_end - x_start)) / zhuliao_time;
+        }
+        final float y_per_temp = (float) ((float)(y_max - y_min) / 200.0);
         
-        int zhuliao_temp = Dish.getDishById(dish_id).zhuliao_temp & 0x00ff;
-        int yend = (int) (ymin + y_per_temp*(200 - zhuliao_temp));
-        canvas.drawLine(x, ymax, x, yend ,paint);
-        canvas.drawLine(x, yend, x2, yend, paint);
+        int zhuliao_temp = dish.zhuliao_temp & 0x00ff;
+        int yend = (int) (y_min + y_per_temp*(200 - zhuliao_temp));
+        canvas.drawLine(x_start, y_max, x_start, yend, paint);
+        canvas.drawLine(x_start, yend, x_middle, yend, paint);
         
-        int fuliao_temp = Dish.getDishById(dish_id).fuliao_temp & 0x00ff;;
-        int yend2 = (int) (ymin + y_per_temp*(200 - fuliao_temp));
-        canvas.drawLine(x2, yend, x2, yend2, paint);
-        canvas.drawLine(x2, yend2, x3, yend2, paint);
+        int fuliao_temp = dish.fuliao_temp & 0x00ff;;
+        int yend2 = (int) (y_min + y_per_temp*(200 - fuliao_temp));
+        canvas.drawLine(x_middle, yend, x_middle, yend2, paint);
+        canvas.drawLine(x_middle, yend2, x_end, yend2, paint);
         
         //temperature
-        final int temp_x = (int) (205.0/480 * width);
-        final int temp_y = (int) (105.0/272 * height);
-        paint.setColor(Color.GREEN);
-        paint.setTextSize(60);
+        int temp = ds.temp & 0xff;
+        paint.setColor(Color.rgb(246, 221, 53)); // 字的颜色
+        paint.setTextSize(110 * scale);
         paint.setStyle(Paint.Style.FILL);
-        canvas.drawText("" + (ds.temp & 0xff), temp_x, temp_y, paint) ;
+        if (temp >= 100) {
+        	canvas.drawText("" + temp, temperature_x, temperature_y, paint);
+        }
+        else {
+        	canvas.drawText("" + temp, temperature_x_2, temperature_y, paint);
+        }
         
         // time
-        final int time_x = (int) (367.0/480 * width);
-        final int time_y = (int) (105.0/272 * height);
         int minites = ds.time/60;
 		int seconds = ds.time - minites * 60;
-		String separator = ":";
-		if (seconds < 10) separator += "0";
-        canvas.drawText(minites + separator + seconds, time_x, time_y, paint) ;
-        
+		String separator = seconds < 10 ? ":0" : ":";
+		String minites_prefix =  minites < 10 ? "0" : "";
+        canvas.drawText(minites_prefix + minites + separator + seconds, time_x, time_y, paint);
+
         // jiaoban
-        final int jiaoban_x = (int) (20.0/480 * width);
-        final int jiaoban_y = (int) (162.0/272 * height);
-        paint.setTextSize(40);
-        canvas.drawText(this.jiaoban_str.get(Math.max(0, ds.jiaoban_speed-1)), jiaoban_x, jiaoban_y, paint) ;
+        paint.setTextSize(90 * scale);
+        canvas.drawText(this.jiaoban_str.get(Math.max(0, ds.jiaoban_speed-1)), jiaoban_x, jiaoban_y, paint);
         
         // dish name
-        final int name_x = (int) (130.0/480 * width);
-        final int name_y = (int) (60.0/272 * height);
-        paint.setTextSize(100);
+        final int name_x = (int) (130.0/Constants.UI_WIDTH * width);
+        final int name_y = (int) (60.0/Constants.UI_HEIGHT * height);
+        paint.setTextSize(100 * scale);
         paint.setColor(Color.rgb(166, 246, 9));
-        canvas.drawText(Dish.getDishById(dish_id).name_chinese, name_x, name_y, paint) ;
-
+        canvas.drawText(dish.name_chinese, name_x, name_y, paint);
+        
+        paint.setColor(Color.rgb(115, 115, 115));
+        paint.setTextSize(45 * scale);
+        minites = dish.zhuliao_time / 60;
+        seconds = dish.zhuliao_time - minites * 60;
+        separator = seconds < 10 ? ":0" : ":";
+        minites_prefix =  minites < 10 ? "0" : "";
+        canvas.drawText(minites_prefix + minites + separator + seconds, zhuliao_time_x, zhuliao_time_y, paint);
+        
+        minites = dish.fuliao_time / 60;
+        seconds = dish.fuliao_time - minites * 60;
+        separator = seconds < 10 ? ":0" : ":";
+        minites_prefix =  minites < 10 ? "0" : "";
+        canvas.drawText(minites_prefix + minites + separator + seconds, fuliao_time_x, fuliao_time_y, paint);
+        
 	    // dish tiny image
-	    Rect img_rect = new Rect();
-	    img_rect.left = (int) (368.0/480 * width);
-	    img_rect.right = (int) (469.0/480 * width);
-	    img_rect.top = (int) (8.0/272 * height);
-	    img_rect.bottom = (int) (77.0/272 * height);
-	    
-	    if (Dish.getDishById(dish_id).isAppBuiltIn() && Dish.getDishById(dish_id).img_bmp == null) {
-        	Dish.getDishById(dish_id).img_bmp = Tool.decode_res_bitmap(Dish.getDishById(dish_id).img, this);
+	    if (dish.isAppBuiltIn() && dish.img_bmp == null) {
+        	dish.img_bmp = Tool.decode_res_bitmap(dish.img, this);
         }
-        canvas.drawBitmap(Dish.getDishById(dish_id).img_bmp, null, img_rect, null);
+        canvas.drawBitmap(dish.img_bmp, null, img_tiny_rect, null);
         
         // add oil
         int cur_temp = ds.temp & 0xff;
-        if (data.size() > 0) cur_temp = data.get(data.size()-1);
+        if (data.size() > 0) cur_temp = data.get(data.size() - 1);
         else cur_temp = 0;
         int zhu_temp = this.temp & 0x00ff;
         
@@ -403,48 +540,47 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         	state = this.STATE_FULIAO;
         }
         
-        if (state == STATE_ADD_OIL && ds.working_state != 0x02 
+        if (state == STATE_ADD_OIL && ds.working_state != Constants.MACHINE_WORK_STATE_STOP 
         		&& (!zhuliao_voice_done || cur_temp < 110 && data.size() % 2 == 0))
         {
         	if (!zhuliao_voice_done) {
         		zhuliao_voice_done = true;
-	        	player1 = MediaPlayer.create(this, R.raw.add_oil_voice);
+	        	player_oil = MediaPlayer.create(this, R.raw.add_oil_voice);
 	        	//player1.stop();
-	            player1.start();
+	        	player_oil.start();
         	}
         	
-	        img_rect = new Rect();
-	        img_rect.left = (int) (168.0/480 * width);
-	        img_rect.right = (int) (353.0/480 * width);
-	        img_rect.top = (int) (198.0/272 * height);
-	        img_rect.bottom = (int) (262.0/272 * height);
+        	Rect img_rect = new Rect();
+	        img_rect.left    = (int) (198.0/Constants.UI_WIDTH * width);
+	        img_rect.right   = (int) (383.0/Constants.UI_WIDTH * width);
+	        img_rect.top     = (int) (198.0/Constants.UI_HEIGHT * height);
+	        img_rect.bottom  = (int) (262.0/Constants.UI_HEIGHT * height);
         
 	        canvas.drawBitmap(Tool.get_res_bitmap(R.drawable.add_oil), null, img_rect, null);
         }
         
         // add zhuliao_tiaoliao
-        if (state == STATE_ZHULIAO && ds.working_state != 0x02 
+        if (state == STATE_ZHULIAO && ds.working_state != Constants.MACHINE_WORK_STATE_STOP
         		&& (!zhuliao_voice_done || cur_temp < zhu_temp + 10 && data.size() % 2 == 0))
         {
         	if (!zhuliao_voice_done) {
         		zhuliao_voice_done = true;
-        		player = MediaPlayer.create(CurStateActivity.this, R.raw.zhuliao_tiaoliao_voice);
+        		player_zhuliao = MediaPlayer.create(CurStateActivity.this, R.raw.zhuliao_tiaoliao_voice);
         		//player.stop();
-				player.start();
+        		player_zhuliao.start();
         	}
         	
-        	
-	        img_rect = new Rect();
-	        img_rect.left = (int) (168.0/480 * width);
-	        img_rect.right = (int) (400.0/480 * width);
-	        img_rect.top = (int) (154.0/272 * height);
-	        img_rect.bottom = (int) (240.0/272 * height);
+        	Rect img_rect = new Rect();
+	        img_rect.left   = (int) (198.0/Constants.UI_WIDTH * width);
+	        img_rect.right  = (int) (446.0/Constants.UI_WIDTH * width);
+	        img_rect.top    = (int) (170.0/Constants.UI_HEIGHT * height);
+	        img_rect.bottom = (int) (235.0/Constants.UI_HEIGHT * height);
         
 	        canvas.drawBitmap(Tool.get_res_bitmap(R.drawable.zhuliao_tiaoliao), null, img_rect, null);
         }
 
         // temp curve
-        if (ds.working_state != 0x02) {
+        if (ds.working_state != Constants.MACHINE_WORK_STATE_STOP) {
 	        paint.setColor(Color.RED);
 			paint.setStrokeCap(Paint.Cap.ROUND);
 			paint.setStrokeWidth(15);
@@ -456,20 +592,20 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 					break;
 				}
 			}
+			
 	        for(int i=0; i< data.size(); i++){ 
-	        	
-	        	int tempx = x;
-	        	int tempy = (int) (ymin + y_per_temp*(200 - data.get(i)));
+	        	int tempx = x_start;
+	        	int tempy = (int) (y_min + y_per_temp*(200 - data.get(i)));
 	        	//int tempy = ymax;
 	        	if (i < zhuliao_index) {
-	        		tempx = x;
+	        		tempx = x_start;
 	        	} else {
 	        		//Log.v("CurStateActivity", "zhuliao_index = " + zhuliao_index + ", i = " + i);
-	        		tempx = x + (int)((i - zhuliao_index) * x_per_seconds_zhuliao/2);
+	        		tempx = x_start + (int)((i - zhuliao_index) * x_per_seconds_zhuliao/2);
 	        	}
 	        	
 	        	//Log.v("CurStateActivity", "tempx = " + tempx + ", tempy = " + tempy);
-	        	if (tempx < x3 && tempy > ymin) {
+	        	if (tempx < x_end && tempy > y_min) {
 	        		canvas.drawPoint(tempx, tempy, paint);
 	        	}
 	        } 
@@ -479,114 +615,80 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	        }
         }
         
-        // jiaoban
-        if (true) {
-	        int left = (int) (15.0/480 * width);
-	        int right = (int) (93.0/480 * width);
-	        int top = (int) (197.0/272 * height);
-	        int bottom = (int) (255.0/272 * height);
-	        Rect rect = new Rect (left, top, right, bottom) ;  
-	      
-		    //当前的画图区域为Rect裁剪的区域，而不是我们之前赋值的bitmap  
-		    canvas.clipRect(rect); 
-		    paint.setStyle(Paint.Style.FILL);
+        // jiaoban stick animation
+        if (ds.jiaoban_speed > 1) {
+	        Path path = new Path();
+	        int left = (int) (31.0/480 * width);
+	        int right = (int) (120.0/480 * width);
+	        int top = (int) (169.0/272 * height);
+	        int bottom = (int) (260.0/272 * height);
+	        RectF oval = new RectF (left, top, right, bottom); 
+	        path.addArc(oval, 0.0f, 360.0f);
+	        path.close();
+	        canvas.clipPath(path);
+	        
+	        paint.setColor(Color.rgb(177, 31, 19));
+	        //paint.setAntiAlias(true);
+	        float cx = (float) (76.0/480 * width);
+	        float cy = (float) (214.0/272 * height);
+	        float bx = cx;
+	        float by = (float) (261.0/272 * height);
 		    
-		    int radius = (int) (5.0 * width/480);
-		    int radius3 = (int) (49.0 * width/480);
-		    int cx = (int) (54.0/480 * width);
-		    int cy = (int) (203.0/272 * height);
-		    
-		    int cx2 = (int) (31.0/480 * width);
-		    int cy2 = (int) (231.0/272 * height);
-		    
-		    int cx3 = (int) (45.0/480 * width);
-		    int cy3 = (int) (237.0/272 * height);
-		    
-		    int cx4 = (int) (54.0/480 * width);
-		    int cy4 = (int) (238.0/272 * height);
-		    
-		    int cx5 = (int) (63.0/480 * width);
-		    int cy5 = (int) (237.0/272 * height);
-		    
-		    int cx6 = (int) (77.0/480 * width);
-		    int cy6 = (int) (231.0/272 * height);
-		    paint.setColor(Color.RED);
-		    canvas.drawCircle(cx, cy, radius, paint);
-		    paint.setColor(Color.WHITE);
-		    paint.setStyle(Paint.Style.STROKE);
-		    paint.setStrokeWidth(10);
-		    canvas.drawCircle(cx, cy, radius3, paint);
-		    paint.setColor(Color.RED);
-		    paint.setStyle(Paint.Style.FILL);
-		    paint.setStrokeWidth(15);
-		    
-		    int radius2 = (int) (9.0 * width/480);
-		    paint.setStrokeWidth(8);
-		    
-		    int bx = cx2;
-		    int by = cy2;
-		    ++count;
-		    if (this.jiaoban_speed > 1 && ds.working_state == 0x00) {
-			    if (goright) {
-				    switch (degree) {
-				    case 0 :
-				    	bx = cx2;by = cy2;break;
-				    case 1 :
-				    	bx = cx3;by = cy3;break;
-				    case 2 :
-				    	bx = cx4;by = cy4;break;
-				    case 3 :
-				    	bx = cx5;by = cy5;break;
-				    case 4 :
-				    	bx = cx6;by = cy6; goright = false; break;
-				    }
-				    ++degree;
-				    if (degree == 5 && waiting == false) {
-				    	stopcount = count;
-				    	waiting = true;
-				    }
-				    if (waiting) {
-				    	if (count - stopcount < (8 - this.jiaoban_speed)) {
-				    		goright = true;
-				    		degree = 4;
-				    	} else {
-				    		waiting = false;
-				    		degree = 5;
-				    	}
-			    	} 
-			    } else {
-			    	switch (degree) {
-				    case 1 :
-				    	bx = cx2;by = cy2;goright = true;break;
-				    case 2 :
-				    	bx = cx3;by = cy3;break;
-				    case 3 :
-				    	bx = cx4;by = cy4;break;
-				    case 4 :
-				    	bx = cx5;by = cy5;break;
-				    case 5 :
-				    	bx = cx6;by = cy6; goright = false; break;
-				    }
-				    --degree;
-				    if (degree == 0 && waiting == false) {
-				    	stopcount = count;
-				    	waiting = true;
-				    }
-				    if (waiting) {
-				    	if (count - stopcount < (8 - this.jiaoban_speed)) {
-				    		goright = false;
-				    		degree = 1;
-				    	} else {
-				    		waiting = false;
-				    		degree = 0;
-				    	}
-			    	} 
-			    }
-		    }
-		    canvas.drawCircle(bx, by, radius2, paint);
-		   
-		    canvas.drawLine(cx, cy, bx, by, paint);
-        }
+	        float left_up_x = (float) (72.0/480 * width);
+	        float left_up_y = cy;
+	        float right_up_x = (float) (80.0/480 * width);
+	        float right_up_y = left_up_y;
+	        float left_bottom_x = (float) (68.0/480 * width);
+	        float left_bottom_y = (float) (258.0/272 * height);
+	        float right_bottom_x = (float) (84.0/480 * width);
+	        float right_bottom_y = left_bottom_y;
+	        
+	        float arc_up_radius = cx - left_up_x;
+	        RectF arc_up = new RectF(left_up_x, cy - arc_up_radius, right_up_x, cy + arc_up_radius);
+	        float arc_bottom_height = by - left_bottom_y;
+	        RectF arc_bottom = new RectF(left_bottom_x, left_bottom_y - arc_bottom_height, right_bottom_x, left_bottom_y + arc_bottom_height);
+	        float green_boll_radius = (float) (6.5/480 * width);
+	        
+	        canvas.rotate(jianban_angles.get(jiaoban_current_pos), cx, cy);
+	        // 画红色的搅拌棒
+	        Path stick = new Path();
+	        stick.moveTo(left_up_x, left_up_y);
+	        stick.arcTo(arc_up, 180, 180);
+	        stick.lineTo(right_bottom_x, right_bottom_y);
+	        stick.arcTo(arc_bottom, 0, 180);
+	        stick.close();
+	        canvas.drawPath(stick, paint);
+	        // 画绿色的小球
+	        paint.setColor(Color.rgb(172, 254, 62));
+	        if (jiaoban_goright) {
+	        	canvas.drawCircle(right_bottom_x + green_boll_radius, left_bottom_y - green_boll_radius - (float)2.5/480*width, green_boll_radius, paint);
+	        } else {
+	        	canvas.drawCircle(left_bottom_x - green_boll_radius, left_bottom_y - green_boll_radius - (float)2.5/480*width, green_boll_radius, paint);
+	        }
+	        
+	        Log.v("CurState", "jiaoban_current_pos="+jiaoban_current_pos+",wait_count=" + wait_count+",goright=" + jiaoban_goright);
+	        
+	        if (ds.working_state == Constants.MACHINE_WORK_STATE_COOKING) {
+		        if ((jiaoban_current_pos == 0 || jiaoban_current_pos == jianban_angles.size() - 1)  && wait_count > 0) {
+		        }
+		        else 
+		        {
+			        jiaoban_current_pos += jiaoban_goright ? 1 : -1;
+			        if (jiaoban_current_pos == jianban_angles.size() - 1) {
+			        	jiaoban_goright = false;
+			        } else if (jiaoban_current_pos == 0) {
+			        	jiaoban_goright = true;
+			        }
+		        }
+		        
+		        if (wait_count > 0) { // 控制搅拌速度
+		        	-- wait_count;
+		        }
+		        else if (wait_count == 0 && (jiaoban_current_pos == 0 || jiaoban_current_pos == jianban_angles.size() - 1)) {
+		        	wait_count = 8 - ds.jiaoban_speed;
+		        }
+	        }
+        } //if (ds.jiaoban_speed > 1)
 
         main.setImageBitmap(canvas_bmp);
 	}
@@ -596,9 +698,6 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	int stopcount = 0;
 	int zhuliao_index = 0;
 	//int draw_index = 0;
-	
-	boolean goright = true;
-	int degree = 0;
 	
 	public int dip2px(float dipValue){   
         final float scale = this.getResources().getDisplayMetrics().density;   
@@ -621,23 +720,6 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 		bar.onSizeChanged(bar.getWidth(), bar.getHeight(), 0, 0);
 	}
 
-	public void update_radio() {
-		if (!is_changing_seekbar) {
-//			RadioButton btn = (RadioButton)this.findViewById(R.id.temp);
-//			btn.setText(" 温度 \n " + (ds.temp & 0xff));
-//			
-//			btn = (RadioButton)this.findViewById(R.id.time);
-//			Log.v("CurStateActivity", "now time=" + this.time);
-//			int minites = ds.time/60;
-//			int seconds = ds.time - minites * 60;
-//			btn.setText(" 时间\n " + minites + ":" + seconds);
-//			
-//			btn = (RadioButton)this.findViewById(R.id.jiaoban);
-//			btn.setText(" 搅拌  " + ds.jiaoban_speed);
-	        
-		}
-	}
-	
 	boolean is_changing_seekbar = false;
 	
 	 /**

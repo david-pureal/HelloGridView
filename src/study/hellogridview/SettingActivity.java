@@ -33,6 +33,7 @@ public class SettingActivity extends Activity implements OnTouchListener {
 	public byte opr = 0; //用户做了开启还是关闭的操作，0为关闭，1为开启
 	
 	public Button verify_dish;
+	public Button machine_smartlink;
 	
 	Handler handler;
 	
@@ -107,6 +108,16 @@ public class SettingActivity extends Activity implements OnTouchListener {
             public void onClick(View v) { 
             	Intent intent = new Intent(SettingActivity.this, BuiltinDishes.class);
             	intent.putExtra("title", String.valueOf("菜谱审核")); 
+                startActivity(intent);  
+                //finish();//关闭当前Activity  
+            }  
+        });
+		
+		machine_smartlink = (Button) findViewById(R.id.machine_smartlink);
+		machine_smartlink.setOnClickListener(new OnClickListener() {  
+            @Override  
+            public void onClick(View v) { 
+            	Intent intent = new Intent(SettingActivity.this, SmartLinkActivity.class);
                 startActivity(intent);  
                 //finish();//关闭当前Activity  
             }  
