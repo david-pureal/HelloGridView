@@ -225,11 +225,14 @@ public class Dish implements Cloneable {
 				Dish dish = new Dish(R.drawable.tudousi, "炒土豆丝");
 				dish.img_tiny = R.raw.tudousi_tiny;
 				dish.zhuliao_temp = (byte) 180;
-				dish.fuliao_temp = (byte) 180;
+				dish.fuliao_temp = 0;
 				dish.zhuliao_time = 230;
 				dish.fuliao_time = 0;
 				dish.zhuliao_jiaoban_speed = 5;
 				dish.fuliao_jiaoban_speed = 5;
+				dish.water = 0;
+				dish.oil = 30;
+				dish.qiangguoliao = 1;
 				dish.text = "1、底油：30克\n2、炝锅料：姜丝5克、蒜片5克\n3、主料：土豆丝230克,青椒丝20克，\n      红椒丝20克\n4、调料：鸡精2克、盐2克"; 
 				dish.name_english = "tomato chip";
 				//dish0.sound = R.raw.tudousi_voice;
@@ -241,6 +244,15 @@ public class Dish implements Cloneable {
 			
 			Dish dish1 = new Dish(R.drawable.chaoqingcai, "炒青菜");
 			dish1.img_tiny = R.raw.chaoqingcai_tiny;
+			dish1.zhuliao_temp = (byte) 180;
+			dish1.fuliao_temp = 0;
+			dish1.zhuliao_time = 180;
+			dish1.fuliao_time = 0;
+			dish1.zhuliao_jiaoban_speed = 5;
+			dish1.fuliao_jiaoban_speed = 5;
+			dish1.water = 0;
+			dish1.oil = 30;
+			dish1.qiangguoliao = 1;
 			dish1.text = "1、底油：20克\n2、炝锅料：姜丝5克、蒜片5克\n3、主料：青菜条350克\n4、调料：盐2克";
 			dish1.name_english = "Fried peanuts";
 			//dish1.sound = R.raw.tudousi_voice;
@@ -251,6 +263,15 @@ public class Dish implements Cloneable {
 			
 			Dish dish2 = new Dish(R.drawable.fanqiechaodan, "番茄炒蛋");
 			dish2.img_tiny = R.raw.fanqiechaodan_tiny;//87%
+			dish2.zhuliao_temp = (byte) 170;
+			dish2.fuliao_temp = (byte) 170;
+			dish2.zhuliao_time = 60;
+			dish2.fuliao_time = 180;
+			dish2.zhuliao_jiaoban_speed = 8;
+			dish2.fuliao_jiaoban_speed = 5;
+			dish2.water = 0;
+			dish2.oil = 30;
+			dish2.qiangguoliao = 0;
 			dish2.text = "1、底油：45克\n2、主料：3个鸡蛋加0.5克盐打匀\n3、辅料：番茄块230克\n4、调料：盐2克"; 
 			dish2.name_english = "Tomato Eggs";
 			//dish2.sound = R.raw.tudousi_voice;
@@ -261,6 +282,16 @@ public class Dish implements Cloneable {
 			
 			Dish dish3 = new Dish(R.drawable.maladoufu, "麻辣豆腐");
 			dish3.img_tiny = R.raw.maladoufu_tiny;
+			dish3.zhuliao_temp = (byte) 165;
+			dish3.fuliao_temp = 0;
+			dish3.zhuliao_time = 240;
+			dish3.fuliao_time = 0;
+			dish3.zhuliao_jiaoban_speed = 3;
+			dish3.fuliao_jiaoban_speed = 0;
+			dish3.water = 1;
+			dish3.water_weight = 10;
+			dish3.oil = 30;
+			dish3.qiangguoliao = 1;
 			dish3.text = "1、底油：25克\n2、炝锅料：姜丝5克、蒜片5克，干红椒段3克，麻椒粒2克\n3、主料：嫩豆腐块350克\n4、水和调料：水30克、盐2克、鸡精2克、老抽2克、生抽10克"; 
 			dish3.name_english = "Mapo Tofu";
 			//dish3.sound = R.raw.tudousi_voice;
@@ -271,6 +302,16 @@ public class Dish implements Cloneable {
 			
 			Dish dish4 = new Dish(R.drawable.congbaoyangrou, "葱爆羊肉");
 			dish4.img_tiny = R.raw.congbaoyangrou_tiny;
+			dish4.zhuliao_temp = (byte) 180;
+			dish4.fuliao_temp = (byte) 180;
+			dish4.zhuliao_time = 60;
+			dish4.fuliao_time = 200;
+			dish4.zhuliao_jiaoban_speed = 8;
+			dish4.fuliao_jiaoban_speed = 5;
+			dish4.water = 2;
+			dish4.water_weight = 10;
+			dish4.oil = 30;
+			dish4.qiangguoliao = 1;
 			dish4.text = "1、底油：35克\n2、炝锅料：姜片5克、蒜片5克\n3、主料：薄羊肉片130克\n4、辅料：大葱段150克、红萝卜丝30克、木耳片20克\n5、水和调料：水25克、盐2克、鸡精2克、生抽10克."; 
 			dish4.name_english = "Scallion Mutton";
 			dish4.dishid = 5;
@@ -281,6 +322,16 @@ public class Dish implements Cloneable {
 			
 			Dish dish5 = new Dish(R.drawable.hongshaoyukuai, "红烧鱼块");
 			dish5.img_tiny = R.raw.hongshaoyukuai_tiny;
+			dish5.zhuliao_temp = (byte) 160;
+			dish5.fuliao_temp = (byte) 160;
+			dish5.zhuliao_time = 60;
+			dish5.fuliao_time = 300;
+			dish5.zhuliao_jiaoban_speed = 5;
+			dish5.fuliao_jiaoban_speed = 2;
+			dish5.water = 1;
+			dish5.water_weight = 10;
+			dish5.oil = 30;
+			dish5.qiangguoliao = 1;
 			dish5.text = "1、底油：50克\n2、炝锅料：姜片10克、蒜片10克\n3、主料：鱼块500克\n4、辅料：红椒50克、青椒50克\n5、水：50克\n6、调料：盐3克、鸡精2克、生抽20克"; 
 			dish5.name_english = "Fish block";
 			dish5.dishid = 6;
@@ -292,15 +343,34 @@ public class Dish implements Cloneable {
 			Dish dish6 = new Dish(R.drawable.chaoshuiguo, "炒水果");
 			dish6.img_tiny = R.raw.chaoshuiguo_tiny;
 			dish6.zhuliao_temp = (byte) 170;
-			dish6.fuliao_temp = (byte) 170;
+			dish6.fuliao_temp = 0;
+			dish6.zhuliao_time = 180;
+			dish6.fuliao_time = 0;
+			dish6.zhuliao_jiaoban_speed = 5;
+			dish6.fuliao_jiaoban_speed = 0;
+			dish6.water = 0;
+			dish6.water_weight = 0;
+			dish6.oil = 30;
+			dish6.qiangguoliao = 0;
 			dish6.text = "1、底油：10克\n2、主料：杨桃块60克、草莓块60克、\n      苹果块60克、火龙果块60克。"; 
 			dish6.name_english = "Fried fruit";
 			dish6.dishid = 7;
+			dish6.qiangguoliao = 0;
 			dish6.materials.add(R.drawable.chaoshuiguo_1);
 			alldish_map.put(dish6.dishid, dish6);
 			
 			Dish dish7 = new Dish(R.drawable.zhahuasheng, "炸花生");
 			dish7.img_tiny = R.raw.zhahuasheng_tiny;
+			dish7.zhuliao_temp = (byte) 180;
+			dish7.fuliao_temp = 0;
+			dish7.zhuliao_time = 600;
+			dish7.fuliao_time = 0;
+			dish7.zhuliao_jiaoban_speed = 3;
+			dish7.fuliao_jiaoban_speed = 0;
+			dish7.water = 0;
+			dish7.water_weight = 0;
+			dish7.oil = 30;
+			dish7.qiangguoliao = 0;
 			dish7.text = "1、底油：45克\n2、主料：花生米250克\n3、调料：盐3克";
 			dish7.name_english = "Fried peanuts";
 			dish7.dishid = 8;
@@ -309,6 +379,16 @@ public class Dish implements Cloneable {
 			
 			Dish dish8 = new Dish(R.drawable.qingchaosuantai, "清炒蒜台");
 			dish8.img_tiny = R.raw.qingchaosuantai_tiny;
+			dish8.zhuliao_temp = (byte) 180;
+			dish8.fuliao_temp = 0;
+			dish8.zhuliao_time = 230;
+			dish8.fuliao_time = 0;
+			dish8.zhuliao_jiaoban_speed = 5;
+			dish8.fuliao_jiaoban_speed = 0;
+			dish8.water = 1;
+			dish8.water_weight = 30;
+			dish8.oil = 30;
+			dish8.qiangguoliao = 1;
 			dish8.text = "1、底油：30克\n2、炝锅料：姜片5克、蒜片5克 \n3、主料：蒜苔段250克\n4、水和调料：水25克、盐2克、鸡精2克、生抽10克"; 
 			dish8.name_english = "Garlic sprout";
 			dish8.dishid = 9;
@@ -318,6 +398,16 @@ public class Dish implements Cloneable {
 			
 			Dish dish9 = new Dish(R.drawable.suanmiaolarou, "蒜苗腊肉");
 			dish9.img_tiny = R.raw.suanmiaolarou_tiny;
+			dish9.zhuliao_temp = (byte) 170;
+			dish9.fuliao_temp = (byte) 170;
+			dish9.zhuliao_time = 60;
+			dish9.fuliao_time = 150;
+			dish9.zhuliao_jiaoban_speed = 6;
+			dish9.fuliao_jiaoban_speed = 6;
+			dish9.water = 2;
+			dish9.water_weight = 30;
+			dish9.oil = 30;
+			dish9.qiangguoliao = 1;
 			dish9.text = "1、底油：35克\n2、炝锅料：姜片5克、蒜片5克\n3、主料：腊肉片130克\n4、辅料：蒜苗段150克、红椒菱形片20克、青椒菱形片20克\n5、水和调料：水25克、盐2克、鸡精2克、生抽10克"; 
 			dish9.name_english = "Garlic Bacon";
 			dish9.dishid = 10;
@@ -328,6 +418,16 @@ public class Dish implements Cloneable {
 			
 			Dish dish10 = new Dish(R.drawable.hongshaojichi, "红烧鸡翅");
 			dish10.img_tiny = R.raw.hongshaojichi_tiny;
+			dish10.zhuliao_temp = (byte) 185;
+			dish10.fuliao_temp = (byte) 185;
+			dish10.zhuliao_time = 60;
+			dish10.fuliao_time = 210;
+			dish10.zhuliao_jiaoban_speed = 4;
+			dish10.fuliao_jiaoban_speed = 4;
+			dish10.water = 2;
+			dish10.water_weight = 30;
+			dish10.oil = 30;
+			dish10.qiangguoliao = 1;
 			dish10.text = "1、底油：40克\n2、炝锅料：姜片5克、蒜片10克 \n3、主料：鸡翅根5个（表面切3刀，加2克老抽、10克生抽腌制10分钟备用）\n4、辅料：红椒菱形片30克、青椒菱形片30克、香菇片40克\n5、水和调料：水25克、盐2克、鸡精2克"; 
 			dish10.name_english = "Chicken wings";
 			dish10.dishid = 11;
@@ -338,6 +438,16 @@ public class Dish implements Cloneable {
 			
 			Dish dish11 = new Dish(R.drawable.xiqinxiaren, "西芹虾仁");
 			dish11.img_tiny = R.raw.xiqinxiaren_tiny;
+			dish11.zhuliao_temp = (byte) 170;
+			dish11.fuliao_temp = (byte) 170;
+			dish11.zhuliao_time = 60;
+			dish11.fuliao_time = 180;
+			dish11.zhuliao_jiaoban_speed = 5;
+			dish11.fuliao_jiaoban_speed = 5;
+			dish11.water = 2;
+			dish11.water_weight = 30;
+			dish11.oil = 30;
+			dish11.qiangguoliao = 1;
 			dish11.text = "1、底油：30克\n2、炝锅料：姜片5克、蒜片5克 \n3、主料：虾仁150克（加10克料酒腌制5分钟）\n4、辅料：西芹段100克、红萝卜菱形片20克\n5、水和调料：水10克、盐2克、鸡精2克"; 
 			dish11.name_english = "Celery shrimp";
 			dish11.dishid = 12;
@@ -354,13 +464,13 @@ public class Dish implements Cloneable {
 			alldish_map.put(dish12.dishid, dish12);
 		
 			try {
-				Dish tmp = (Dish) dish5.clone();tmp.dishid = 14;
+				Dish tmp = (Dish) dish5.clone();tmp.dishid = 14;tmp.name_chinese = "菜十四";
 				alldish_map.put(tmp.dishid, tmp);
 				
-				tmp = (Dish) dish6.clone();tmp.dishid = 15;
+				tmp = (Dish) dish6.clone();tmp.dishid = 15;tmp.name_chinese = "菜十五";
 				alldish_map.put(tmp.dishid, tmp);
 				
-				tmp = (Dish) dish1.clone();tmp.dishid = 16;
+				tmp = (Dish) dish1.clone();tmp.dishid = 16;tmp.name_chinese = "菜十六";
 				alldish_map.put(tmp.dishid, tmp);
 			} catch (Exception e) {
 				e.printStackTrace();

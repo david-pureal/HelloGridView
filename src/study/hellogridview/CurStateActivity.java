@@ -59,6 +59,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	public ImageView add;
 	public ImageView minus;
 	public ImageView start_pause;
+	public ImageView stop_cook;
 	
 	Handler handler;
 	
@@ -171,13 +172,16 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	                	//CurStateActivity.this.time = ds.time;
 	                	//CurStateActivity.this.temp = ds.temp;
 	                	CurStateActivity.this.jiaoban_speed = ds.jiaoban_speed;
-	                	CurStateActivity.this.dish_id = Math.max(1, ds.dishid & 0xffff);
+	                	dish_id = Math.max(1, ds.dishid & 0xffff);
+	                	
+	                	if (dish != null && dish_id != dish.dishid) dish = Dish.getDishById(dish_id); 
                 	}
                 	
                 	CurStateActivity.this.update_seekbar();
                 	
                 	int MaxDataSize = 800;
                 	if(ds.working_state != Constants.MACHINE_WORK_STATE_STOP) {//待机中
+                		stop_cook.setVisibility(View.VISIBLE);
                 		if (ds.working_state == Constants.MACHINE_WORK_STATE_PAUSE) {
                 			//CurStateActivity.this.jiaoban_speed = 1;
                 		}
@@ -186,6 +190,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
                 			//t += 5; data.add(Math.min(190, t));
                 		}
                 	} else {
+                		stop_cook.setVisibility(View.GONE);
                 		//CurStateActivity.this.jiaoban_speed = 1;
                 		state = STATE_HEATING;
                 		t = 50;
@@ -285,7 +290,6 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 		main.setBackgroundResource(R.drawable.standard_bkg);
 		
 		start_pause = (ImageView) findViewById(R.id.start_pause);
-		//start_pause.setOnTouchListener(new PicOnTouchListener(2));
 		start_pause.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) {  
@@ -301,6 +305,22 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
                 tcpclient.sendMsg(msg); 
             }  
         }); 
+		
+		stop_cook = (ImageView) findViewById (R.id.stop_cook);
+		stop_cook.setVisibility(View.GONE);
+		stop_cook.setOnClickListener(new OnClickListener() {  
+            @Override  
+            public void onClick(View v) {  
+            	if (ds.working_state != Constants.MACHINE_WORK_STATE_STOP) control = Constants.MACHINE_WORK_STATE_STOP;
+            	modify_state = (byte) 0x10;
+            	
+            	Message msg = new Message();  
+                msg.what = 0x345;  
+                Package data = new Package(Package.Set_Param);
+                msg.obj = data.getBytes();
+                tcpclient.sendMsg(msg); 
+            }  
+        });
 		
 		switch_ui_tv = (TextView) findViewById (R.id.switch_ui_tv);
 		switch_ui_tv.setOnClickListener(new OnClickListener() {  
@@ -325,7 +345,9 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	public final static int STATE_HEATING = 0;
 	public final int STATE_ADD_OIL = 1;
 	public final int STATE_ZHULIAO = 2;
-	public final int STATE_FULIAO = 3;
+	public final int STATE_ZHULIAO_TISHI_DONE = 3;
+	public final int STATE_FULIAO = 4;
+	public final int STATE_FULIAO_DONE = 5;
 	
 	public static int state = STATE_HEATING;
 	private static boolean zhuliao_voice_done = false;
@@ -334,6 +356,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	MediaPlayer player_zhuliao;
 	MediaPlayer player_fuliao;
 	private int zhuliao_i;
+	private int fuliao_i;
 	
 	static Bitmap canvas_bmp = null;
 	static Bitmap simple_bkg_bmp = null;
@@ -466,7 +489,8 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         canvas.drawLine(x_start, y_max, x_start, yend, paint);
         canvas.drawLine(x_start, yend, x_middle, yend, paint);
         
-        int fuliao_temp = dish.fuliao_temp & 0x00ff;;
+        int fuliao_temp = dish.fuliao_temp & 0x00ff;
+        if (dish.fuliao_time == 0) fuliao_temp = zhuliao_temp;
         int yend2 = (int) (y_min + y_per_temp*(200 - fuliao_temp));
         canvas.drawLine(x_middle, yend, x_middle, yend2, paint);
         canvas.drawLine(x_middle, yend2, x_end, yend2, paint);
@@ -483,7 +507,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         	canvas.drawText("" + temp, temperature_x_2, temperature_y, paint);
         }
         
-        // time
+        // total time
         int minites = ds.time/60;
 		int seconds = ds.time - minites * 60;
 		String separator = seconds < 10 ? ":0" : ":";
@@ -501,6 +525,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         paint.setColor(Color.rgb(166, 246, 9));
         canvas.drawText(dish.name_chinese, name_x, name_y, paint);
         
+        // zhuliao time
         paint.setColor(Color.rgb(115, 115, 115));
         paint.setTextSize(45 * scale);
         minites = dish.zhuliao_time / 60;
@@ -509,6 +534,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         minites_prefix =  minites < 10 ? "0" : "";
         canvas.drawText(minites_prefix + minites + separator + seconds, zhuliao_time_x, zhuliao_time_y, paint);
         
+        // fuliao time
         minites = dish.fuliao_time / 60;
         seconds = dish.fuliao_time - minites * 60;
         separator = seconds < 10 ? ":0" : ":";
@@ -525,7 +551,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         int cur_temp = ds.temp & 0xff;
         if (data.size() > 0) cur_temp = data.get(data.size() - 1);
         else cur_temp = 0;
-        int zhu_temp = this.temp & 0x00ff;
+        int zhu_temp = dish.zhuliao_temp & 0x00ff;
         
         //Log.v("CurStateActivity", "cur_temp =" + cur_temp); 
         if (state == STATE_HEATING && cur_temp > 90) {
@@ -535,48 +561,130 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         	zhuliao_i = data.size();
         	zhuliao_voice_done = false;
         	state = this.STATE_ZHULIAO;
-        } else if (state == STATE_ZHULIAO && data.size() > zhuliao_i + 30) {
-        	//zhuliao_voice_done = false;
-        	state = this.STATE_FULIAO;
+        } else if (state == STATE_ZHULIAO && data.size() > zhuliao_i + 10) { // 5秒闪烁提示图片
+        	state = STATE_ZHULIAO_TISHI_DONE;
+        } else if (state == STATE_ZHULIAO_TISHI_DONE && dish.fuliao_time != 0 && data.size() > zhuliao_i + 20) { // 保证主料的语音已经播放完，20为10秒
+        	Log.v("CurStateActivity", "ds.time = " + ds.time + "dish.fuliao_time = " + dish.fuliao_time);
+        	int time_left = ds.time & 0xffff;
+        	if (time_left < (dish.fuliao_time & 0xffff) + 10) {// 在开始辅料时间10秒前
+        		fuliao_i = data.size();
+        		zhuliao_voice_done = false;
+        		state = STATE_FULIAO;
+        	}
+        } else if (state == STATE_FULIAO && data.size() > fuliao_i + 10) { // 5秒闪烁提示图片
+        	state = STATE_FULIAO_DONE;
         }
         
+        float img_y_per_temp = (float) ((166.0-159) / 20); // 159.0 ---- 180℃   166.0 ---- 160℃
+        // 加油提示语和图片
         if (state == STATE_ADD_OIL && ds.working_state != Constants.MACHINE_WORK_STATE_STOP 
         		&& (!zhuliao_voice_done || cur_temp < 110 && data.size() % 2 == 0))
         {
         	if (!zhuliao_voice_done) {
         		zhuliao_voice_done = true;
-	        	player_oil = MediaPlayer.create(this, R.raw.add_oil_voice);
-	        	//player1.stop();
+        		
+        		int voice_resid = R.raw.voice_add_oil_qgl_chn;
+        		if (dish.qiangguoliao == 0) voice_resid = R.raw.voice_add_oil_chn;
+	        	player_oil = MediaPlayer.create(this, voice_resid);
 	        	player_oil.start();
         	}
         	
+        	int img_resid = 0;
         	Rect img_rect = new Rect();
-	        img_rect.left    = (int) (198.0/Constants.UI_WIDTH * width);
-	        img_rect.right   = (int) (383.0/Constants.UI_WIDTH * width);
-	        img_rect.top     = (int) (198.0/Constants.UI_HEIGHT * height);
-	        img_rect.bottom  = (int) (262.0/Constants.UI_HEIGHT * height);
-        
-	        canvas.drawBitmap(Tool.get_res_bitmap(R.drawable.add_oil), null, img_rect, null);
+        	img_rect.left    = (int) (198.0/Constants.UI_WIDTH * width);
+        	img_rect.top    = (int) (200.0/Constants.UI_HEIGHT * height);
+	        img_rect.bottom  = (int) (265.0/Constants.UI_HEIGHT * height);
+        	if (dish.qiangguoliao == 0)  {
+        		img_resid = R.raw.add_oil_chn;
+		        img_rect.right   = (int) (320.0/Constants.UI_WIDTH * width);
+        	}
+	        else {
+		        img_rect.right   = (int) (430.0/Constants.UI_WIDTH * width);
+        		img_resid = R.raw.add_oil_qgl_chn;
+        	}
+	        canvas.drawBitmap(Tool.get_res_bitmap(img_resid), null, img_rect, null);
         }
         
-        // add zhuliao_tiaoliao
+        // 主料提示语和图片
         if (state == STATE_ZHULIAO && ds.working_state != Constants.MACHINE_WORK_STATE_STOP
         		&& (!zhuliao_voice_done || cur_temp < zhu_temp + 10 && data.size() % 2 == 0))
         {
+        	int voice_resid = 0;
+        	int img_resid = 0;
+        	Rect img_rect = new Rect();
+        	img_rect.left   = (int) (192.0/Constants.UI_WIDTH * width); 
+        	img_rect.right  =  0;
+        	img_rect.top    = (int) ((166.0 + ((160 - zhuliao_temp) * img_y_per_temp))/Constants.UI_HEIGHT * height); 
+	        img_rect.bottom = (int) (245.0/Constants.UI_HEIGHT * height);
+	        
+    		if ((dish.water == 0 || dish.water == 2) && dish.fuliao_time != 0) {
+    			voice_resid = R.raw.voice_add_zhuliao_chn;
+    			img_resid = R.raw.add_zhuliao_chn;
+    			img_rect.right  = (int) (332.0/Constants.UI_WIDTH * width);
+    		}
+    		else if ((dish.water == 0 || dish.water == 2) && dish.fuliao_time == 0){
+    			voice_resid = R.raw.voice_add_zhuliao_tiaoliao_chn;
+    			img_resid = R.raw.add_zhuliao_tiaoliao_chn;
+    			img_rect.right  = (int) (446.0/Constants.UI_WIDTH * width);
+    		}
+    		else if (dish.water == 1 && dish.fuliao_time == 0){
+    			voice_resid = R.raw.voice_add_zhuliao_water_tiaoliao_chn;
+    			img_resid = R.raw.add_zhuliao_water_tiaoliao_chn;
+    			img_rect.right  = (int) (468.0/Constants.UI_WIDTH * width);
+    			img_rect.bottom = (int) (250.0/Constants.UI_HEIGHT * height);
+    		}
+    		else if (dish.water == 1 && dish.fuliao_time != 0){
+    			voice_resid = R.raw.voice_add_zhuliao_water_chn;
+    			img_resid = R.raw.add_zhuliao_water_chn;
+    			// 加主料再加水的图片中的箭头比其他的长
+    			img_rect.left   = (int) (195.0/Constants.UI_WIDTH * width);
+    			img_rect.top    = (int) (170.0/Constants.UI_HEIGHT * height);
+    			img_rect.right  = (int) (416.0/Constants.UI_WIDTH * width);
+    			img_rect.bottom = (int) (255.0/Constants.UI_HEIGHT * height);
+    		}
+    		
         	if (!zhuliao_voice_done) {
         		zhuliao_voice_done = true;
-        		player_zhuliao = MediaPlayer.create(CurStateActivity.this, R.raw.zhuliao_tiaoliao_voice);
+        		player_zhuliao = MediaPlayer.create(CurStateActivity.this, voice_resid);
         		//player.stop();
         		player_zhuliao.start();
         	}
-        	
-        	Rect img_rect = new Rect();
-	        img_rect.left   = (int) (198.0/Constants.UI_WIDTH * width);
-	        img_rect.right  = (int) (446.0/Constants.UI_WIDTH * width);
-	        img_rect.top    = (int) (170.0/Constants.UI_HEIGHT * height);
-	        img_rect.bottom = (int) (235.0/Constants.UI_HEIGHT * height);
         
-	        canvas.drawBitmap(Tool.get_res_bitmap(R.drawable.zhuliao_tiaoliao), null, img_rect, null);
+	        canvas.drawBitmap(Tool.get_res_bitmap(img_resid), null, img_rect, null);
+        }
+        
+        // 辅料提示语和图片
+        if (state == STATE_FULIAO && ds.working_state != Constants.MACHINE_WORK_STATE_STOP
+        		&& (!zhuliao_voice_done || data.size() % 2 == 0))
+        {
+        	int voice_resid = 0;
+        	int img_resid = 0;
+        	Rect img_rect = new Rect();
+        	img_rect.left   = (int) (239.0/Constants.UI_WIDTH * width);
+        	img_rect.right  = 0;
+        	img_rect.top    = (int) ((166.0 + ((160 - zhuliao_temp) * img_y_per_temp))/Constants.UI_HEIGHT * height);
+	        img_rect.bottom = (int) (247.0/Constants.UI_HEIGHT * height);
+	        
+	        if (dish.water != 2) {
+	        	voice_resid = R.raw.voice_add_fuliao_tiaoliao_chn;
+    			img_resid = R.raw.add_fuliao_tiaoliao_chn;
+    			img_rect.right  = (int) (421.0/Constants.UI_WIDTH * width);
+	        }
+	        else if (dish.water == 2) {
+	        	voice_resid = R.raw.voice_add_fuliao_water_tiaoliao_chn;
+    			img_resid = R.raw.add_fuliao_water_tiaoliao_chn;
+    			img_rect.left   = (int) (235.0/Constants.UI_WIDTH * width);
+    			img_rect.right  = (int) (441.0/Constants.UI_WIDTH * width);
+	        }
+
+	        
+        	if (!zhuliao_voice_done) {
+        		zhuliao_voice_done = true;
+        		player_fuliao = MediaPlayer.create(CurStateActivity.this, voice_resid);
+        		player_fuliao.start();
+        	}
+        	
+	        canvas.drawBitmap(Tool.get_res_bitmap(img_resid), null, img_rect, null);
         }
 
         // temp curve
@@ -587,7 +695,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 			
 			zhuliao_index = data.size();
 			for(int i=0; i< data.size(); i++){ 
-				if (data.get(i) > (this.temp & 0x00ff)) {
+				if (data.get(i) > zhuliao_temp) {
 					zhuliao_index = i;
 					break;
 				}

@@ -69,7 +69,7 @@ public class TCPClient {
 				for (int i = 0; i < mModules.size(); ++i) {
 					Module m = mModules.get(i);
 					if (!m.getIp().equals(Constants.AP_IP) && 
-							!Tool.getInstance().getSSid(main_activity).equals(Constants.AP_NAME)){
+							!Tool.getInstance().getSSid(main_activity).startsWith(Constants.AP_NAME_PREFIX)){
 						Log.v("tcpclient", "find device in sta mode, ip = " + m.getIp());
 						connect_ip_sta(m.getIp());
 					}
@@ -184,6 +184,9 @@ public class TCPClient {
 		if (dish_activity != null && dish_activity.getHandler() != null) {
 			dish_activity.getHandler().sendEmptyMessage(Constants.MSG_ID_CONNECT_STATE);
 		}
+		if (setting_activity != null && setting_activity.getHandler() != null) {
+			setting_activity.getHandler().sendEmptyMessage(Constants.MSG_ID_CONNECT_STATE);
+		}
 	}
 	
 	/**
@@ -263,7 +266,7 @@ public class TCPClient {
 			}
 			if (act != null && act.getHandler() != null) {
 				act.getHandler().post(new Runnable() {
-					String info = "连接到设备失败(请确认wifi已连接到" + Constants.AP_NAME + ip_ap +";" + port + " failed! try reconnect...";
+					String info = "连接到设备失败(请确认wifi已连接到" + Constants.AP_NAME_PREFIX + ip_ap +";" + port + " failed! try reconnect...";
 					@Override
 					public void run() {
 						// TODO Auto-generated method stub
@@ -286,7 +289,7 @@ public class TCPClient {
 			}
 			if (act != null && act.getHandler() != null) {
 				act.getHandler().post(new Runnable() {
-					String info = "连接到设备失败(请确认wifi已连接到" + Constants.AP_NAME + ip_ap +";" + port + " failed! try reconnect...";
+					String info = "连接到设备失败(请确认wifi已连接到" + Constants.AP_NAME_PREFIX + ip_ap +";" + port + " failed! try reconnect...";
 					@Override
 					public void run() {
 						// TODO Auto-generated method stub
@@ -309,7 +312,7 @@ public class TCPClient {
 			}
 			if (act != null && act.getHandler() != null) {
 				act.getHandler().post(new Runnable() {
-					String info = "连接到设备失败(请确认wifi已连接到" + Constants.AP_NAME + ip_ap +";" + port + " failed! try reconnect...";
+					String info = "连接到设备失败(请确认wifi已连接到" + Constants.AP_NAME_PREFIX + ip_ap +";" + port + " failed! try reconnect...";
 					@Override
 					public void run() {
 						// TODO Auto-generated method stub
@@ -333,7 +336,7 @@ public class TCPClient {
 			}
 			if (act != null && act.getHandler() != null) {
 				act.getHandler().post(new Runnable() {
-					String info = "连接到设备失败(请确认wifi已连接到" + Constants.AP_NAME + ip_ap +";" + port + " failed! try reconnect...";
+					String info = "连接到设备失败(请确认wifi已连接到" + Constants.AP_NAME_PREFIX + ip_ap +";" + port + " failed! try reconnect...";
 					@Override
 					public void run() {
 						// TODO Auto-generated method stub
@@ -369,7 +372,7 @@ public class TCPClient {
 						}
 						
 						// 如果当前wifi是设备的AP，那就优先使用AP模式
-						if (Tool.getInstance().getSSid(main_activity).equals(Constants.AP_NAME)) {
+						if (Tool.getInstance().getSSid(main_activity).startsWith(Constants.AP_NAME_PREFIX)) {
 							s.connect(new InetSocketAddress(ip_ap, port), Constants.BBXC_SOCKET_TIMEOUT);
 							current_ip = ip_ap;
 						}

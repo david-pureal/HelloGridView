@@ -3,17 +3,17 @@
     android:id="@+id/layout_setting"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#d2ffff"
-    android:orientation="vertical"
-    tools:context="${relativePackage}.${activityClass}" >
-
+    android:padding="10dp"
+    android:gravity="center_horizontal"
+    android:background="#f0f0f0"
+    android:orientation="vertical" >
+    
     <Switch
         android:id="@+id/switch_english"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="103dp"
-        android:layout_marginStart="103dp"
-        android:layout_marginTop="30dp"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="20dp"
         android:text="使用英文"
         android:textOn="开启"
         android:textColor="#000000"
@@ -24,26 +24,86 @@
         android:id="@+id/switch_sound"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="103dp"
-        android:layout_marginStart="103dp"
-        android:layout_marginTop="30dp"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="20dp"
         android:text="语音提示"
         android:textOn="开启"
         android:textColor="#000000"
         android:textSize="20sp" 
         android:scrollbarStyle="insideOverlay"/>
     
-    <Button
-        android:id="@+id/machine_smartlink"
+    <ImageView
+        android:layout_width="fill_parent"
+        android:layout_height="5dp"
+        android:layout_gravity="center_vertical"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="15dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/line" />
+
+    <TextView
+        android:id="@+id/smartlink_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
+        android:layout_marginTop="15dp"
+        android:text="当前连接情况" />
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="right"
+            android:text="热点  : " />
+
+        <TextView
+            android:id="@+id/ssid"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="30dp"
+            android:layout_weight="3"
+            android:gravity="left" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="right"
+            android:text="密码  : " />
+
+        <EditText
+            android:id="@+id/pswd"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="30dp"
+            android:layout_weight="3"
+            android:gravity="left" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/startcook"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:text="炒菜机联网"
-        android:textSize="20sp"
-        android:layout_gravity="center"/>
-        
+        android:paddingBottom="10dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingTop="10dp"
+        android:text="开始连接" />
+    
     <Button
         android:id="@+id/verify_dish"
         android:layout_width="wrap_content"
@@ -55,5 +115,43 @@
         android:textSize="20sp"
         android:layout_gravity="center"
         />
-        
+    
+    
+    
+<RelativeLayout 
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+    <LinearLayout 
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:layout_alignParentBottom="true"
+        android:gravity="center"
+        android:orientation="vertical">
+        <!--  TextView 
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SmartLink3.5.0"
+            /-->
+         <!--TextView 
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="All Right Reserved"
+            /-->
+          <TextView 
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="珠海福龙电器有限公司"
+            />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/button_http"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="26dp"
+        android:text="http请求" />
+
+</RelativeLayout>
 </LinearLayout>

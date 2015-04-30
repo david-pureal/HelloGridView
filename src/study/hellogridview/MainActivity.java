@@ -1,10 +1,14 @@
 package study.hellogridview;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.Timer;
+import java.util.TimerTask;
 
+import kankan.wheel.widget.WheelView;
 import cn.sharesdk.framework.ShareSDK;
 
 import com.jeremyfeinstein.slidingmenu.lib.app.SlidingFragmentActivity;
@@ -27,7 +31,9 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
@@ -37,6 +43,9 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ProgressBar;
@@ -47,6 +56,7 @@ import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -93,8 +103,6 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
 		
 		Log.v("MainActivity", "onCreate");
 		
-		++ main_in_stack_count;
-		
 		ShareSDK.initSDK(this);
 		
 		requestWindowFeature(Window.FEATURE_CUSTOM_TITLE); 
@@ -128,6 +136,9 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
 		
 		//设置actionBar能否跟随侧滑栏移动，如果没有，则可以去掉
 		setSlidingActionBarEnabled(false);
+		
+		inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE); 
+		self_content_view = inflater.inflate(R.layout.activity_main, null, false);
 		
 		m_deviceBtn = (ImageButton) findViewById(R.id.right);
 		m_deviceBtn.setOnClickListener(new OnClickListener() {  
@@ -164,6 +175,10 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
                 	Log.v("MainActivity", "got event MSG_ID_CONNECT_STATE = " + tcpclient.connect_state);
                 	set_connect_state();
                 }  
+                else if (msg.what == 0x777) {
+                	popWindow.dismiss();
+                	hasTask = false;
+                }
             }  
         };
 		
@@ -320,8 +335,6 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
     	}
     }
     
-    public int  main_in_stack_count = 0;
-    
     boolean is_element_clicked = false;
 	private boolean is_title_button_clicked = false;
 	
@@ -409,26 +422,73 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
     protected void onDestroy() {  
         super.onDestroy();  
         Log.v("MainActivity", "onDestroy");  
-        -- main_in_stack_count;
     }
     
     private long exitTime = 0;
+    
 
+    private static Boolean isExit = false;
+    private static Boolean hasTask = false;
+    Timer tExit = new Timer();
+    TimerTask task;
+    
+    public LayoutInflater inflater;
+	public View self_content_view;
+	public View popupView;
+	PopupWindow popWindow;
+
+    // 长按返回键会直接退出
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-    	Log.v("MainActivity", "main_in_stack_count = " + main_in_stack_count);
+    	Log.v("MainActivity", "onKeyDown");
 
-        if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN){   
-            if((System.currentTimeMillis()-exitTime) > 2000){  
-                Toast.makeText(getApplicationContext(), "再按一次退出程序", Toast.LENGTH_SHORT).show();                                
-                exitTime = System.currentTimeMillis();   
+    	if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
+            if(isExit == false ) {
+                isExit = true;
+                
+                // 弹出浮层
+                //Toast.makeText(this, "再按一次退出程序", Toast.LENGTH_SHORT).show();
+                if (popupView == null) popupView = inflater.inflate(R.layout.makesure_exit, null, false);
+            	popWindow = new PopupWindow(popupView, 350, 130, true);
+            	
+            	TextView makesure_exit_tv = (TextView) popupView.findViewById(R.id.makesure_exit_tv);
+            	makesure_exit_tv.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    	System.exit(0);
+                    }
+                });
+            	
+            	//popWindow.setAnimationStyle(R.anim.in_from_left);
+            	int screenWidth = getWindowManager().getDefaultDisplay().getWidth(); // 屏幕宽（像素，如：480px）  
+            	int screenHeight = getWindowManager().getDefaultDisplay().getHeight(); // 屏幕高（像素，
+            	popWindow.showAtLocation(self_content_view, Gravity.NO_GRAVITY, (int)(screenWidth*0.33), (int)(screenHeight * 0.83));
+//            	Animation translateAnimation = AnimationUtils.loadAnimation(popupView.getContext(), R.anim.fade);
+//            	popupView.startAnimation(translateAnimation);
+            	
+            	
+                if(!hasTask) {
+                	if (task != null) task.cancel();
+                	task = new TimerTask() {
+                        
+                        @Override
+                        public void run() {
+                            isExit = false;
+                            hasTask = true;
+                            //popWindow.dismiss();
+                            //popupView.setVisibility(View.GONE);
+                            handler.sendEmptyMessage(0x777);
+                        }
+                    };
+                    tExit.schedule(task, 2000);
+                }
             } else {
                 //finish();
                 System.exit(0);
             }
-            return true;   
+            return true;
         }
-        return super.onKeyDown(keyCode, event);
+    	return super.onKeyDown(keyCode, event);
     }
     
     public Handler getHandler() {
