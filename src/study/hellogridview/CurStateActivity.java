@@ -73,6 +73,8 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	
 	public TextView switch_ui_tv;
 	public boolean is_standard_ui = true;
+	
+	private long down_timestamp = 0;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -181,7 +183,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
                 	
                 	int MaxDataSize = 800;
                 	if(ds.working_state != Constants.MACHINE_WORK_STATE_STOP) {//待机中
-                		stop_cook.setVisibility(View.VISIBLE);
+                		//stop_cook.setVisibility(View.VISIBLE);
                 		if (ds.working_state == Constants.MACHINE_WORK_STATE_PAUSE) {
                 			//CurStateActivity.this.jiaoban_speed = 1;
                 		}
@@ -190,7 +192,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
                 			//t += 5; data.add(Math.min(190, t));
                 		}
                 	} else {
-                		stop_cook.setVisibility(View.GONE);
+                		//stop_cook.setVisibility(View.GONE);
                 		//CurStateActivity.this.jiaoban_speed = 1;
                 		state = STATE_HEATING;
                 		t = 50;
@@ -224,34 +226,62 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 			}
 			
 	        @Override  
-	        public boolean onTouch(View v, MotionEvent event){            
-	        	switch (event.getAction()) {
-	            case MotionEvent.ACTION_DOWN:
-	            	selectedRBtn.setTextColor(Color.rgb(255, 0, 0));
-	          	  	break;
-	            case MotionEvent.ACTION_UP:
-	            	
-	            	if (selectedRBtn.getId() == R.id.temp) {
-	            		int t = (CurStateActivity.this.temp & 0x00ff)+ i*2;
-	            		t = Math.min(200, t);
-	            		CurStateActivity.this.temp = (byte) Math.max(0, t);
-	        		} else if (selectedRBtn.getId() == R.id.jiaoban) {
-	        			CurStateActivity.this.jiaoban_speed = (byte) (CurStateActivity.this.jiaoban_speed + i*1);
-	        			CurStateActivity.this.jiaoban_speed = (byte) Math.min(8, CurStateActivity.this.jiaoban_speed & 0xff);
-	        			CurStateActivity.this.jiaoban_speed = (byte) Math.max(1, CurStateActivity.this.jiaoban_speed & 0xff);
-	        		} else if (selectedRBtn.getId() == R.id.time) {
-	        			Log.v("CurStateActivity", "ds.time =" + ds.time);
-	        			ds.time = (short) (ds.time + i*10);
-	        			ds.time = (short) Math.min(MAX_TIME, ds.time);
-	        			ds.time = (short) Math.max(0, ds.time);
-	        			Log.v("CurStateActivity", "CurStateActivity set time = " + ds.time);
-	        		}
-	            	
-	            	CurStateActivity.this.modify_state = (byte)0xE0;
-	            	CurStateActivity.this.onStopTrackingTouch(CurStateActivity.this.bar);
-	            	
-	            	selectedRBtn.setTextColor(Color.rgb(0, 0, 0));
-	                break;
+	        public boolean onTouch(View v, MotionEvent event){  
+	        	
+	        	if (!v.equals(start_pause)) { // add or minus
+		        	switch (event.getAction()) {
+		            case MotionEvent.ACTION_DOWN:
+		            	selectedRBtn.setTextColor(Color.rgb(255, 0, 0));
+		          	  	break;
+		            case MotionEvent.ACTION_UP:
+		            	
+		            	if (selectedRBtn.getId() == R.id.temp) {
+		            		int t = (CurStateActivity.this.temp & 0x00ff)+ i*2;
+		            		t = Math.min(200, t);
+		            		CurStateActivity.this.temp = (byte) Math.max(0, t);
+		        		} else if (selectedRBtn.getId() == R.id.jiaoban) {
+		        			CurStateActivity.this.jiaoban_speed = (byte) (CurStateActivity.this.jiaoban_speed + i*1);
+		        			CurStateActivity.this.jiaoban_speed = (byte) Math.min(8, CurStateActivity.this.jiaoban_speed & 0xff);
+		        			CurStateActivity.this.jiaoban_speed = (byte) Math.max(1, CurStateActivity.this.jiaoban_speed & 0xff);
+		        		} else if (selectedRBtn.getId() == R.id.time) {
+		        			Log.v("CurStateActivity", "ds.time =" + ds.time);
+		        			ds.time = (short) (ds.time + i*10);
+		        			ds.time = (short) Math.min(MAX_TIME, ds.time);
+		        			ds.time = (short) Math.max(0, ds.time);
+		        			Log.v("CurStateActivity", "CurStateActivity set time = " + ds.time);
+		        		}
+		            	
+		            	CurStateActivity.this.modify_state = (byte)0xE0;
+		            	CurStateActivity.this.onStopTrackingTouch(CurStateActivity.this.bar);
+		            	
+		            	selectedRBtn.setTextColor(Color.rgb(0, 0, 0));
+		                break;
+		        	}
+	        	}
+	        	else { // 长按start_pause3秒，停止炒菜
+	        		switch (event.getAction()) {
+		            case MotionEvent.ACTION_DOWN:
+		            	down_timestamp = System.currentTimeMillis();
+		          	  	break;
+		            case MotionEvent.ACTION_UP:
+		            	if (System.currentTimeMillis() - down_timestamp > 3000) {
+		            		if (ds.working_state != Constants.MACHINE_WORK_STATE_STOP) control = Constants.MACHINE_WORK_STATE_STOP;
+		                	modify_state = (byte) 0x10;
+		            	}
+		            	else {
+		            		if (ds.working_state == Constants.MACHINE_WORK_STATE_COOKING) control = Constants.MACHINE_WORK_STATE_PAUSE;
+		                	else if (ds.working_state == Constants.MACHINE_WORK_STATE_PAUSE) control = Constants.MACHINE_WORK_STATE_COOKING;
+		                	else if (ds.working_state == Constants.MACHINE_WORK_STATE_STOP) control = Constants.MACHINE_WORK_STATE_COOKING;
+		                	modify_state = (byte) 0x10;
+		            	}
+		            	
+		            	Message msg = new Message();  
+	                    msg.what = 0x345;  
+	                    Package data = new Package(Package.Set_Param);
+	                    msg.obj = data.getBytes();
+	                    tcpclient.sendMsg(msg);
+		                break;
+		        	}
 	        	}
 	            return true;  
 	        }  
@@ -273,7 +303,6 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 		
 		//绑定一个匿名监听器
 		group.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-            
 			@Override
 			public void onCheckedChanged(RadioGroup arg0, int arg1) {
 				// TODO Auto-generated method stub
@@ -290,37 +319,38 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 		main.setBackgroundResource(R.drawable.standard_bkg);
 		
 		start_pause = (ImageView) findViewById(R.id.start_pause);
-		start_pause.setOnClickListener(new OnClickListener() {  
-            @Override  
-            public void onClick(View v) {  
-            	if (ds.working_state == Constants.MACHINE_WORK_STATE_COOKING) control = Constants.MACHINE_WORK_STATE_PAUSE;
-            	else if (ds.working_state == Constants.MACHINE_WORK_STATE_PAUSE) control = Constants.MACHINE_WORK_STATE_COOKING;
-            	else if (ds.working_state == Constants.MACHINE_WORK_STATE_STOP) control = Constants.MACHINE_WORK_STATE_COOKING;
-            	modify_state = (byte) 0x10;
-            	
-            	Message msg = new Message();  
-                msg.what = 0x345;  
-                Package data = new Package(Package.Set_Param);
-                msg.obj = data.getBytes();
-                tcpclient.sendMsg(msg); 
-            }  
-        }); 
+		start_pause.setOnTouchListener(new PicOnTouchListener(0));
+//		start_pause.setOnClickListener(new OnClickListener() {  
+//            @Override  
+//            public void onClick(View v) {  
+//            	if (ds.working_state == Constants.MACHINE_WORK_STATE_COOKING) control = Constants.MACHINE_WORK_STATE_PAUSE;
+//            	else if (ds.working_state == Constants.MACHINE_WORK_STATE_PAUSE) control = Constants.MACHINE_WORK_STATE_COOKING;
+//            	else if (ds.working_state == Constants.MACHINE_WORK_STATE_STOP) control = Constants.MACHINE_WORK_STATE_COOKING;
+//            	modify_state = (byte) 0x10;
+//            	
+//            	Message msg = new Message();  
+//                msg.what = 0x345;  
+//                Package data = new Package(Package.Set_Param);
+//                msg.obj = data.getBytes();
+//                tcpclient.sendMsg(msg); 
+//            }  
+//        }); 
 		
 		stop_cook = (ImageView) findViewById (R.id.stop_cook);
 		stop_cook.setVisibility(View.GONE);
-		stop_cook.setOnClickListener(new OnClickListener() {  
-            @Override  
-            public void onClick(View v) {  
-            	if (ds.working_state != Constants.MACHINE_WORK_STATE_STOP) control = Constants.MACHINE_WORK_STATE_STOP;
-            	modify_state = (byte) 0x10;
-            	
-            	Message msg = new Message();  
-                msg.what = 0x345;  
-                Package data = new Package(Package.Set_Param);
-                msg.obj = data.getBytes();
-                tcpclient.sendMsg(msg); 
-            }  
-        });
+//		stop_cook.setOnClickListener(new OnClickListener() {  
+//            @Override  
+//            public void onClick(View v) {  
+//            	if (ds.working_state != Constants.MACHINE_WORK_STATE_STOP) control = Constants.MACHINE_WORK_STATE_STOP;
+//            	modify_state = (byte) 0x10;
+//            	
+//            	Message msg = new Message();  
+//                msg.what = 0x345;  
+//                Package data = new Package(Package.Set_Param);
+//                msg.obj = data.getBytes();
+//                tcpclient.sendMsg(msg); 
+//            }  
+//        });
 		
 		switch_ui_tv = (TextView) findViewById (R.id.switch_ui_tv);
 		switch_ui_tv.setOnClickListener(new OnClickListener() {  
