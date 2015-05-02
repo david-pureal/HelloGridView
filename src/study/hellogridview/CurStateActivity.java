@@ -21,6 +21,7 @@ import android.os.Message;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnLongClickListener;
 import android.view.Window;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
@@ -263,41 +264,43 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 		                break;
 		        	}
 	        	}
-	        	else if (v.equals(start_pause)) { // ³¤°´start_pause3Ãë£¬Í£Ö¹³´²Ë
-	        		switch (event.getAction()) {
-		            case MotionEvent.ACTION_DOWN:
-		            	down_timestamp = System.currentTimeMillis();
-		          	  	break;
-		            case MotionEvent.ACTION_UP:
-		            	if (System.currentTimeMillis() - down_timestamp > 3000) {
-		            		if (ds.working_state != Constants.MACHINE_WORK_STATE_STOP) control = Constants.MACHINE_WORK_STATE_STOP;
-		                	modify_state = (byte) 0x10;
-		                	is_do_stop = true;
-		            	}
-		            	else {
-		            		if (ds.working_state == Constants.MACHINE_WORK_STATE_COOKING) control = Constants.MACHINE_WORK_STATE_PAUSE;
-		                	else if (ds.working_state == Constants.MACHINE_WORK_STATE_PAUSE) control = Constants.MACHINE_WORK_STATE_COOKING;
-		                	else if (ds.working_state == Constants.MACHINE_WORK_STATE_STOP) control = Constants.MACHINE_WORK_STATE_COOKING;
-		                	modify_state = (byte) 0x10;
-		            	}
-		            	
-		            	Message msg = new Message();  
-	                    msg.what = 0x345;  
-	                    Package data = new Package(Package.Set_Param);
-	                    msg.obj = data.getBytes();
-	                    tcpclient.sendMsg(msg);
-	                    
-	                    //play stop voice
-	                    if (is_do_stop) {
-		                    player_stop = MediaPlayer.create(CurStateActivity.this, R.raw.voice_stop);
-		                    player_stop.start();
-	                    }
-		                break;
-		        	}
-	        	}
+//	        	else if (v.equals(start_pause)) { // ³¤°´start_pause3Ãë£¬Í£Ö¹³´²Ë
+//	        		switch (event.getAction()) {
+//		            case MotionEvent.ACTION_DOWN:
+//		            	Log.v("CurStateActivity", "ACTION_DOWN");
+//		            	down_timestamp = System.currentTimeMillis();
+//		          	  	break;
+//		            case MotionEvent.ACTION_UP:
+//		            	if (System.currentTimeMillis() - down_timestamp > 3000) {
+//		            		if (ds.working_state != Constants.MACHINE_WORK_STATE_STOP) {
+//		            			control = Constants.MACHINE_WORK_STATE_STOP;
+//		            			modify_state = (byte) 0x10;
+//			                	is_do_stop = true;
+//		            		}
+//		            	}
+//		            	else {
+//		            		if (ds.working_state == Constants.MACHINE_WORK_STATE_COOKING) control = Constants.MACHINE_WORK_STATE_PAUSE;
+//		                	else if (ds.working_state == Constants.MACHINE_WORK_STATE_PAUSE) control = Constants.MACHINE_WORK_STATE_COOKING;
+//		                	else if (ds.working_state == Constants.MACHINE_WORK_STATE_STOP) control = Constants.MACHINE_WORK_STATE_COOKING;
+//		                	modify_state = (byte) 0x10;
+//		            	}
+//		            	
+//		            	Message msg = new Message();  
+//	                    msg.what = 0x345;  
+//	                    Package data = new Package(Package.Set_Param);
+//	                    msg.obj = data.getBytes();
+//	                    tcpclient.sendMsg(msg);
+//	                    
+//	                    //play stop voice
+//	                    if (is_do_stop) {
+//		                    player_stop = MediaPlayer.create(CurStateActivity.this, R.raw.voice_stop);
+//		                    player_stop.start();
+//	                    }
+//		                break;
+//		        	}
+//	        	}
 	        	else if (v.equals(main)) {
 	        		Log.v("CurStateActivity", "main.x = " + event.getX() + ", main.y = " + event.getY());
-	        		Log.v("CurStateActivity", "main.x = " + lock_rect.right + ", main.y = " + lock_rect.bottom);
 	        		boolean down_on_lock = false;
 	        		switch (event.getAction()) {
 		            case MotionEvent.ACTION_DOWN:
@@ -356,38 +359,45 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 		main.setBackgroundResource(R.drawable.standard_bkg);
 		
 		start_pause = (ImageView) findViewById(R.id.start_pause);
-		start_pause.setOnTouchListener(new PicOnTouchListener(0));
-//		start_pause.setOnClickListener(new OnClickListener() {  
-//            @Override  
-//            public void onClick(View v) {  
-//            	if (ds.working_state == Constants.MACHINE_WORK_STATE_COOKING) control = Constants.MACHINE_WORK_STATE_PAUSE;
-//            	else if (ds.working_state == Constants.MACHINE_WORK_STATE_PAUSE) control = Constants.MACHINE_WORK_STATE_COOKING;
-//            	else if (ds.working_state == Constants.MACHINE_WORK_STATE_STOP) control = Constants.MACHINE_WORK_STATE_COOKING;
-//            	modify_state = (byte) 0x10;
-//            	
-//            	Message msg = new Message();  
-//                msg.what = 0x345;  
-//                Package data = new Package(Package.Set_Param);
-//                msg.obj = data.getBytes();
-//                tcpclient.sendMsg(msg); 
-//            }  
-//        }); 
+		//start_pause.setOnTouchListener(new PicOnTouchListener(0));
+		start_pause.setOnClickListener(new OnClickListener() {  
+            @Override  
+            public void onClick(View v) {  
+            	if (ds.working_state == Constants.MACHINE_WORK_STATE_COOKING) control = Constants.MACHINE_WORK_STATE_PAUSE;
+            	else if (ds.working_state == Constants.MACHINE_WORK_STATE_PAUSE) control = Constants.MACHINE_WORK_STATE_COOKING;
+            	else if (ds.working_state == Constants.MACHINE_WORK_STATE_STOP) control = Constants.MACHINE_WORK_STATE_COOKING;
+            	modify_state = (byte) 0x10; 
+            	
+            	Message msg = new Message();  
+                msg.what = 0x345;  
+                Package data = new Package(Package.Set_Param);
+                msg.obj = data.getBytes();
+                tcpclient.sendMsg(msg);
+            }  
+        });
+		start_pause.setOnLongClickListener(new OnLongClickListener() {
+			@Override  
+	        public boolean onLongClick(View view){  
+				Log.v("CurStateActivity", "start_pause onLongClick");
+				if (ds.working_state != Constants.MACHINE_WORK_STATE_STOP) {
+        			control = Constants.MACHINE_WORK_STATE_STOP;
+        			modify_state = (byte) 0x10;
+        			
+        			Message msg = new Message();  
+                    msg.what = 0x345;  
+                    Package data = new Package(Package.Set_Param);
+                    msg.obj = data.getBytes();
+                    tcpclient.sendMsg(msg);
+                    
+                    player_stop = MediaPlayer.create(CurStateActivity.this, R.raw.voice_stop);
+                    player_stop.start();
+				}
+	            return true;  
+	        }  
+		});
 		
 		stop_cook = (ImageView) findViewById (R.id.stop_cook);
 		stop_cook.setVisibility(View.GONE);
-//		stop_cook.setOnClickListener(new OnClickListener() {  
-//            @Override  
-//            public void onClick(View v) {  
-//            	if (ds.working_state != Constants.MACHINE_WORK_STATE_STOP) control = Constants.MACHINE_WORK_STATE_STOP;
-//            	modify_state = (byte) 0x10;
-//            	
-//            	Message msg = new Message();  
-//                msg.what = 0x345;  
-//                Package data = new Package(Package.Set_Param);
-//                msg.obj = data.getBytes();
-//                tcpclient.sendMsg(msg); 
-//            }  
-//        });
 		
 		switch_ui_tv = (TextView) findViewById (R.id.switch_ui_tv);
 		switch_ui_tv.setOnClickListener(new OnClickListener() {  
