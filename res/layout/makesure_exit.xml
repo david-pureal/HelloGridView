@@ -14,6 +14,6 @@
         android:layout_gravity="center"
         android:text="确认退出"
         android:textColor="#ffffff"
-        android:textSize="20sp" />
+        android:textSize="40sp" />
 
 </LinearLayout>

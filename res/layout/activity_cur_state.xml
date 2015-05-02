@@ -107,34 +107,26 @@
         android:layout_marginRight="8dp"
         android:src="@drawable/minus" />
 
-    <ImageView
-        android:id="@+id/back"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:src="@drawable/back_32" />
-
     <TextView
         android:id="@+id/switch_ui_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/main"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="10dp"
-        android:layout_marginLeft="52dp"
-        android:layout_toRightOf="@+id/back"
+        android:layout_marginLeft="285dp"
         android:gravity="center"
         android:text="简洁界面"
         android:textColor="#000000"
         android:textSize="18sp" />
 
     <ImageView
-        android:id="@+id/stop_cook"
-        android:layout_width="43dp"
-        android:layout_height="43dp"
+        android:id="@+id/back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/main"
-        android:layout_alignTop="@+id/back"
-        android:layout_marginLeft="48dp"
-        android:src="@drawable/stop_128" />
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="80dp"
+        android:src="@drawable/back_32" />
 
 </RelativeLayout>

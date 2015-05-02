@@ -75,7 +75,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	public TextView switch_ui_tv;
 	public boolean is_standard_ui = true;
 	
-	private long down_timestamp = 0;
+	//private long down_timestamp = 0;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -233,7 +233,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 			
 	        @Override  
 	        public boolean onTouch(View v, MotionEvent event){  
-	        	boolean is_do_stop = false;
+	        	//boolean is_do_stop = false;
 	        	if (v.equals(add) || v.equals(minus)) { // add or minus
 		        	switch (event.getAction()) {
 		            case MotionEvent.ACTION_DOWN:
@@ -395,9 +395,6 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	            return true;  
 	        }  
 		});
-		
-		stop_cook = (ImageView) findViewById (R.id.stop_cook);
-		stop_cook.setVisibility(View.GONE);
 		
 		switch_ui_tv = (TextView) findViewById (R.id.switch_ui_tv);
 		switch_ui_tv.setOnClickListener(new OnClickListener() {  

@@ -122,6 +122,7 @@
             android:text="分享到朋友圈" />
         
         <ImageView
+            android:id="@+id/shareto"
             android:layout_width="326dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"

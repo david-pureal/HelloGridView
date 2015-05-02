@@ -103,6 +103,7 @@ public class MakeDishActivity extends Activity {
 	Button makedish_upload;
 	Button makedish_verify;
 	ImageView makedish_share;
+	ImageView makedish_shareto;
 	
 	ProgressBar progressBar1;
 	
@@ -737,7 +738,9 @@ public class MakeDishActivity extends Activity {
 		}
 		
 		makedish_share = (ImageView) findViewById(R.id.makedish_share);
-		makedish_share.setOnClickListener(new OnClickListener() {  
+		makedish_share.setVisibility(View.GONE);
+		makedish_shareto = (ImageView) findViewById(R.id.makedish_shareto);
+		makedish_shareto.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) {  
             	Log.v("MakeDishActivity", "make dish share");

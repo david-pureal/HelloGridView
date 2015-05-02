@@ -79,6 +79,8 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
 	ImageButton m_stateBtn;
 	ProgressBar connect_bar;
 	
+	ImageView shareto;
+	
 	int dish_id = 0;
 	Dish dish;
 	protected int resp_cmd108_count;
@@ -328,9 +330,13 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
         
         dish_layout = (ScrollView) findViewById(R.id.layout_dish);  
         dish_layout.setOnTouchListener(this); 
-        
+      
         share_to_wechat = (Button) findViewById(R.id.share_to_wechat);
         share_to_wechat.setOnClickListener(this);
+        share_to_wechat.setVisibility(View.GONE);
+        
+        shareto = (ImageView) findViewById(R.id.shareto);
+        shareto.setOnClickListener(this);
         
         material_1 = (ImageView) findViewById(R.id.material_1); 
         material_2 = (ImageView) findViewById(R.id.material_2); 

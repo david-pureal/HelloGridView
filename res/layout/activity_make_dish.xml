@@ -514,6 +514,16 @@
 
 	    </RelativeLayout>
 	    
+	    <ImageView
+            android:id="@+id/makedish_shareto"
+            android:layout_width="326dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="20dp"
+            android:layout_marginTop="10dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/shareto" />
+	    
         <TextView
             android:id="@+id/makedish_delete"
             android:layout_width="136dp"

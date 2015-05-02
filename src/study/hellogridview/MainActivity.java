@@ -449,7 +449,7 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
                 // 弹出浮层
                 //Toast.makeText(this, "再按一次退出程序", Toast.LENGTH_SHORT).show();
                 if (popupView == null) popupView = inflater.inflate(R.layout.makesure_exit, null, false);
-            	popWindow = new PopupWindow(popupView, 350, 130, true);
+            	popWindow = new PopupWindow(popupView, 700, 260, true);
             	
             	TextView makesure_exit_tv = (TextView) popupView.findViewById(R.id.makesure_exit_tv);
             	makesure_exit_tv.setOnClickListener(new View.OnClickListener() {
@@ -462,7 +462,8 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
             	//popWindow.setAnimationStyle(R.anim.in_from_left);
             	int screenWidth = getWindowManager().getDefaultDisplay().getWidth(); // 屏幕宽（像素，如：480px）  
             	int screenHeight = getWindowManager().getDefaultDisplay().getHeight(); // 屏幕高（像素，
-            	popWindow.showAtLocation(self_content_view, Gravity.NO_GRAVITY, (int)(screenWidth*0.33), (int)(screenHeight * 0.83));
+            	//popWindow.showAtLocation(self_content_view, Gravity.NO_GRAVITY, (int)(screenWidth*0.33), (int)(screenHeight * 0.83));
+            	popWindow.showAtLocation(self_content_view, Gravity.NO_GRAVITY, (int)(screenWidth*0.2), (int)(screenHeight * 0.73));
 //            	Animation translateAnimation = AnimationUtils.loadAnimation(popupView.getContext(), R.anim.fade);
 //            	popupView.startAnimation(translateAnimation);
             	
