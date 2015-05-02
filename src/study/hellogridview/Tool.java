@@ -496,6 +496,9 @@ public class Tool {
 		
 		// ºÚΩ‡ΩÁ√Ê
 		image_res_mgr.put(R.drawable.simple_bkg, decode_res_bitmap(R.drawable.simple_bkg, context));
+		image_res_mgr.put(R.raw.locked, decode_res_bitmap(R.raw.locked, context));
+		image_res_mgr.put(R.raw.unlock, decode_res_bitmap(R.raw.unlock, context));
+		
 	}
 	
 	public static Bitmap get_res_bitmap(int resid) {

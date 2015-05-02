@@ -681,7 +681,7 @@ public class TCPClient {
 				ds.jiaoban_speed = bs[23];
 			}
 			ds.is_pot_in = bs[26];
-			ds.is_screen_lock = bs[27];
+			ds.is_lock = bs[27];
 			ds.use_sound = bs[32];
 			ds.use_english = bs[33];
 			

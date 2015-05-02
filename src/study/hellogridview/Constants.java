@@ -16,6 +16,8 @@ public final class Constants {
 	public static final byte MACHINE_WORK_STATE_COOKING = 0x00; // 0正在做菜；1暂停；2待机
 	public static final byte MACHINE_WORK_STATE_PAUSE   = 0x01;
 	public static final byte MACHINE_WORK_STATE_STOP    = 0x02;
+	public static final byte MACHINE_UNLOCK_MACHINE     = 0x03; // 上锁
+	public static final byte MACHINE_LOCK_MACHINE       = 0x04; // 解锁
 	
 	// machine cooking stage
 	

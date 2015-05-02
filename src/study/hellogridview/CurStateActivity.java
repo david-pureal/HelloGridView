@@ -146,6 +146,11 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
     	img_tiny_rect.top    = (int) (8.0  /Constants.UI_HEIGHT * height);
     	img_tiny_rect.bottom = (int) (78.0 /Constants.UI_HEIGHT * height);
     	
+    	lock_rect.left   = (int) (14.0 /Constants.UI_WIDTH  * width);
+        lock_rect.right  = (int) (40.0 /Constants.UI_WIDTH  * width);
+        lock_rect.top    = (int) (30.0 /Constants.UI_HEIGHT * height);
+        lock_rect.bottom = (int) (64.0 /Constants.UI_HEIGHT * height);
+    	
     	jianban_angles.add(85);
     	jianban_angles.add(45);
     	jianban_angles.add(0);
@@ -227,8 +232,8 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 			
 	        @Override  
 	        public boolean onTouch(View v, MotionEvent event){  
-	        	
-	        	if (!v.equals(start_pause)) { // add or minus
+	        	boolean is_do_stop = false;
+	        	if (v.equals(add) || v.equals(minus)) { // add or minus
 		        	switch (event.getAction()) {
 		            case MotionEvent.ACTION_DOWN:
 		            	selectedRBtn.setTextColor(Color.rgb(255, 0, 0));
@@ -258,7 +263,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 		                break;
 		        	}
 	        	}
-	        	else { // 长按start_pause3秒，停止炒菜
+	        	else if (v.equals(start_pause)) { // 长按start_pause3秒，停止炒菜
 	        		switch (event.getAction()) {
 		            case MotionEvent.ACTION_DOWN:
 		            	down_timestamp = System.currentTimeMillis();
@@ -267,6 +272,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 		            	if (System.currentTimeMillis() - down_timestamp > 3000) {
 		            		if (ds.working_state != Constants.MACHINE_WORK_STATE_STOP) control = Constants.MACHINE_WORK_STATE_STOP;
 		                	modify_state = (byte) 0x10;
+		                	is_do_stop = true;
 		            	}
 		            	else {
 		            		if (ds.working_state == Constants.MACHINE_WORK_STATE_COOKING) control = Constants.MACHINE_WORK_STATE_PAUSE;
@@ -280,8 +286,38 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	                    Package data = new Package(Package.Set_Param);
 	                    msg.obj = data.getBytes();
 	                    tcpclient.sendMsg(msg);
+	                    
+	                    //play stop voice
+	                    if (is_do_stop) {
+		                    player_stop = MediaPlayer.create(CurStateActivity.this, R.raw.voice_stop);
+		                    player_stop.start();
+	                    }
 		                break;
 		        	}
+	        	}
+	        	else if (v.equals(main)) {
+	        		Log.v("CurStateActivity", "main.x = " + event.getX() + ", main.y = " + event.getY());
+	        		Log.v("CurStateActivity", "main.x = " + lock_rect.right + ", main.y = " + lock_rect.bottom);
+	        		boolean down_on_lock = false;
+	        		switch (event.getAction()) {
+		            case MotionEvent.ACTION_DOWN:
+		            	if (event.getX() < lock_rect.right && event.getY() < lock_rect.bottom) down_on_lock = true;
+		            case MotionEvent.ACTION_UP:
+		            	if (event.getX() < lock_rect.right && event.getY() < lock_rect.bottom && down_on_lock) {
+		            		control = ds.is_locked() ? Constants.MACHINE_UNLOCK_MACHINE : Constants.MACHINE_LOCK_MACHINE;
+		                	modify_state = (byte) 0x10;
+		                	Log.v("CurStateActivity", "change lock state, current locked = " + ds.is_locked());
+		                	
+		                	if (control == Constants.MACHINE_UNLOCK_MACHINE) { // 只能解锁，不能上锁，上锁是自动完成
+			                	Message msg = new Message();  
+			                    msg.what = 0x345;  
+			                    Package data = new Package(Package.Set_Param);
+			                    msg.obj = data.getBytes();
+			                    tcpclient.sendMsg(msg);
+		                	}
+		            	}
+		            	break;
+	        		}
 	        	}
 	            return true;  
 	        }  
@@ -316,6 +352,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 		
 		//android:src="@drawable/state_bg"
 		main = (ImageView) findViewById(R.id.main);
+		main.setOnTouchListener(new PicOnTouchListener(0));
 		main.setBackgroundResource(R.drawable.standard_bkg);
 		
 		start_pause = (ImageView) findViewById(R.id.start_pause);
@@ -385,6 +422,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	MediaPlayer player_oil;
 	MediaPlayer player_zhuliao;
 	MediaPlayer player_fuliao;
+	MediaPlayer player_stop;
 	private int zhuliao_i;
 	private int fuliao_i;
 	
@@ -425,6 +463,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	int simple_jiaoban_y = 0;
 	
 	Rect img_tiny_rect = new Rect();
+	Rect lock_rect = new Rect();
 	
 	ArrayList<Integer> jianban_angles = new ArrayList<Integer>();
 	boolean jiaoban_goright = true;
@@ -576,6 +615,10 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         	dish.img_bmp = Tool.decode_res_bitmap(dish.img, this);
         }
         canvas.drawBitmap(dish.img_bmp, null, img_tiny_rect, null);
+        
+        // 解锁开锁的图标
+        Bitmap lock_bmp = ds.is_locked() ? Tool.get_res_bitmap(R.raw.locked) : Tool.get_res_bitmap(R.raw.unlock);
+        canvas.drawBitmap(lock_bmp, null, lock_rect, null);
         
         // add oil
         int cur_temp = ds.temp & 0xff;

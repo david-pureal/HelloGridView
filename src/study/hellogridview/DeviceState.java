@@ -20,7 +20,7 @@ public class DeviceState {
 	public byte jiaoban_speed = 5;
 	public short dishid = 1;
 	public byte is_pot_in = 1; //锅是否在位
-	public byte is_screen_lock = 0; //屏幕是否已锁
+	public byte is_lock = 0; //屏幕是否已锁
 	
 	public int device_id = 0;  // 机器识别码
 	public boolean got_builtin = false;
@@ -31,4 +31,8 @@ public class DeviceState {
 	public String wifi_mode = "AP";
 	
 	public short[] builtin_dishids;
+	
+	public boolean is_locked() {
+		return is_lock != 0;
+	}
 }
