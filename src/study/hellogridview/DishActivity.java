@@ -412,13 +412,13 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
 		 // imagePath是图片的本地路径，Linked-In以外的平台都支持此参数
 		 oks.setImagePath(Environment.getExternalStorageDirectory().getAbsolutePath() + "/share_pic.jpg");//确保SDcard下面存在此张图片
 		 // url仅在微信（包括好友和朋友圈）中使用
-		 oks.setUrl("http://sharesdk.cn");
+		 oks.setUrl("http://jinpengyou.kuaizhan.com/pc/?url=/&");
 		 // comment是我对这条分享的评论，仅在人人网和QQ空间使用
 		 oks.setComment("我是测试评论文本");
 		 // site是分享此内容的网站名称，仅在QQ空间使用
 		 oks.setSite(getString(R.string.app_name));
 		 // siteUrl是分享此内容的网站地址，仅在QQ空间使用
-		 oks.setSiteUrl("http://sharesdk.cn");
+		 oks.setSiteUrl("http://jinpengyou.kuaizhan.com/pc/?url=/&");
 		 
 		 // 启动分享GUI
 		 oks.show(DishActivity.this);

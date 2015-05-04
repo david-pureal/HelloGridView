@@ -15,46 +15,43 @@
                 android:id="@+id/replace_builtin_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="100dp"
+                android:layout_marginLeft="120dp"
+                android:text="替换菜谱"
                 android:textColor="#000000"
-		        android:textSize="30sp"
-                android:text="替换菜谱" />
+                android:textSize="30sp" />
             
             <ImageView
                 android:id="@+id/make_new_dish"
-                android:layout_width="10dp"
+                android:layout_width="0dp"
                 android:layout_height="30dp"
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="20dp"
                 android:layout_weight="1"
                 android:scaleType="fitCenter"
                  />
-
-            <!-- android:src="@drawable/make_new_dish_128"  -->
-
-                
-            <Button
-                android:id="@+id/replace_builtin"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
-                android:text="替换菜谱" />
-
-            <!--  Button
-                android:id="@+id/getbuiltin"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
-                android:text="获取内置菜谱" /-->
         </LinearLayout>
 
-        <!-- android:columnWidth="100dp" -->
-
+        <TextView
+            android:id="@+id/make_new_dish2"
+            android:layout_width="wrap_content"
+            android:layout_height="43dp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="5dp"
+            android:background="#d2ffff"
+            android:drawableLeft="@drawable/add_24"
+            android:drawablePadding="10dp"
+            android:gravity="center_vertical"
+            android:paddingLeft="20dp"
+            android:text="再编一道菜"
+            android:textColor="#E34F1B"
+            android:textSize="20sp"
+             />
+        
         <GridView
             android:id="@+id/gridview"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/linearLayout1"
             android:layout_marginLeft="5dp"
             android:columnWidth="100dp"
             android:gravity="center"

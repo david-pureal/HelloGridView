@@ -153,9 +153,6 @@ public class AllDish extends SlidingFragmentActivity {
 		Intent intent = getIntent();
 		tv.setText(intent.getStringExtra("title"));
 		
-		Button replace_button = (Button) findViewById(R.id.replace_builtin);
-		replace_button.setVisibility(View.GONE);
-		
 		// »»√≈≤À∆◊
 		LinkedHashMap<Integer, Dish> dishes = Dish.getAllDish();
         Log.v("BuiltinDishes", "length = " + dishes.size());
