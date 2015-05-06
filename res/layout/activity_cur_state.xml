@@ -2,52 +2,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#d2ffff"
+    android:background="#000000"
     android:paddingLeft="0dp"
     android:paddingTop="20dp"
     tools:context="${relativePackage}.${activityClass}" >
-
-    <RadioGroup
-        android:id="@+id/radioGroup1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_marginLeft="0dp"
-        android:layout_toLeftOf="@+id/main"
-        android:orientation="vertical" >
-
-        <RadioButton
-            android:id="@+id/time"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/main"
-            android:layout_marginTop="18dp"
-            android:layout_toLeftOf="@+id/main"
-            android:checked="true"
-            android:text="时间 "
-            android:textColor="#000000"
-            android:textSize="15sp" />
-
-        <RadioButton
-            android:id="@+id/temp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="温度 "
-            android:textColor="#000000"
-            android:textSize="15sp" />
-
-        <RadioButton
-            android:id="@+id/jiaoban"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:layout_weight="0.02"
-            android:text="搅拌 "
-            android:textColor="#000000"
-            android:textSize="15sp" />
-
-    </RadioGroup>
 
     <ImageView
         android:id="@+id/main"
@@ -58,18 +16,6 @@
         android:layout_weight="3.91"
         android:scaleType="fitXY"
          />
-
-    <study.hellogridview.VerticalSeekBar
-        android:id="@+id/seekBar1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/minus"
-        android:layout_below="@+id/add"
-        android:layout_marginLeft="30dp"
-        android:layout_toRightOf="@+id/main"
-        android:paddingLeft="5dp"
-        android:paddingRight="5dp"
-        android:paddingTop="10dp" />
 
     <!--  Button
         android:id="@+id/start_pause"
@@ -86,26 +32,35 @@
         android:layout_height="60dp"
         android:layout_alignBottom="@+id/main"
         android:layout_alignParentLeft="true"
-        android:layout_toLeftOf="@+id/main"
+        android:layout_marginLeft="13.5dp"
+        android:layout_marginTop="15dp"
         android:src="@drawable/start_pause" />
 
-    <ImageView
+    <TextView
         android:id="@+id/add"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:layout_alignParentRight="true"
         android:layout_alignTop="@+id/main"
         android:layout_marginRight="8dp"
-        android:src="@drawable/add" />
+        android:gravity="center"
+        android:text=""
+        android:textColor="#333333"
+        android:textSize="30sp"
+        android:background="@drawable/circle_add_128" />
 
-    <ImageView
+    <TextView
         android:id="@+id/minus"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:layout_alignBottom="@+id/main"
         android:layout_alignParentRight="true"
         android:layout_marginRight="8dp"
-        android:src="@drawable/minus" />
+        android:gravity="center"
+        android:text=""
+        android:textColor="#333333"
+        android:textSize="30sp"
+        android:background="@drawable/circle_minus_128" />
 
     <TextView
         android:id="@+id/switch_ui_tv"
@@ -116,8 +71,8 @@
         android:layout_marginBottom="10dp"
         android:layout_marginLeft="285dp"
         android:gravity="center"
-        android:text="简洁界面"
-        android:textColor="#000000"
+        android:text="简洁"
+        android:textColor="#555555"
         android:textSize="18sp" />
 
     <ImageView
@@ -128,5 +83,58 @@
         android:layout_alignParentBottom="true"
         android:layout_marginLeft="80dp"
         android:src="@drawable/back_32" />
+
+    <TextView
+        android:id="@+id/temp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/time"
+        android:layout_marginLeft="13.5dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/circle_gray_128"
+        android:gravity="center"
+        android:text="温度"
+        android:textColor="#333333"
+        android:textSize="20sp" />
+
+    <TextView
+        android:id="@+id/time"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignTop="@+id/main"
+        android:layout_marginLeft="13.5dp"
+        android:background="@drawable/circle_gray_128"
+        android:gravity="center"
+        android:text="时间"
+        android:textColor="#333333"
+        android:textSize="20sp" />
+
+    <TextView
+        android:id="@+id/jiaoban"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_below="@+id/temp"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="13.5dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/circle_gray_128"
+        android:gravity="center"
+        android:text="搅拌"
+        android:textColor="#000000"
+        android:textSize="20sp" />
+
+    <study.hellogridview.VerticalSeekBar
+        android:id="@+id/seekBar1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/minus"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/add"
+        android:layout_marginRight="25dp"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:paddingTop="10dp" />
 
 </RelativeLayout>

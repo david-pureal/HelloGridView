@@ -87,15 +87,15 @@ public class TCPClient {
 					try {
 						if (clientThread != null && clientThread.revHandler != null && clientThread.s.isConnected()) {
 							long curr = System.currentTimeMillis();
-							if (curr - last_hb >= 30*1000) {
+							if (curr - last_hb >= 180*1000) {
 								do_heartbeat();
 			                    last_hb = curr;
 			                    Log.v("tcpclient", "send heartbeat");
 			                    Thread.sleep(30*1000);
 							}
 						} else {
-							Log.v("TcpClient", "socket is not connected yet, try heartbeat after 3 seconds");
-							Thread.sleep(3*1000);
+							Log.v("TcpClient", "socket is not connected yet, try heartbeat after 180 seconds");
+							Thread.sleep(180*1000);
 						}
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
@@ -187,6 +187,12 @@ public class TCPClient {
 		if (setting_activity != null && setting_activity.getHandler() != null) {
 			setting_activity.getHandler().sendEmptyMessage(Constants.MSG_ID_CONNECT_STATE);
 		}
+		
+		long current = System.currentTimeMillis();
+//		if (connect_state != Constants.CONNECTED && current - start_connecting_timestamp > 10*Constants.CONNECT_TIMEOUT) {
+//			Log.w("tcpclient", "取消尝试重连， 200秒没有重连上了");
+//			is_stop = true;
+//		}
 	}
 	
 	/**
@@ -409,7 +415,7 @@ public class TCPClient {
 					} catch (Exception e) {
 						e.printStackTrace();
 						Log.e("tcpclient", "socket connect to " + ip_ap +";" + port + " failed! try reconnect...");
-						if (notify(dish_activity) || notify_curstate(curstate_activity) || notify_buildin(buildin_activity) || notify_setting(setting_activity));
+						//if (notify(dish_activity) || notify_curstate(curstate_activity) || notify_buildin(buildin_activity) || notify_setting(setting_activity));
 						
 						long current = System.currentTimeMillis();
 						if (connect_state == Constants.CONNECTING && current - start_connecting_timestamp > Constants.CONNECT_TIMEOUT) {
@@ -514,9 +520,16 @@ public class TCPClient {
 		} //ReceiveThread
 		
 		public void reconnect(String ip) {
-			while (!is_stop) {
-				Log.v("tcpclient", "try to reconnect to ip:" + ip);
+			
+			while (true) {
+				Log.v("tcpclient", "try to reconnect to ip:" + ip + ", is_stop = " + is_stop);
+				
 				try {
+					if (is_stop) {
+						Thread.sleep(10*1000);
+						continue;
+					}
+					
 					recv_data.stop = true;
 					Thread.sleep(1000);
 					if (s != null) {
@@ -544,6 +557,8 @@ public class TCPClient {
 							connect_state = Constants.DISCONNECTED;
 							notify_connect_state();
 						}
+						
+						Thread.sleep(5*1000);
 					}
 				} catch (Exception io) {
 					io.printStackTrace();
@@ -552,6 +567,13 @@ public class TCPClient {
 					if (connect_state == Constants.CONNECTING && current - start_connecting_timestamp > Constants.CONNECT_TIMEOUT) {
 						connect_state = Constants.DISCONNECTED;
 						notify_connect_state();
+					}
+					
+					try {
+						Thread.sleep(5*1000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
 				} // try
 			}// while (!is_stop)

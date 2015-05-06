@@ -17,6 +17,7 @@ public class Account {
 	public static String device_id = ""; // 标志一个手机设备，有可能会重复，在用户没有登录的情况下使用, SplashActivity 负责初始化
 	
 	public static ArrayList<Integer> favorites = new ArrayList<Integer>(); 
+	public static ArrayList<Integer> local_favorites = new ArrayList<Integer>();
 	
 	// let server side remember this user's info
 	// note: do twice because the first http fails sometime, reason unknown!!

@@ -6,6 +6,7 @@ import java.util.List;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -48,17 +49,18 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	
 	public List<String> jiaoban_str = new ArrayList<String>();
 
-	RadioGroup group;
-	RadioButton selectedRBtn;
+	TextView selected_param;
+	TextView time_tv;
+	TextView temp_tv;
+	TextView jiaoban_tv;
 	
 	VerticalSeekBar bar;
-	//SeekBar bar;
 	
 	public ImageView main;
 	private Paint paint = new Paint();
 	private static List<Integer> data;
-	public ImageView add;
-	public ImageView minus;
+	public TextView add;
+	public TextView minus;
 	public ImageView start_pause;
 	public ImageView stop_cook;
 	
@@ -74,6 +76,8 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	
 	public TextView switch_ui_tv;
 	public boolean is_standard_ui = true;
+	
+	public boolean is_button_hide = true;
 	
 	//private long down_timestamp = 0;
 
@@ -215,13 +219,57 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
             }  
         };
 		
-		group = (RadioGroup)this.findViewById(R.id.radioGroup1);
-		selectedRBtn = (RadioButton)this.findViewById(group.getCheckedRadioButtonId());
+        time_tv = (TextView) findViewById(R.id.time);
+        time_tv.setOnClickListener(new OnClickListener() {  
+            @Override  
+            public void onClick(View v) {  
+            	selected_param = time_tv;
+            	time_tv.setTextColor(Color.YELLOW);
+            	temp_tv.setTextColor(Color.BLACK);
+            	jiaoban_tv.setTextColor(Color.BLACK);
+//            	time_tv.setBackgroundResource(R.drawable.circle_yellow_128);
+//            	temp_tv.setBackgroundResource(R.drawable.circle_gray_128);
+//            	jiaoban_tv.setBackgroundResource(R.drawable.circle_gray_128);
+            	
+            	CurStateActivity.this.update_seekbar();
+            }  
+        });
+        temp_tv = (TextView) findViewById(R.id.temp);
+        temp_tv.setOnClickListener(new OnClickListener() {  
+            @Override  
+            public void onClick(View v) {  
+            	selected_param = temp_tv;
+//            	temp_tv.setBackgroundResource(R.drawable.circle_yellow_128);
+//            	time_tv.setBackgroundResource(R.drawable.circle_gray_128);
+//            	jiaoban_tv.setBackgroundResource(R.drawable.circle_gray_128);
+            	time_tv.setTextColor(Color.BLACK);
+            	temp_tv.setTextColor(Color.YELLOW);
+            	jiaoban_tv.setTextColor(Color.BLACK);
+            	
+            	CurStateActivity.this.update_seekbar();
+            }  
+        });
+        jiaoban_tv = (TextView) findViewById(R.id.jiaoban);
+        jiaoban_tv.setOnClickListener(new OnClickListener() {  
+            @Override  
+            public void onClick(View v) {  
+            	selected_param = jiaoban_tv;
+            	time_tv.setTextColor(Color.BLACK);
+            	temp_tv.setTextColor(Color.BLACK);
+            	jiaoban_tv.setTextColor(Color.YELLOW);
+            	
+            	CurStateActivity.this.update_seekbar();
+            }  
+        });
+        
+		selected_param = (TextView) findViewById(R.id.time);
+		selected_param.setTextColor(Color.YELLOW);
 		
 		bar = (VerticalSeekBar) findViewById(R.id.seekBar1);
 		bar.setMax(100);
 		bar.setOnSeekBarChangeListener(this);
 		bar.mlistener = this;
+		//bar.setVisibility(View.INVISIBLE);
 		
 		update_seekbar();
 		
@@ -237,19 +285,19 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	        	if (v.equals(add) || v.equals(minus)) { // add or minus
 		        	switch (event.getAction()) {
 		            case MotionEvent.ACTION_DOWN:
-		            	selectedRBtn.setTextColor(Color.rgb(255, 0, 0));
+		            	selected_param.setTextColor(Color.rgb(255, 0, 0));
 		          	  	break;
 		            case MotionEvent.ACTION_UP:
 		            	
-		            	if (selectedRBtn.getId() == R.id.temp) {
+		            	if (selected_param.getId() == R.id.temp) {
 		            		int t = (CurStateActivity.this.temp & 0x00ff)+ i*2;
 		            		t = Math.min(200, t);
 		            		CurStateActivity.this.temp = (byte) Math.max(0, t);
-		        		} else if (selectedRBtn.getId() == R.id.jiaoban) {
+		        		} else if (selected_param.getId() == R.id.jiaoban) {
 		        			CurStateActivity.this.jiaoban_speed = (byte) (CurStateActivity.this.jiaoban_speed + i*1);
 		        			CurStateActivity.this.jiaoban_speed = (byte) Math.min(8, CurStateActivity.this.jiaoban_speed & 0xff);
 		        			CurStateActivity.this.jiaoban_speed = (byte) Math.max(1, CurStateActivity.this.jiaoban_speed & 0xff);
-		        		} else if (selectedRBtn.getId() == R.id.time) {
+		        		} else if (selected_param.getId() == R.id.time) {
 		        			Log.v("CurStateActivity", "ds.time =" + ds.time);
 		        			ds.time = (short) (ds.time + i*10);
 		        			ds.time = (short) Math.min(MAX_TIME, ds.time);
@@ -260,7 +308,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 		            	CurStateActivity.this.modify_state = (byte)0xE0;
 		            	CurStateActivity.this.onStopTrackingTouch(CurStateActivity.this.bar);
 		            	
-		            	selectedRBtn.setTextColor(Color.rgb(0, 0, 0));
+		            	selected_param.setTextColor(Color.YELLOW);
 		                break;
 		        	}
 	        	}
@@ -302,9 +350,11 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	        	else if (v.equals(main)) {
 	        		Log.v("CurStateActivity", "main.x = " + event.getX() + ", main.y = " + event.getY());
 	        		boolean down_on_lock = false;
+	        		boolean down_on_tiny_image = false;
 	        		switch (event.getAction()) {
 		            case MotionEvent.ACTION_DOWN:
 		            	if (event.getX() < lock_rect.right && event.getY() < lock_rect.bottom) down_on_lock = true;
+		            	if (event.getX() > img_tiny_rect.left && event.getY() < img_tiny_rect.bottom) down_on_tiny_image = true;
 		            case MotionEvent.ACTION_UP:
 		            	if (event.getX() < lock_rect.right && event.getY() < lock_rect.bottom && down_on_lock) {
 		            		control = ds.is_locked() ? Constants.MACHINE_UNLOCK_MACHINE : Constants.MACHINE_LOCK_MACHINE;
@@ -319,6 +369,10 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 			                    tcpclient.sendMsg(msg);
 		                	}
 		            	}
+		            	else if (event.getX() > img_tiny_rect.left && event.getY() < img_tiny_rect.bottom && down_on_tiny_image) {
+		            		is_button_hide = !is_button_hide;
+		            		update_operator_button();
+		            	}
 		            	break;
 	        		}
 	        	}
@@ -326,10 +380,10 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	        }  
 	    } 
 		
-		add = (ImageView) findViewById(R.id.add);
+		add = (TextView) findViewById(R.id.add);
 		add.setOnTouchListener(new PicOnTouchListener(1));
 		
-		minus = (ImageView) findViewById(R.id.minus);
+		minus = (TextView) findViewById(R.id.minus);
 		minus.setOnTouchListener(new PicOnTouchListener(-1));
 		
 		back = (ImageView) findViewById(R.id.back);
@@ -340,23 +394,12 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
             }  
         });
 		
-		//绑定一个匿名监听器
-		group.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-			@Override
-			public void onCheckedChanged(RadioGroup arg0, int arg1) {
-				// TODO Auto-generated method stub
-				int radioButtonId = arg0.getCheckedRadioButtonId();
-				//根据ID获取RadioButton的实例
-				selectedRBtn = (RadioButton)CurStateActivity.this.findViewById(radioButtonId);
-				// update seekbar progress
-				CurStateActivity.this.update_seekbar();
-			}
-		});
 		
 		//android:src="@drawable/state_bg"
 		main = (ImageView) findViewById(R.id.main);
 		main.setOnTouchListener(new PicOnTouchListener(0));
 		main.setBackgroundResource(R.drawable.standard_bkg);
+		
 		
 		start_pause = (ImageView) findViewById(R.id.start_pause);
 		//start_pause.setOnTouchListener(new PicOnTouchListener(0));
@@ -401,12 +444,14 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
             @Override  
             public void onClick(View v) {  
             	is_standard_ui = !is_standard_ui;
-            	switch_ui_tv.setText(is_standard_ui ? "简洁界面" : "标准界面");
+            	switch_ui_tv.setText(is_standard_ui ? "简洁" : "标准");
             	//main.setImageResource(is_standard_ui ? R.drawable.standard_bkg : R.drawable.simple_bkg);
             	ui_changed = true;
             	handler.sendEmptyMessage(0x234);
             }  
         });
+		
+		update_operator_button();
 		
 		dish_id = Math.max(1, dish_id);
 		dish = Dish.getDishById(dish_id);
@@ -894,12 +939,12 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 
 	public void update_seekbar() {
 		int pos = bar.getProgress();
-		if (selectedRBtn.getId() == R.id.temp) {
+		if (selected_param.getId() == R.id.temp) {
 			pos = (this.temp & 0xff)/2;
 			Log.v("CurStateActivity", "now temp=" + pos);
-		} else if (selectedRBtn.getId() == R.id.jiaoban) {
+		} else if (selected_param.getId() == R.id.jiaoban) {
 			pos = (int) ((float)(this.jiaoban_speed) / 8 * 100);
-		} else if (selectedRBtn.getId() == R.id.time) {
+		} else if (selected_param.getId() == R.id.time) {
 			pos = (int) ((float)(ds.time) / 3599 * 100);
 			Log.v("CurStateActivity", "now time=" + pos);
 		}
@@ -917,7 +962,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
     public void onStartTrackingTouch(SeekBar seekBar) {
         Log.v("CurStateActivity", "onStartTrackingTouch  start--->"+"+seekBar="+seekBar.getProgress());
         is_changing_seekbar = true;
-        selectedRBtn.setTextColor(Color.rgb(255, 0, 0));
+        selected_param.setTextColor(Color.rgb(255, 0, 0));
     }
     /**
      * 当用户结束滑动是调用该方法
@@ -931,7 +976,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         msg.obj = data.getBytes();
         tcpclient.sendMsg(msg); 
         
-        selectedRBtn.setTextColor(Color.rgb(0, 0, 0));
+        selected_param.setTextColor(Color.YELLOW);
         
         is_changing_seekbar = false;
         zhuliao_index = 0;
@@ -946,11 +991,11 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 		//非用户操作，直接返回
 		if (!arg2) return;
 		
-		if (selectedRBtn.getId() == R.id.temp) {
+		if (selected_param.getId() == R.id.temp) {
 			this.temp = (byte) (progress*2);
-		} else if (selectedRBtn.getId() == R.id.jiaoban) {
+		} else if (selected_param.getId() == R.id.jiaoban) {
 			this.jiaoban_speed = (byte) ((((float)(progress)/100) * 8) + 1);
-		} else if (selectedRBtn.getId() == R.id.time) {
+		} else if (selected_param.getId() == R.id.time) {
 			ds.time = (short) (((float)(progress)/100) * 3599);
 		}
 		
@@ -958,15 +1003,30 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 		this.updateall();
 	}
 	
+	public void update_operator_button() {
+		int visibility = is_button_hide ? View.INVISIBLE : View.VISIBLE;
+		time_tv.setVisibility(visibility);
+		temp_tv.setVisibility(visibility);
+		jiaoban_tv.setVisibility(visibility);
+		start_pause.setVisibility(visibility);
+		
+		back.setVisibility(visibility);
+		switch_ui_tv.setVisibility(visibility);
+		
+		minus.setVisibility(visibility);
+		bar.setVisibility(visibility);
+		add.setVisibility(visibility);
+	}
+	
 	void updateall() {
-//		if (selectedRBtn.getId() == R.id.temp) {
-//			selectedRBtn.setText(" 温度 \n " + (this.temp & 0xff));
-//		} else if (selectedRBtn.getId() == R.id.jiaoban) {			
-//			selectedRBtn.setText(" 搅拌  " + jiaoban_speed);
-//		} else if (selectedRBtn.getId() == R.id.time) {
+//		if (selected_param.getId() == R.id.temp) {
+//			selected_param.setText(" 温度 \n " + (this.temp & 0xff));
+//		} else if (selected_param.getId() == R.id.jiaoban) {			
+//			selected_param.setText(" 搅拌  " + jiaoban_speed);
+//		} else if (selected_param.getId() == R.id.time) {
 //			int minites = this.time/60;
 //			int seconds = this.time - minites * 60;
-//			selectedRBtn.setText(" 时间\n " + minites + ":" + seconds);
+//			selected_param.setText(" 时间\n " + minites + ":" + seconds);
 //		}
 	}
 	

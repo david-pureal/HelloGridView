@@ -46,6 +46,7 @@ public final class Constants {
 	public static final String DISH_PARAM_FILENAME = "dish.param";
 	public static final String DISH_IMG_FILENAME = "main.jpg";
 	public static final String DISH_IMG_TINY_FILENAME = "main_tiny.jpg";
+	public static final String LOCAL_USER_DATA = "user.data"; //Î´µÇÂ¼Ê±£¬ÊÕ²ØµÄ²ËÆ×
 	
 	// for SmartLink
 	public static final String TAG = "HF-A11 | ";

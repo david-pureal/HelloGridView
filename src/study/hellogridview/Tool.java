@@ -294,6 +294,21 @@ public class Tool {
 		}  
 	}
 	
+	// 读取未登录时，用户收藏的菜谱
+	public void loadLocalUserData() {
+		File file = new File(this.getModulePath() + Constants.LOCAL_USER_DATA);
+		if (!file.exists()) {
+			try {
+				file.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		else {
+			
+		}
+	}
+	
 	public void loadLocalDish() {
 		LinkedHashMap<Integer, Dish> alldish_map = Dish.getAllDish();
 		File root = new File(this.getModulePath());

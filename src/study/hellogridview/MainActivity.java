@@ -103,7 +103,13 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
 		
 		Log.v("MainActivity", "onCreate");
 		
-		ShareSDK.initSDK(this);
+		try {
+			ShareSDK.initSDK(this);
+		}
+		catch (Exception e) {
+			Log.v("MainActivity", "onCreate ShareSDK init exception, this = " + this);
+			e.printStackTrace();
+		}
 		
 		requestWindowFeature(Window.FEATURE_CUSTOM_TITLE); 
 		//setContentView(R.layout.index);

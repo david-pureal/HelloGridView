@@ -148,6 +148,8 @@ public class AllDish extends SlidingFragmentActivity {
 		ProgressBar connect_bar = (ProgressBar) findViewById(R.id.connecting_bar);
 		connect_bar.setVisibility(View.GONE);
 		
+		findViewById(R.id.make_new_dish2).setVisibility(View.GONE);
+		
 		// аЁБъЬт
 		TextView tv = (TextView) findViewById(R.id.replace_builtin_tv); 
 		Intent intent = getIntent();

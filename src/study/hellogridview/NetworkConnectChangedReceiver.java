@@ -42,6 +42,7 @@ public class NetworkConnectChangedReceiver extends BroadcastReceiver {
                 boolean isConnected = state == State.CONNECTED;// 当然，这边可以更精确的确定状态  
                 Log.v("NetworkChanged", "isConnected = " + isConnected);  
                 if (isConnected) {  
+                	TCPClient.getInstance().is_stop = false;
                 	TCPClient.getInstance().connect_state = Constants.CONNECTING;
                 	TCPClient.getInstance().start_connecting_timestamp = System.currentTimeMillis();
                 	TCPClient.getInstance().notify_connect_state();
