@@ -117,6 +117,7 @@ public class SplashActivity extends Activity {
 	private int loadLocalDish() {
 		Tool.getInstance().dm = this.getResources().getDisplayMetrics();
 		Tool.getInstance().loadLocalDish();
+		Tool.getInstance().loadLocalUserData();
         return 0;
     }
 	

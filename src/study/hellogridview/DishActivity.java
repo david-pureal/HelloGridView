@@ -319,9 +319,11 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
             @Override  
             public void onClick(View v) {
             	if (!Account.is_login) {
-            		Intent intent = new Intent(DishActivity.this, LoginActivity.class);
-                	intent.putExtra("header", "登录后才能收藏");
-                	startActivityForResult(intent, 9);
+//            		Intent intent = new Intent(DishActivity.this, LoginActivity.class);
+//                	intent.putExtra("header", "登录后才能收藏");
+//                	startActivityForResult(intent, 9);
+            		boolean is_fav = Account.do_local_favorite(dish);
+            		favorite.setImageResource(is_fav ? R.drawable.favorite_dish_72 : R.drawable.unfavorite_dish_72);
             	} else {
             		HttpUtils.favorite(dish, DishActivity.this.handler);
             	}

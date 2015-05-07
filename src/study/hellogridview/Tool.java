@@ -177,13 +177,23 @@ public class Tool {
 			inStream.read(bytes);
 			inStream.close();
 			return bytes;
-		} catch (Exception e) {
+		} 
+		catch (FileNotFoundException fnfe) {
+			File newfile = new File(path);
+			try {
+				newfile.createNewFile();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;
 	}
-
+	
 	public boolean isWifiConnected(Context context) { 
 		if (context != null) { 
 			ConnectivityManager mConnectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE); 
@@ -296,16 +306,25 @@ public class Tool {
 	
 	// 读取未登录时，用户收藏的菜谱
 	public void loadLocalUserData() {
-		File file = new File(this.getModulePath() + Constants.LOCAL_USER_DATA);
-		if (!file.exists()) {
+		String path = this.getModulePath() + Constants.LOCAL_USER_DATA;
+		byte [] data = readFile(path);
+		if (data != null) {
+			String userdata_str = new String(data);
 			try {
-				file.createNewFile();
-			} catch (IOException e) {
+				JSONObject userdata = new JSONObject(userdata_str);
+				if (userdata.has("favorites")) {
+					JSONArray jfav = userdata.getJSONArray("favorites");
+					for (int i = 0; i < jfav.length(); ++i) {
+						int dishid = jfav.getInt(i);
+						Account.local_favorites.add(dishid);
+					}
+					Log.v("Tool", "local favorites " + Account.local_favorites);
+				}
+			}
+			catch (JSONException e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}
-		else {
-			
 		}
 	}
 	

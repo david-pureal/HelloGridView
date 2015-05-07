@@ -121,12 +121,13 @@ public class MenuFragment extends Fragment {
 		m_favorite.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) {
-            	if (!Account.is_login) {
-            		Intent intent = new Intent(getActivity(), LoginActivity.class);
-                	intent.putExtra("header", "ÇëÏÈµÇÂ¼");
-                	startActivityForResult(intent, 10);
-            	}
-            	else {
+//            	if (!Account.is_login) {
+//            		Intent intent = new Intent(getActivity(), LoginActivity.class);
+//                	intent.putExtra("header", "ÇëÏÈµÇÂ¼");
+//                	startActivityForResult(intent, 10);
+//            	}
+//            	else 
+            	{
 	            	Intent intent = new Intent(getActivity(),BuiltinDishes.class);
 	            	intent.putExtra("title", String.valueOf("ÊÕ²Ø²ËÆ×")); 
 	            	startActivity(intent); 
@@ -137,12 +138,13 @@ public class MenuFragment extends Fragment {
 		favorite_tv.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) {  
-            	if (!Account.is_login) {
-            		Intent intent = new Intent(getActivity(), LoginActivity.class);
-                	intent.putExtra("header", "ÇëÏÈµÇÂ¼");
-                	startActivityForResult(intent, 10);
-            	}
-            	else {
+//            	if (!Account.is_login) {
+//            		Intent intent = new Intent(getActivity(), LoginActivity.class);
+//                	intent.putExtra("header", "ÇëÏÈµÇÂ¼");
+//                	startActivityForResult(intent, 10);
+//            	}
+//            	else 
+            	{
 	            	Intent intent = new Intent(getActivity(),BuiltinDishes.class);
 	            	intent.putExtra("title", String.valueOf("ÊÕ²Ø²ËÆ×")); 
 	            	startActivity(intent); 

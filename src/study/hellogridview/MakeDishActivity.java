@@ -224,7 +224,7 @@ public class MakeDishActivity extends Activity {
                 	final WheelView column_1 = (WheelView) popupView.findViewById(R.id.column_1);
                 	ArrayWheelAdapter<Integer> adapter = new ArrayWheelAdapter<Integer>(MakeDishActivity.this, waters);
                 	column_1.setViewAdapter(adapter);
-                	column_1.setCurrentItem(waters.length / 2);
+                	column_1.setCurrentItem(2); //default 15g
                 	
                 	Button sure = (Button) popupView.findViewById(R.id.makesure);
                 	sure.setOnClickListener(new View.OnClickListener() {
@@ -261,7 +261,7 @@ public class MakeDishActivity extends Activity {
                 	final WheelView column_1 = (WheelView) popupView.findViewById(R.id.column_1);
                 	ArrayWheelAdapter<Integer> adapter = new ArrayWheelAdapter<Integer>(MakeDishActivity.this, waters);
                 	column_1.setViewAdapter(adapter);
-                	column_1.setCurrentItem(waters.length / 2);
+                	column_1.setCurrentItem(2); // default 15g
                 	
                 	Button sure = (Button) popupView.findViewById(R.id.makesure);
                 	sure.setOnClickListener(new View.OnClickListener() {
@@ -911,6 +911,7 @@ public class MakeDishActivity extends Activity {
 	        	 String qiangguoliao  = data.getStringExtra("edit_content_output");
 	        	 new_dish.qiangguoliao_content = qiangguoliao;
 	        	 makedish_qiangguoliao.setText(qiangguoliao);
+	        	 if (qiangguoliao.isEmpty()) new_dish.qiangguoliao = 0;
         	 }
              break; 
          case 3:

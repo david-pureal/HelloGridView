@@ -2,6 +2,11 @@ package study.hellogridview;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -64,6 +69,37 @@ public class Account {
 	}
 	
 	public static boolean isFavorite(Dish dish) {
-		return Account.favorites.indexOf(dish.dishid) != -1;
+		return (is_login && favorites.indexOf(dish.dishid) != -1) 
+				|| (!is_login && local_favorites.indexOf(dish.dishid) != -1);
 	}
+
+	// 返回操作后是否为收藏菜谱
+	public static boolean do_local_favorite(Dish dish) {
+		boolean is_favorite = local_favorites.indexOf(dish.dishid) >= 0;
+		if (is_favorite) {
+			local_favorites.remove((Object)dish.dishid);
+		}
+		else {
+			local_favorites.add(dish.dishid);
+		}
+		
+		// 写入文件
+		JSONObject juserdata = new JSONObject();
+		try {
+			JSONArray jfavos = new JSONArray();
+			for (int i = 0; i < local_favorites.size(); ++i)
+			{
+			    jfavos.put(local_favorites.get(i));
+			}
+			juserdata.put("favorites", jfavos);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		
+		String path = Tool.getInstance().getModulePath() + Constants.LOCAL_USER_DATA;
+		Tool.getInstance().writeFile(juserdata.toString().getBytes(), path);
+		
+		return !is_favorite;
+	}
+
 }
