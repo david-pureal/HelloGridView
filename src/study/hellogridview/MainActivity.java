@@ -40,6 +40,7 @@ import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.view.ViewParent;
 import android.view.Window;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
@@ -48,6 +49,8 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.FrameLayout;
+import android.widget.ImageView.ScaleType;
 import android.widget.ProgressBar;
 import android.widget.SimpleAdapter.ViewBinder;
 import android.widget.BaseAdapter;
@@ -168,7 +171,6 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
             public void onClick(View v) {  
             	is_title_button_clicked = true;
                 startActivity(new Intent(MainActivity.this, CurStateActivity.class));  
-                //finish();//关闭当前Activity  
             }  
         });
 		connect_bar = (ProgressBar) findViewById(R.id.connecting_bar);
@@ -184,6 +186,10 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
                 else if (msg.what == 0x777) {
                 	popWindow.dismiss();
                 	hasTask = false;
+                }
+                else if (msg.what == 0x778) {
+                	addGuideImage(); //添加引导页
+            		MyPreference.setIsGuided(MainActivity.this, MainActivity.this.getClass().getName());
                 }
             }  
         };
@@ -348,7 +354,6 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
     protected void onResume() {  
     	Log.v("MainActivity", "onResume");
         super.onResume(); 
-        
         // 如果是点了热门菜谱里的菜，然后返回的，那么不调用toggle
         if (!is_element_clicked && !is_title_button_clicked ) {
         	sm.toggle(false);
@@ -422,6 +427,22 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
  	        	is_element_clicked = true;
  	        }  
  	     });
+ 	     
+ 	    boolean is_guided = MyPreference.activityIsGuided(this, this.getClass().getName());
+    	Log.v("MainActivity", "is_guided= " + is_guided);
+    	if (!is_guided) {
+    		Timer tExit = new Timer();
+    		TimerTask task = new TimerTask() {
+                @Override
+                public void run() {
+                	handler.sendEmptyMessage(0x778);
+                	//addGuideImage(); //添加引导页
+            		//MyPreference.setIsGuided(MainActivity.this, MainActivity.this.getClass().getName());
+                }
+            };
+            tExit.schedule(task, 500);
+    	}
+ 	     
     }
     
     @Override  
@@ -454,7 +475,7 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
                 
                 // 弹出浮层
                 //Toast.makeText(this, "再按一次退出程序", Toast.LENGTH_SHORT).show();
-                if (popupView == null) popupView = inflater.inflate(R.layout.makesure_exit, null, false);
+                popupView = inflater.inflate(R.layout.makesure_exit, null, false);
             	popWindow = new PopupWindow(popupView, 700, 260, true);
             	
             	TextView makesure_exit_tv = (TextView) popupView.findViewById(R.id.makesure_exit_tv);
@@ -469,7 +490,7 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
             	int screenWidth = getWindowManager().getDefaultDisplay().getWidth(); // 屏幕宽（像素，如：480px）  
             	int screenHeight = getWindowManager().getDefaultDisplay().getHeight(); // 屏幕高（像素，
             	//popWindow.showAtLocation(self_content_view, Gravity.NO_GRAVITY, (int)(screenWidth*0.33), (int)(screenHeight * 0.83));
-            	popWindow.showAtLocation(self_content_view, Gravity.NO_GRAVITY, (int)(screenWidth*0.2), (int)(screenHeight * 0.73));
+            	popWindow.showAtLocation(self_content_view, Gravity.NO_GRAVITY, (int)(screenWidth*0.2), (int)(screenHeight * 0.72));
 //            	Animation translateAnimation = AnimationUtils.loadAnimation(popupView.getContext(), R.anim.fade);
 //            	popupView.startAnimation(translateAnimation);
             	
@@ -477,7 +498,6 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
                 if(!hasTask) {
                 	if (task != null) task.cancel();
                 	task = new TimerTask() {
-                        
                         @Override
                         public void run() {
                             isExit = false;
@@ -495,11 +515,35 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
             }
             return true;
         }
+    	
     	return super.onKeyDown(keyCode, event);
     }
     
     public Handler getHandler() {
     	return handler;
+    }
+    
+    int guideResourceId = 1;
+    
+    public void addGuideImage() {
+    	popupView = inflater.inflate(R.layout.guide, null, true);
+        final PopupWindow popWindow = new PopupWindow(popupView, 1080, 1725, true);
+        popupView.findViewById(R.id.main_guide).setOnClickListener(new View.OnClickListener() {
+	        @Override
+	        public void onClick(View v) {
+	        	popWindow.dismiss();
+	        }
+	    });
+        popWindow.showAtLocation(self_content_view, Gravity.LEFT | Gravity.BOTTOM, 0, 0);
+        Log.v("MainActivity", "guideImage add");
+    }
+    
+    /**子类在onCreate中调用，设置引导图片的资源id
+     *并在布局xml的根元素上设置android:id="@id/my_content_view"
+     * @param resId
+     */
+    protected void setGuideResId(int resId){
+        this.guideResourceId=resId;
     }
  
 }

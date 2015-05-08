@@ -533,6 +533,8 @@ public class Tool {
 		image_res_mgr.put(R.raw.locked, decode_res_bitmap(R.raw.locked, context));
 		image_res_mgr.put(R.raw.unlock, decode_res_bitmap(R.raw.unlock, context));
 		
+		// ²Ù×÷Òýµ¼Í¼Æ¬
+		//image_res_mgr.put(R.raw.right_slide, decode_res_bitmap(R.raw.right_slide, context));
 	}
 	
 	public static Bitmap get_res_bitmap(int resid) {

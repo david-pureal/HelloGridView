@@ -42,7 +42,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	public int dish_id = 1;
 	public Dish dish;
 	public byte modify_state = (byte) 0xE0; //时间、温度、搅拌、控制。。。是否被用户改动过的标识位，最高字节为时间，以此类推
-	public byte control = 3;                // 0表示开始炒菜，1表示暂停，2表示取消，3表示解锁
+	public byte control = 3;                // 0表示开始炒菜，1表示暂停，2表示取消，3表示解锁， 4表示上锁
 	
 	public final String net_mode = "AP";    // wifi模块的工作模式：AP或者STA
 	public final int MAX_TIME = 3599;       // in seconds
@@ -372,6 +372,10 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 		            	else if (event.getX() > img_tiny_rect.left && event.getY() < img_tiny_rect.bottom && down_on_tiny_image) {
 		            		is_button_hide = !is_button_hide;
 		            		update_operator_button();
+		            		if (!MyPreference.activityIsGuided(CurStateActivity.this, CurStateActivity.this.getClass().getName())) {
+		                    	MyPreference.setIsGuided(CurStateActivity.this, CurStateActivity.this.getClass().getName());
+		                    	draw_temp_baselin();
+		            		}
 		            	}
 		            	break;
 	        		}
@@ -667,6 +671,10 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         	dish.img_bmp = Tool.decode_res_bitmap(dish.img, this);
         }
         canvas.drawBitmap(dish.img_bmp, null, img_tiny_rect, null);
+        // 操作引导
+        if (!MyPreference.activityIsGuided(this, this.getClass().getName())) {
+        	canvas.drawBitmap(Tool.decode_res_bitmap(R.drawable.click_guide, this), null, img_tiny_rect, null);
+        }
         
         // 解锁开锁的图标
         Bitmap lock_bmp = ds.is_locked() ? Tool.get_res_bitmap(R.raw.locked) : Tool.get_res_bitmap(R.raw.unlock);
@@ -1010,8 +1018,8 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 		jiaoban_tv.setVisibility(visibility);
 		start_pause.setVisibility(visibility);
 		
-		back.setVisibility(visibility);
-		switch_ui_tv.setVisibility(visibility);
+		//back.setVisibility(visibility);
+		//switch_ui_tv.setVisibility(visibility);
 		
 		minus.setVisibility(visibility);
 		bar.setVisibility(visibility);

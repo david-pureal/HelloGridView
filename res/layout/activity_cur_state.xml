@@ -14,8 +14,7 @@
         android:layout_centerInParent="true"
         android:layout_marginTop="18dp"
         android:layout_weight="3.91"
-        android:scaleType="fitXY"
-         />
+        android:scaleType="fitXY" />
 
     <!--  Button
         android:id="@+id/start_pause"
@@ -69,7 +68,7 @@
         android:layout_alignLeft="@+id/main"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="10dp"
-        android:layout_marginLeft="285dp"
+        android:layout_marginLeft="375dp"
         android:gravity="center"
         android:text="简洁"
         android:textColor="#555555"
@@ -81,7 +80,7 @@
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/main"
         android:layout_alignParentBottom="true"
-        android:layout_marginLeft="80dp"
+        android:layout_marginLeft="30dp"
         android:src="@drawable/back_32" />
 
     <TextView
