@@ -173,6 +173,8 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
                 else if (msg.what == Constants.MSG_ID_FAVORITE_DONE) {
                 	Log.v("DishActivity", "got favorite result, isFavorite ="  + Account.isFavorite(dish));
                 	favorite.setImageResource(Account.isFavorite(dish) ? R.drawable.favorite_dish_72 : R.drawable.unfavorite_dish_72);
+                	String text = Account.isFavorite(dish) ? "已收藏" : "取消收藏";
+                	Toast.makeText(DishActivity.this, text, Toast.LENGTH_SHORT).show();
                 }
                 else if (msg.what == Constants.MSG_ID_CONNECT_STATE) {   
                 	Log.v("DishActivity", "got event MSG_ID_CONNECT_STATE = " + tcpclient.connect_state);
@@ -199,6 +201,8 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
             }  
         });
 		connect_bar = (ProgressBar) findViewById(R.id.connecting_bar);
+		TextView title_name = (TextView) findViewById (R.id.title_name);
+		title_name.setTypeface(MainActivity.typeFace);
         
 		startCook = (Button) findViewById(R.id.startcook);  
         startCook.setOnClickListener(new OnClickListener() {  
@@ -206,6 +210,11 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
             @Override  
             public void onClick(View v) {  
                 try {  
+                	if (TCPClient.getInstance().connect_state != Constants.CONNECTED) {
+                		Toast.makeText(DishActivity.this, "请先连接机器", Toast.LENGTH_SHORT).show();
+                		return;
+                	}
+                	
                     // 当用户按下按钮之后，将用户输入的数据封装成Message  
                     // 然后发送给子线程Handler  
                     Message msg = new Message();  
@@ -248,7 +257,7 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
         }); 
         
         for (int i = 0; i < dishids.length; ++i) {
-			dishids[i] = i;
+			dishids[i] = i+1;
 		}
         
         dish_replace = (Button) findViewById(R.id.dish_replace);
@@ -266,10 +275,11 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
             	final WheelView column_1 = (WheelView) popupView.findViewById(R.id.column_1);
             	for (int i = 0; i < dishids.length; ++i) {
     				dishids[i] = 0xffff & DeviceState.getInstance().builtin_dishids[i];
-    				dish_names[i] = Dish.getDishNameById(DeviceState.getInstance().builtin_dishids[i]);
+    				if (dishids[i] <= 0) dishids[i] = 1;
+    				dish_names[i] = Dish.getDishNameById(dishids[i]);
     			}
-            	if (DeviceState.getInstance().got_builtin == false) {
-            		Toast.makeText(DishActivity.this, "请先连接机器，获取内置菜谱", Toast.LENGTH_SHORT).show();
+            	if (!DeviceState.getInstance().got_builtin || TCPClient.getInstance().connect_state != Constants.CONNECTED) {
+            		Toast.makeText(DishActivity.this, "请先连接机器", Toast.LENGTH_SHORT).show();
             		return;
             	}
             	int id = dish.dishid;
@@ -324,6 +334,8 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
 //                	startActivityForResult(intent, 9);
             		boolean is_fav = Account.do_local_favorite(dish);
             		favorite.setImageResource(is_fav ? R.drawable.favorite_dish_72 : R.drawable.unfavorite_dish_72);
+            		String text = is_fav ? "已收藏" : "取消收藏";
+            		Toast.makeText(DishActivity.this, text, Toast.LENGTH_SHORT).show();
             	} else {
             		HttpUtils.favorite(dish, DishActivity.this.handler);
             	}
@@ -604,6 +616,7 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
     		connect_bar.setVisibility(View.VISIBLE);
     		m_deviceBtn.setVisibility(View.GONE);
     	}
+    	
     }
 	
 	@Override  

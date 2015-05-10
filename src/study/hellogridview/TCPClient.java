@@ -174,6 +174,7 @@ public class TCPClient {
         Package data = new Package(Package.Get_Favorite);
         msg.obj = data.getBytes();
         TCPClient.getInstance().sendMsg(msg);
+        Log.v("tcpclient", "do get favorite from device");
 	}
 	
 	public void notify_connect_state() {
@@ -403,6 +404,7 @@ public class TCPClient {
 						if (s.isConnected()) {
 							connect_state = Constants.CONNECTED;
 							notify_connect_state();
+							
 							break;
 						} else {
 							long current = System.currentTimeMillis();
@@ -473,7 +475,9 @@ public class TCPClient {
 							set_ip_sta((String) msg.obj);
 						}
 					}
-				}; 
+				};
+				
+				do_heartbeat(); //get favorite dishes in device
 				// Æô¶¯Looper
 				Looper.loop();
 
@@ -547,6 +551,7 @@ public class TCPClient {
 						
 						connect_state = Constants.CONNECTED;
 						notify_connect_state();
+						do_heartbeat(); // get builtin dishes
 						Log.v("tcpclient", "successfully reconnect to ip:" + ip);
 						break;
 					}
@@ -729,6 +734,7 @@ public class TCPClient {
 //			}
 			break;
 		case Package.Get_Favorite_Resp:
+			Log.v("tcpclient", "Get_Favorite_Resp package");
 			RespPackage rp_gf = new RespPackage();
 			rp_gf.cmdtype_head = bs[14];
 			if (bs.length < 26) {
@@ -750,7 +756,7 @@ public class TCPClient {
 				builtin_dishid += ds.builtin_dishids[i] + ", ";
 			}
 			ds.got_builtin = true;
-			Log.v("tcpclient", builtin_dishid);
+			Log.v("tcpclient", "builtin_dishid : " + builtin_dishid);
 			
 			Message msg2 = new Message();
 			msg2.what = 0x123;

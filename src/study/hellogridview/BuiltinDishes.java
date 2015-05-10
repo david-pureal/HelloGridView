@@ -5,8 +5,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.jeremyfeinstein.slidingmenu.lib.app.SlidingFragmentActivity;
+
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -122,6 +124,8 @@ public class BuiltinDishes extends SlidingFragmentActivity {
             }  
         });
 		connect_bar = (ProgressBar) findViewById(R.id.connecting_bar);
+		TextView title_name = (TextView) findViewById (R.id.title_name);
+		title_name.setTypeface(MainActivity.typeFace);
 		
 		gridView = (GridView)findViewById(R.id.gridview);  
 		tv = (TextView) findViewById(R.id.replace_builtin_tv); 
@@ -191,9 +195,6 @@ public class BuiltinDishes extends SlidingFragmentActivity {
         
         DeviceState ds = DeviceState.getInstance();
         String title = tv.getText().toString();
-        if (title.equals("¿ì½Ý²ËÆ×") && !ds.got_builtin) {
-        	for (int i = 0;i < ds.builtin_dishids.length;++i) ds.builtin_dishids[i] = (short) (i + 1);
-        }
         index_id_list.clear();
         
         ArrayList<HashMap<String,Object>> al=new ArrayList<HashMap<String,Object>>();

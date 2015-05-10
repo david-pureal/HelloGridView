@@ -13,6 +13,7 @@ public class DeviceState {
 	
 	private DeviceState() {
 		builtin_dishids = new short[12];
+		for (int i = 0;i < builtin_dishids.length;++i) builtin_dishids[i] = (short) (i + 1);
 	}
 	public byte working_state = Constants.MACHINE_WORK_STATE_STOP; //机器工作状态： 0，正在做菜；1暂停；2待机
 	public short time = 580;

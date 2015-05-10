@@ -121,6 +121,8 @@ public class Dish implements Cloneable {
 		return "/dish" + dishid + "/";
 	}
 	public static String getDishNameById(int id) {
+		Log.v("Dish", "getDishNameById dishid = " + id);
+		if (alldish_map.get(id) == null) return "";
 		return alldish_map.get(id).name_chinese + id;
 	}
 	public static Dish getDishById(int id) {
@@ -233,7 +235,7 @@ public class Dish implements Cloneable {
 				dish.water = 0;
 				dish.oil = 30;
 				dish.qiangguoliao = 1;
-				dish.text = "1、底油：30克\n2、炝锅料：姜丝5克、蒜片5克\n3、主料：土豆丝230克,青椒丝20克，\n      红椒丝20克\n4、调料：鸡精2克、盐2克"; 
+				dish.text = "1、底油：30克\n2、炝锅料：姜丝5克、蒜片5克\n3、主料：土豆丝230克,青椒丝20克,红椒丝20克\n4、调料：鸡精2克、盐2克"; 
 				dish.name_english = "tomato chip";
 				//dish0.sound = R.raw.tudousi_voice;
 				dish.dishid = 1;

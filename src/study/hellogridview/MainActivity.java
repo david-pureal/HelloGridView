@@ -73,6 +73,9 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
 	ImageButton m_stateBtn;
 	ProgressBar connect_bar;
 	
+	public static Typeface typeFace;
+	public static Typeface typeFace_fzzy;
+	
 	/** 
      * ViewPager 
      */  
@@ -175,9 +178,10 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
             }  
         });
 		connect_bar = (ProgressBar) findViewById(R.id.connecting_bar);
+		
+		typeFace = Typeface.createFromAsset(getAssets(), "fonts/hanyitaiji.ttf");
+		typeFace_fzzy = Typeface.createFromAsset(getAssets(), "fonts/fangzhengzhunyuan.ttf");
 		TextView title_name = (TextView) findViewById (R.id.title_name);
-		Typeface typeFace = Typeface.createFromAsset(getAssets(), "fonts/hanyitaiji.ttf");
-		// Ó¦ÓÃ×ÖÌå
 		title_name.setTypeface(typeFace);
 		
 		handler = new Handler() {    
