@@ -44,7 +44,7 @@ public class Dish implements Cloneable {
 	//public boolean isBuiltIn = true;
 	public int type = Constants.DISH_APP_BUILTIN | Constants.DISH_DEVICE_BUILTIN | Constants.DISH_FAVORITE;
 	
-	public String text = "1、底油：20克\n2、炝锅料：姜丝5克、蒜片5克\n3、主料：土豆丝230克,青椒丝20克，\n      红椒丝20克\n4、调料：鸡精2克、盐2克";
+	public String text = "1、底油：20克\n2、炝锅料：姜丝5克、蒜片5克\n3、主料：土豆丝230克,青椒丝20克，红椒丝20克\n4、调料：鸡精2克、盐2克";
 	public String qiangguoliao_content = "姜丝5克、蒜片5克";
 	protected String zhuliao_content = "土豆丝: 230克\n青椒丝: 20克";
 	public String fuliao_content;

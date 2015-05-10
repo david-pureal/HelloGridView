@@ -68,10 +68,10 @@
         android:layout_alignLeft="@+id/main"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="10dp"
-        android:layout_marginLeft="375dp"
+        android:layout_marginLeft="420dp"
         android:gravity="center"
         android:text="简洁"
-        android:textColor="#555555"
+        android:textColor="#222222"
         android:textSize="18sp" />
 
     <ImageView
@@ -80,7 +80,7 @@
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/main"
         android:layout_alignParentBottom="true"
-        android:layout_marginLeft="30dp"
+        android:layout_marginLeft="0dp"
         android:src="@drawable/back_32" />
 
     <TextView

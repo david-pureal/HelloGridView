@@ -20,6 +20,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -165,7 +166,7 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
                 //finish();//关闭当前Activity  
             }  
         });
-		m_stateBtn = (ImageButton) findViewById(R.id.left);
+		m_stateBtn = (ImageButton) findViewById (R.id.left);
 		m_stateBtn.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) {  
@@ -174,6 +175,10 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
             }  
         });
 		connect_bar = (ProgressBar) findViewById(R.id.connecting_bar);
+		TextView title_name = (TextView) findViewById (R.id.title_name);
+		Typeface typeFace = Typeface.createFromAsset(getAssets(), "fonts/hanyitaiji.ttf");
+		// 应用字体
+		title_name.setTypeface(typeFace);
 		
 		handler = new Handler() {    
             @Override  
