@@ -183,6 +183,7 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
 		typeFace_fzzy = Typeface.createFromAsset(getAssets(), "fonts/fangzhengzhunyuan.ttf");
 		TextView title_name = (TextView) findViewById (R.id.title_name);
 		title_name.setTypeface(typeFace);
+		((TextView) findViewById(R.id.main_title_tv)).setTypeface(typeFace_fzzy);
 		
 		handler = new Handler() {    
             @Override  

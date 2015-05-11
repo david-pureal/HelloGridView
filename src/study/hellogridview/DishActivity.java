@@ -356,9 +356,15 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
         material_2 = (ImageView) findViewById(R.id.material_2); 
         material_3 = (ImageView) findViewById(R.id.material_3); 
         if (dish.materials != null) {
-        	if (dish.materials.size() > 0) material_1.setImageResource(dish.materials.get(0));
-        	if (dish.materials.size() > 1) material_2.setImageResource(dish.materials.get(1));
-        	if (dish.materials.size() > 2) material_3.setImageResource(dish.materials.get(2));
+        	if (dish.materials.size() > 0) material_1.setImageBitmap(Tool.decode_res_bitmap(dish.materials.get(0), this));
+        	if (dish.materials.size() > 1) {
+        		material_2.setVisibility(View.VISIBLE);
+        		material_2.setImageBitmap(Tool.decode_res_bitmap(dish.materials.get(1), this));
+        	}
+        	if (dish.materials.size() > 2) {
+        		material_3.setVisibility(View.VISIBLE);
+        		material_3.setImageBitmap(Tool.decode_res_bitmap(dish.materials.get(2), this));
+        	}
         }
         
         new Thread() {

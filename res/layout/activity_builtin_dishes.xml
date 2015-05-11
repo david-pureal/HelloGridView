@@ -11,23 +11,26 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal" >
 
-            <TextView
+            <study.hellogridview.CustomFontTextView
                 android:id="@+id/replace_builtin_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="120dp"
-                android:text="替换菜谱"
+                android:layout_marginLeft="130dp"
+                android:layout_marginTop="5dp"
+                android:gravity="center_horizontal"
+                android:text="内置菜谱"
                 android:textColor="#000000"
-                android:textSize="30sp" />
+                android:textSize="23sp" />
             
-            <ImageView
-                android:id="@+id/make_new_dish"
-                android:layout_width="0dp"
-                android:layout_height="30dp"
-                android:layout_gravity="center_vertical"
-                android:layout_marginLeft="20dp"
-                android:layout_weight="1"
-                android:scaleType="fitCenter"
+            <TextView
+                android:id="@+id/category_tv"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="right"
+                android:layout_marginTop="5dp"
+                android:text="分类》"
+                android:textColor="#000000"
+                android:visibility="gone"
                  />
         </LinearLayout>
 

@@ -15,6 +15,7 @@ import android.graphics.Bitmap.Config;
 import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.Typeface;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
@@ -641,14 +642,18 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 
         // jiaoban
         paint.setTextSize(90 * scale);
+        Typeface tf_default = paint.getTypeface();
+        paint.setTypeface(MainActivity.typeFace_fzzy);
         canvas.drawText(this.jiaoban_str.get(Math.max(0, ds.jiaoban_speed-1)), jiaoban_x, jiaoban_y, paint);
         
         // dish name
         final int name_x = (int) (130.0/Constants.UI_WIDTH * width);
         final int name_y = (int) (60.0/Constants.UI_HEIGHT * height);
         paint.setTextSize(100 * scale);
+        
         paint.setColor(Color.rgb(166, 246, 9));
         canvas.drawText(dish.name_chinese, name_x, name_y, paint);
+        paint.setTypeface(tf_default);
         
         // zhuliao time
         paint.setColor(Color.rgb(115, 115, 115));

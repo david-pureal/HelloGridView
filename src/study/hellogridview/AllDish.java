@@ -12,6 +12,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.Settings;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.View;
@@ -37,6 +38,12 @@ public class AllDish extends SlidingFragmentActivity {
 
 	ImageButton m_memu;
 	ImageButton m_search;
+	
+	ImageButton m_deviceBtn;
+	ImageButton m_stateBtn;
+	ProgressBar connect_bar;
+	
+	TCPClient tcpclient;
 	
 	SlidingMenu sm;
     
@@ -116,38 +123,23 @@ public class AllDish extends SlidingFragmentActivity {
 //		right_sm.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);//TOUCHMODE_FULLSCREEN
 //		setSlidingActionBarEnabled(true);
 		
-		
-		//device image to connect wifi
-		m_memu = (ImageButton) findViewById(R.id.left);
-		//m_memu.setImageResource(R.drawable.category);
-		m_memu.setOnClickListener(new OnClickListener() {  
+		m_deviceBtn = (ImageButton) findViewById(R.id.right);
+		m_deviceBtn.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) {  
-            	//AllDish.this.sm.showMenu(); 
-            	startActivity(new Intent(AllDish.this, CurStateActivity.class));  
-            }  
-        });
-		
-		m_search = (ImageButton) findViewById(R.id.right);
-		//m_search.setImageResource(R.drawable.search_icon);
-		m_search.setImageResource(R.drawable.category_right);
-		m_search.setOnClickListener(new OnClickListener() {  
-            @Override  
-            public void onClick(View v) {  
-            	if (AllDish.this.isClose) {
-            		AllDish.this.showSecondaryMenu();
-            		AllDish.this.isClose = false;
-            	}
-            	else
-            		AllDish.this.showContent();
-                //startActivity(new Intent(AllDish.this, CurStateActivity.class));  
+            	startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));  
                 //finish();//关闭当前Activity  
             }  
         });
-		
-		ProgressBar connect_bar = (ProgressBar) findViewById(R.id.connecting_bar);
-		connect_bar.setVisibility(View.GONE);
-		
+		m_stateBtn = (ImageButton) findViewById(R.id.left);
+		m_stateBtn.setOnClickListener(new OnClickListener() {  
+            @Override  
+            public void onClick(View v) {  
+                startActivity(new Intent(AllDish.this, CurStateActivity.class));  
+                //finish();//关闭当前Activity  
+            }  
+        });
+		connect_bar = (ProgressBar) findViewById(R.id.connecting_bar);
 		TextView title_name = (TextView) findViewById (R.id.title_name);
 		title_name.setTypeface(MainActivity.typeFace);
 		
@@ -157,6 +149,19 @@ public class AllDish extends SlidingFragmentActivity {
 		TextView tv = (TextView) findViewById(R.id.replace_builtin_tv); 
 		Intent intent = getIntent();
 		tv.setText(intent.getStringExtra("title"));
+		
+		TextView category_tv = (TextView) findViewById(R.id.category_tv);
+		category_tv.setVisibility(View.VISIBLE);
+		category_tv.setOnClickListener(new OnClickListener() {  
+            @Override  
+            public void onClick(View v) {  
+            	if (AllDish.this.isClose) {
+            		AllDish.this.showSecondaryMenu();
+            		AllDish.this.isClose = false;
+            	}
+            	else AllDish.this.showContent();
+            }  
+        });
 		
 		// 热门菜谱
 		LinkedHashMap<Integer, Dish> dishes = Dish.getAllDish();
@@ -269,10 +274,42 @@ public class AllDish extends SlidingFragmentActivity {
                     });
                     gridView.setAdapter(sa);
             	}
+            	else if (msg.what == Constants.MSG_ID_CONNECT_STATE) {   
+                	Log.v("MainActivity", "got event MSG_ID_CONNECT_STATE = " + tcpclient.connect_state);
+                	set_connect_state();
+                }
             }  
         };
         
         fragment.set_handler(handler);
         right_fragment.set_handler(handler);
+	}
+	
+	public void set_connect_state() {
+    	if (tcpclient.connect_state == Constants.CONNECTED) {
+    		connect_bar.setVisibility(View.GONE);
+    		//m_deviceBtn.setImageResource(R.drawable.connected_32);
+    		m_deviceBtn.setImageResource(R.drawable.correct_32);
+    		m_deviceBtn.setVisibility(View.VISIBLE);
+    	}
+    	else if (tcpclient.connect_state == Constants.DISCONNECTED) {
+    		connect_bar.setVisibility(View.GONE);
+    		m_deviceBtn.setImageResource(R.drawable.wrong_32);
+    		m_deviceBtn.setVisibility(View.VISIBLE);
+    	}
+    	else if (tcpclient.connect_state == Constants.CONNECTING) {
+    		connect_bar.setVisibility(View.VISIBLE);
+    		m_deviceBtn.setVisibility(View.GONE);
+    	}
+    }
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		Log.v("AllDish", "AllDish onResume");
+
+		tcpclient = TCPClient.getInstance();
+		tcpclient.set_alldishact(this);
+        set_connect_state();
 	}
 }

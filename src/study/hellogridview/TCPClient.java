@@ -41,6 +41,7 @@ public class TCPClient {
 	public BuiltinDishes buildin_activity;
 	public SettingActivity setting_activity;
 	public MakeDishActivity makedish_activity;
+	public AllDish alldish_activity;
 	
 	private DeviceState ds;
 	
@@ -158,6 +159,10 @@ public class TCPClient {
 		this.makedish_activity = sact;
 	}
 	
+	public void set_alldishact(AllDish all) {
+		this.alldish_activity = all;
+	}
+	
 	public boolean sendMsg(Message msg) {
 		if (clientThread != null && clientThread.revHandler != null) {
 			return clientThread.revHandler.sendMessage(msg);
@@ -187,6 +192,9 @@ public class TCPClient {
 		}
 		if (setting_activity != null && setting_activity.getHandler() != null) {
 			setting_activity.getHandler().sendEmptyMessage(Constants.MSG_ID_CONNECT_STATE);
+		}
+		if (alldish_activity != null && alldish_activity.getHandler() != null) {
+			alldish_activity.getHandler().sendEmptyMessage(Constants.MSG_ID_CONNECT_STATE);
 		}
 		
 		long current = System.currentTimeMillis();

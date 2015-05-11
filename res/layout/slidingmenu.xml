@@ -8,10 +8,10 @@
 	    android:orientation="vertical" >
 
         <LinearLayout
-             android:layout_width="fill_parent"
-             android:layout_height="wrap_content"
-             android:layout_marginTop="3dp"
-             android:orientation="horizontal" >
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="33dp"
+            android:orientation="horizontal" >
 
 		       <ImageView
 		        android:id="@+id/hot_dishes"
@@ -20,7 +20,7 @@
 		        android:layout_marginLeft="70dp"
 		        android:src="@drawable/hot_dish_72" />
 		
-		       <TextView
+		       <study.hellogridview.CustomFontTextView
 		           android:id="@+id/hot_dishes_tv"
 		           android:layout_width="wrap_content"
 		           android:layout_height="wrap_content"
@@ -54,7 +54,7 @@
 		        android:layout_marginLeft="70dp"
 		        android:src="@drawable/builtin_dish_72" />
 		
-		       <TextView
+		       <study.hellogridview.CustomFontTextView
 		           android:id="@+id/builtin_dishes_tv"
 			        android:layout_width="wrap_content"
 			        android:layout_height="wrap_content"
@@ -85,7 +85,7 @@
 		        android:layout_marginLeft="70dp"
 		        android:src="@drawable/favorite_dish_72" />
 		
-		       <TextView
+		       <study.hellogridview.CustomFontTextView
 		           android:id="@+id/favorites_tv"
 			        android:layout_width="wrap_content"
 			        android:layout_height="wrap_content"
@@ -116,7 +116,7 @@
 		        android:layout_marginLeft="70dp"
 		        android:src="@drawable/all_dish_72" />
 		
-		       <TextView
+		       <study.hellogridview.CustomFontTextView
 		            android:id="@+id/alldishes_tv"
 			        android:layout_width="wrap_content"
 			        android:layout_height="wrap_content"
@@ -155,7 +155,7 @@
 		        android:layout_marginLeft="70dp"
 		        android:src="@drawable/share_72" />
 		
-		       <TextView
+		       <study.hellogridview.CustomFontTextView
 		           android:id="@+id/share_tv"
 			        android:layout_width="wrap_content"
 			        android:layout_height="wrap_content"
@@ -187,7 +187,7 @@
 		        android:layout_marginLeft="70dp"
 		        android:src="@drawable/account_72" />
 		
-		       <TextView
+		       <study.hellogridview.CustomFontTextView
 		           android:id="@+id/account_tv"
 			        android:layout_width="wrap_content"
 			        android:layout_height="wrap_content"
@@ -218,7 +218,7 @@
 		        android:layout_marginLeft="70dp"
 		        android:src="@drawable/make_dish" />
 		
-		       <TextView
+		       <study.hellogridview.CustomFontTextView
 		           android:id="@+id/makedish_tv"
 			        android:layout_width="wrap_content"
 			        android:layout_height="wrap_content"
@@ -256,7 +256,7 @@
 		        android:layout_marginLeft="70dp"
 		        android:src="@drawable/login_72" />
 		
-		       <TextView
+		       <study.hellogridview.CustomFontTextView
 		           android:id="@+id/login_tv"
 			        android:layout_width="wrap_content"
 			        android:layout_height="wrap_content"
@@ -287,7 +287,7 @@
 		        android:layout_marginLeft="70dp"
 		        android:src="@drawable/setting_72" />
 		
-		       <TextView
+		       <study.hellogridview.CustomFontTextView
 		           android:id="@+id/setting_tv"
 			        android:layout_width="wrap_content"
 			        android:layout_height="wrap_content"

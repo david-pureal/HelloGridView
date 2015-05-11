@@ -542,7 +542,10 @@ public class Tool {
 	}
 	
 	public static Bitmap decode_res_bitmap(int resid, Context context) {
-		return BitmapFactory.decodeStream(context.getResources().openRawResource(resid));
+		if (!image_res_mgr.containsKey(resid)) {
+			image_res_mgr.put(resid, BitmapFactory.decodeStream(context.getResources().openRawResource(resid)));
+		}
+		return image_res_mgr.get(resid);
 	}
 	
 	public static Bitmap decode_path_bitmap(String path) {

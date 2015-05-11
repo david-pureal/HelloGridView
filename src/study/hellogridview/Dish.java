@@ -464,19 +464,8 @@ public class Dish implements Cloneable {
 			dish12.name_english = "tomato chip";
 			dish12.dishid = 13;
 			alldish_map.put(dish12.dishid, dish12);
+			
 		
-			try {
-				Dish tmp = (Dish) dish5.clone();tmp.dishid = 14;tmp.name_chinese = "菜十四";
-				alldish_map.put(tmp.dishid, tmp);
-				
-				tmp = (Dish) dish6.clone();tmp.dishid = 15;tmp.name_chinese = "菜十五";
-				alldish_map.put(tmp.dishid, tmp);
-				
-				tmp = (Dish) dish1.clone();tmp.dishid = 16;tmp.name_chinese = "菜十六";
-				alldish_map.put(tmp.dishid, tmp);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
 		}
 		
 		return alldish_map;

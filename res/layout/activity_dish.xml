@@ -34,7 +34,7 @@
             android:layout_marginTop="10dp"
             android:orientation="horizontal" >
 
-            <TextView
+            <study.hellogridview.CustomFontTextView
                 android:id="@+id/dish_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -46,8 +46,8 @@
 
             <ImageView
                 android:id="@+id/favorite"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
                 android:layout_gravity="right"
                 android:layout_marginLeft="30dp"
                 android:scaleType="fitXY"
@@ -68,8 +68,8 @@
 
         <ImageView
             android:id="@+id/material_1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="200dp"
+            android:layout_height="150dp"
             android:layout_gravity="center"
             android:layout_marginBottom="20dp"
             android:layout_marginTop="10dp"
@@ -79,24 +79,26 @@
         
         <ImageView
             android:id="@+id/material_2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="200dp"
+            android:layout_height="150dp"
             android:layout_gravity="center"
             android:layout_marginBottom="20dp"
             android:layout_marginTop="10dp"
             android:layout_weight="1"
             android:scaleType="fitXY"
+            android:visibility="gone"
              />
         
         <ImageView
             android:id="@+id/material_3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="200dp"
+            android:layout_height="150dp"
             android:layout_gravity="center"
             android:layout_marginBottom="20dp"
             android:layout_marginTop="10dp"
             android:layout_weight="1"
             android:scaleType="fitXY"
+            android:visibility="gone"
            />
 
         <RelativeLayout

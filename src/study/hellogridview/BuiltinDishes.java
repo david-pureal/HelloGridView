@@ -132,13 +132,13 @@ public class BuiltinDishes extends SlidingFragmentActivity {
 		Intent intent = getIntent();
 		tv.setText(intent.getStringExtra("title"));
 		
-		ImageView make_new_dish = (ImageView) findViewById(R.id.make_new_dish);
-		make_new_dish.setImageResource(R.drawable.make_new_dish_128);
-		make_new_dish.setVisibility(View.GONE);
+		//ImageView make_new_dish = (ImageView) findViewById(R.id.make_new_dish);
+		//make_new_dish.setImageResource(R.drawable.make_new_dish_128);
+		//make_new_dish.setVisibility(View.GONE);
 		
 		if (intent.getStringExtra("title").equalsIgnoreCase("×Ô±à²ËÆ×")) {
 			 Log.v("BuiltinDishes", "×Ô±à²ËÆ×");
-			 make_new_dish.setVisibility(View.GONE);
+			 //make_new_dish.setVisibility(View.GONE);
 			 TextView make_new_dish2 = (TextView) findViewById(R.id.make_new_dish2);
 			 make_new_dish2.setVisibility(View.VISIBLE);
 			 make_new_dish2.setOnClickListener(new OnClickListener() {  
@@ -151,7 +151,7 @@ public class BuiltinDishes extends SlidingFragmentActivity {
 		}
 		else if (intent.getStringExtra("title").equalsIgnoreCase("²ËÆ×ÉóºË")) {
 			 Log.v("BuiltinDishes", "²ËÆ×ÉóºË");
-			 make_new_dish.setVisibility(View.GONE);
+			 //make_new_dish.setVisibility(View.GONE);
 		}
 		
 	} // oncreate
