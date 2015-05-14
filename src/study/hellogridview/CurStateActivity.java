@@ -524,7 +524,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         paint.setAntiAlias(false); //去锯齿 
         paint.setStrokeWidth(3);
 
-        float scale = 1;//(float) (480.0 / width * 0.7);
+        float scale = 0.7f * 1;//(float) (480.0 / width * 0.7);
         Rect bkg_rect = new Rect(0, 0, width, height);
         if (!is_standard_ui) {
         	// draw simple background
@@ -652,12 +652,12 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         
 	    // dish tiny image
 	    if (dish.isAppBuiltIn() && dish.img_bmp == null) {
-        	dish.img_bmp = Tool.decode_res_bitmap(dish.img, this);
+        	dish.img_bmp = Tool.decode_res_bitmap(dish.img, this, Constants.DECODE_DISH_IMG_SAMPLE);
         }
         canvas.drawBitmap(dish.img_bmp, null, img_tiny_rect, null);
         // 操作引导
         if (!MyPreference.activityIsGuided(this, this.getClass().getName())) {
-        	canvas.drawBitmap(Tool.decode_res_bitmap(R.drawable.click_guide, this), null, img_tiny_rect, null);
+        	canvas.drawBitmap(Tool.decode_res_bitmap(R.drawable.click_guide, this, Constants.DECODE_DISH_IMG_SAMPLE), null, img_tiny_rect, null);
         }
         
         // 解锁开锁的图标
@@ -925,7 +925,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	//int draw_index = 0;
 	
 	public int dip2px(float dipValue){   
-        final float scale = this.getResources().getDisplayMetrics().density;   
+        final float scale = this.getResources().getDisplayMetrics().density * 0.7f;   
         return (int)(dipValue * scale + 0.5f);   
 	}
 

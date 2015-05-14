@@ -48,6 +48,10 @@ public final class Constants {
 	public static final String DISH_IMG_TINY_FILENAME = "main_tiny.jpg";
 	public static final String LOCAL_USER_DATA = "user.data"; //Î´µÇÂ¼Ê±£¬ÊÕ²ØµÄ²ËÆ×
 	
+	// OOM decode image sample
+	public static final int DECODE_DISH_IMG_SAMPLE = 2;
+	public static final int DECODE_MATERIAL_SAMPLE = 4;
+	
 	// for SmartLink
 	public static final String TAG = "HF-A11 | ";
 	public static final int UDP_PORT = 48899;

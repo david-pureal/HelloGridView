@@ -127,6 +127,9 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
 		setContentView(R.layout.activity_main);
 		getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.titlebtn);
 		
+		FrameLayout layout_main = (FrameLayout) findViewById(R.id.main_framelayout);
+		layout_main.setBackground(new BitmapDrawable(this.getResources(), Tool.get_res_bitmap(R.drawable.bkg)));
+
 		// 设置存放侧滑栏的容器的布局文件
 		setBehindContentView(R.layout.frame_menu);
 		// 将侧滑栏的fragment类填充到侧滑栏的容器的布局文件中
@@ -395,7 +398,7 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
              Dish d = dishes.get(key);
              HashMap<String, Object> map = new HashMap<String, Object>(); 
               
-             if (d.img_bmp == null) d.img_bmp = Tool.decode_res_bitmap(d.img, MainActivity.this);
+             if (d.img_bmp == null) d.img_bmp = Tool.decode_res_bitmap(d.img, MainActivity.this, Constants.DECODE_DISH_IMG_SAMPLE);
              if (d.isAppBuiltIn() || d.isVerifyDone()) {
                	 map.put("icon", d.img_bmp); //添加图像资源的ID 
              }

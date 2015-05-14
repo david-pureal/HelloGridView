@@ -11,6 +11,7 @@ import com.jeremyfeinstein.slidingmenu.lib.app.SlidingFragmentActivity;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -22,12 +23,14 @@ import android.view.Window;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.LinearLayout;
 import android.widget.SimpleAdapter.ViewBinder;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -57,6 +60,9 @@ public class BuiltinDishes extends SlidingFragmentActivity {
 		requestWindowFeature(Window.FEATURE_CUSTOM_TITLE); 
 		setContentView(R.layout.activity_builtin_dishes);
 		getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.titlebtn);
+		
+		LinearLayout layout_builtin = (LinearLayout) findViewById(R.id.layout_builtin);
+		layout_builtin.setBackground(new BitmapDrawable(this.getResources(), Tool.get_res_bitmap(R.drawable.bkg)));
 		
 		handler = new Handler() {    
             @Override  
@@ -225,7 +231,7 @@ public class BuiltinDishes extends SlidingFragmentActivity {
             	 if (!Account.isFavorite(d)) continue;
              }
              
-             if (d.img_bmp == null) d.img_bmp = Tool.decode_res_bitmap(d.img, this);
+             if (d.img_bmp == null) d.img_bmp = Tool.decode_res_bitmap(d.img, this, Constants.DECODE_DISH_IMG_SAMPLE);
              map.put("icon", d.img_bmp); //添加图像资源的ID 
              map.put("name", d.name_chinese);//按序号做ItemText 
              

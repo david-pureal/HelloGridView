@@ -3,6 +3,7 @@ package study.hellogridview;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -131,10 +132,8 @@ public class MakeDishActivityJ extends Activity {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_make_dishj);
 		
-//		ScrollView layout_makedish = (ScrollView) findViewById(R.id.layout_makedish);
-//		Bitmap bmp = Tool.get_res_bitmap(R.drawable.bkg_darker);
-//		bmp.setDensity(Tool.getInstance().dm.densityDpi);
-//		layout_makedish.setBackground(new BitmapDrawable(this.getResources(), bmp));
+		ScrollView layout_makedish = (ScrollView) findViewById(R.id.layout_makedish);
+		layout_makedish.setBackground(new BitmapDrawable(this.getResources(), Tool.get_res_bitmap(R.drawable.bkg_darker)));
 		
 		inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE); 
 		self_content_view = inflater.inflate(R.layout.activity_make_dishj, null, false);
@@ -777,7 +776,7 @@ public class MakeDishActivityJ extends Activity {
 	    		Log.v("MakeDishActivityJ", "before-upload dish can't be favorited or used-as-replacement, so disable it");
 	    		makedish_replace.setVisibility(View.GONE);
 	    	}
-	        else if (editable && !new_dish.isAppBuiltIn() && new_dish.hasNotUploaded()){
+	        if (editable && !new_dish.isAppBuiltIn() && new_dish.hasNotUploaded()){
 	        	// 只能删除未上传的
 	    		makedish_delete.setVisibility(View.VISIBLE);
 	    	}
@@ -1011,15 +1010,12 @@ public class MakeDishActivityJ extends Activity {
 			 Material m = list.get(i);
 			 Log.v("MakeDishActivityJ", "list = " + list + "m = " + m);
 			 if (m.path != null && !m.path.isEmpty() && m.img_drawable == null) {
-				 Log.v("MakeDishActivityJ", "init m.img_drawable");
-				 BitmapFactory.Options options = new BitmapFactory.Options(); options.inPurgeable = true; 
-				 Bitmap bmp = BitmapFactory.decodeFile(new_dish.getDishDirName() + m.path, options);
-        		 bmp.setDensity(Tool.getInstance().dm.densityDpi);
+				 Bitmap bmp = Tool.decode_path_bitmap(new_dish.getDishDirName() + m.path, Constants.DECODE_MATERIAL_SAMPLE);
         		 m.img_drawable = new BitmapDrawable(this.getResources(), bmp);
 			 }
 			 else if (m.img_resid != 0 && m.img_drawable == null) {
-				 Bitmap bmp = Tool.decode_res_bitmap(m.img_resid, MakeDishActivityJ.this);
-        		 bmp.setDensity(Tool.getInstance().dm.densityDpi);
+				 //Bitmap bmp = Tool.decode_res_bitmap(m.img_resid, MakeDishActivityJ.this);
+			     Bitmap bmp = Tool.decode_res_bitmap(m.img_resid, MakeDishActivityJ.this, Constants.DECODE_MATERIAL_SAMPLE);
         		 m.img_drawable = new BitmapDrawable(this.getResources(), bmp);
 			 }
 			 add_material_row(tableLayout, m.description, m.img_drawable, i);
@@ -1110,8 +1106,10 @@ public class MakeDishActivityJ extends Activity {
 	 @Override  
 	 protected void onDestroy() {  
 	     super.onDestroy();  
-	     Log.v("MakeDishActivityJ", "onDestroy saveDishParam to file"); 
-	     new_dish.saveDishParam();
+	     if (editable) {
+	    	 new_dish.saveDishParam();
+	    	 Log.v("MakeDishActivityJ", "onDestroy saveDishParam to file"); 
+	     }
 	 } 
 	 
 	 private static final String FILE_NAME = "/share_pic.jpg";

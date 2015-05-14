@@ -178,9 +178,7 @@ public class ImageEditActivity extends Activity {
          case 1:  
         	 //makedish_img.setImageDrawable();
         	 if (resultCode == -1) {
-        		 Bitmap bmp = BitmapFactory.decodeFile(tempFile.getAbsolutePath());
-        		 DisplayMetrics dm = this.getResources().getDisplayMetrics();
-        		 bmp.setDensity(dm.densityDpi);
+        		 Bitmap bmp = Tool.decode_path_bitmap(tempFile.getAbsolutePath(), Constants.DECODE_MATERIAL_SAMPLE);
         		 img_drawable = new BitmapDrawable(this.getResources(), bmp);
         		 add_material_img.setImageDrawable(img_drawable);
         	 }

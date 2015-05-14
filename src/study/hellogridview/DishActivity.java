@@ -128,7 +128,7 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
 		dish_img = (ImageView) findViewById(R.id.dish_img); 
 		Dish d = Dish.getDishById(dish_id);
 		
-		if (d.img_bmp == null) d.img_bmp = Tool.decode_res_bitmap(d.img, this);
+		if (d.img_bmp == null) d.img_bmp = Tool.decode_res_bitmap(d.img, this, 4);
 		dish_img.setImageBitmap(d.img_bmp);
 		
 		
@@ -359,14 +359,14 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
         material_2 = (ImageView) findViewById(R.id.material_2); 
         material_3 = (ImageView) findViewById(R.id.material_3); 
         if (dish.materials != null) {
-        	if (dish.materials.size() > 0) material_1.setImageBitmap(Tool.decode_res_bitmap(dish.materials.get(0), this));
+        	if (dish.materials.size() > 0) material_1.setImageBitmap(Tool.decode_res_bitmap(dish.materials.get(0), this, Constants.DECODE_DISH_IMG_SAMPLE));
         	if (dish.materials.size() > 1) {
         		material_2.setVisibility(View.VISIBLE);
-        		material_2.setImageBitmap(Tool.decode_res_bitmap(dish.materials.get(1), this));
+        		material_2.setImageBitmap(Tool.decode_res_bitmap(dish.materials.get(1), this, Constants.DECODE_DISH_IMG_SAMPLE));
         	}
         	if (dish.materials.size() > 2) {
         		material_3.setVisibility(View.VISIBLE);
-        		material_3.setImageBitmap(Tool.decode_res_bitmap(dish.materials.get(2), this));
+        		material_3.setImageBitmap(Tool.decode_res_bitmap(dish.materials.get(2), this, Constants.DECODE_DISH_IMG_SAMPLE));
         	}
         }
         

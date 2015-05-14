@@ -3,6 +3,7 @@ package study.hellogridview;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 
 import android.content.Intent;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -12,12 +13,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class MenuFragment extends Fragment {
 	
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		return inflater.inflate(R.layout.slidingmenu, null);
+		
 	}
 	
 	public SlidingMenu sm;
@@ -43,6 +46,9 @@ public class MenuFragment extends Fragment {
 	
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
+		
+		LinearLayout layout_menu = (LinearLayout) getView().findViewById(R.id.layout_menu);
+		layout_menu.setBackground(new BitmapDrawable(this.getResources(), Tool.get_res_bitmap(R.drawable.bkg)));
 		
 		ImageView m_hot = (ImageView) getView().findViewById(R.id.hot_dishes);
 		m_hot.setOnClickListener(new OnClickListener() {  

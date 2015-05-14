@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -536,8 +537,8 @@ public class Tool {
 	// 加载提示语图片资源
 	public static void preload_common_res(Context context) {
 		// 标准界面第一版
-		image_res_mgr.put(R.drawable.zhuliao_tiaoliao, decode_res_bitmap(R.drawable.zhuliao_tiaoliao, context));
-		image_res_mgr.put(R.drawable.add_oil, decode_res_bitmap(R.drawable.add_oil, context));
+//		image_res_mgr.put(R.drawable.zhuliao_tiaoliao, decode_res_bitmap(R.drawable.zhuliao_tiaoliao, context));
+//		image_res_mgr.put(R.drawable.add_oil, decode_res_bitmap(R.drawable.add_oil, context));
 		
 		// 标准界面更新后
 		// 8个提示语图片和语音文件
@@ -570,8 +571,10 @@ public class Tool {
 		image_res_mgr.put(R.drawable.unfavorite_dish_72, decode_res_bitmap(R.drawable.unfavorite_dish_72, context));
 		image_res_mgr.put(R.drawable.favorite_dish_72, decode_res_bitmap(R.drawable.favorite_dish_72, context));
 		image_res_mgr.put(R.drawable.shareto, decode_res_bitmap(R.drawable.shareto, context));
-		image_res_mgr.put(R.drawable.bkg_darker, decode_res_bitmap(R.drawable.bkg_darker, context));
 		
+		// 背景图片
+		image_res_mgr.put(R.drawable.bkg_darker, decode_res_bitmap(R.drawable.bkg_darker, context, Constants.DECODE_MATERIAL_SAMPLE));
+		image_res_mgr.put(R.drawable.bkg, decode_res_bitmap(R.drawable.bkg, context, Constants.DECODE_MATERIAL_SAMPLE));
 
 	}
 	
@@ -580,19 +583,53 @@ public class Tool {
 	}
 	
 	public static Bitmap decode_res_bitmap(int resid, Context context) {
-		if (!image_res_mgr.containsKey(resid)) {
+		if (!image_res_mgr.containsKey(resid) || image_res_mgr.get(resid) == null) {
 			image_res_mgr.put(resid, BitmapFactory.decodeStream(context.getResources().openRawResource(resid)));
+		}
+		return image_res_mgr.get(resid);
+	}
+	
+	public static Bitmap decode_res_bitmap(int resid, Context context, int sample) {
+		if (!image_res_mgr.containsKey(resid) || image_res_mgr.get(resid) == null) {
+			InputStream is = context.getResources().openRawResource(resid);
+			BitmapFactory.Options options=new BitmapFactory.Options(); 
+		    options.inJustDecodeBounds = false; 
+		    options.inPreferredConfig = Bitmap.Config.RGB_565; 
+		    options.inPurgeable = true; 
+		    options.inInputShareable = true;
+		    options.inSampleSize = sample;
+		    Bitmap bmp = BitmapFactory.decodeStream(is, null, options);
+		    bmp.setDensity(Tool.getInstance().dm.densityDpi/sample);
+			image_res_mgr.put(resid, bmp);
 		}
 		return image_res_mgr.get(resid);
 	}
 	
 	public static Bitmap decode_path_bitmap(String path) {
 		String abs_path = Tool.getInstance().getModulePath() + path;
-//		if (!Tool.getInstance().isPathExist(path)) {
-//			return null;
-//		}
 		try {
 			return BitmapFactory.decodeFile(abs_path);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	@SuppressWarnings("resource")
+	public static Bitmap decode_path_bitmap(String path, int sample) {
+		try {
+			BitmapFactory.Options options=new BitmapFactory.Options(); 
+		    options.inJustDecodeBounds = false; 
+		    options.inPreferredConfig = Bitmap.Config.RGB_565; 
+		    options.inPurgeable = true; 
+		    options.inInputShareable = true;
+		    options.inSampleSize = sample;
+		    
+		    FileInputStream fs = new FileInputStream(new File(path));
+		    Bitmap bmp = BitmapFactory.decodeFileDescriptor(fs.getFD(), null, options);
+		    bmp.setDensity(Tool.getInstance().dm.densityDpi/sample);
+			return bmp;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

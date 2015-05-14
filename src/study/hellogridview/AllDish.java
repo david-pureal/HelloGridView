@@ -9,6 +9,7 @@ import java.util.Random;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -20,9 +21,11 @@ import android.view.Window;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.SimpleAdapter;
 import android.widget.SimpleAdapter.ViewBinder;
@@ -65,6 +68,9 @@ public class AllDish extends SlidingFragmentActivity {
 		//setContentView(R.layout.index);
 		setContentView(R.layout.activity_builtin_dishes);
 		getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.titlebtn);
+		
+		LinearLayout layout_builtin = (LinearLayout) findViewById(R.id.layout_builtin);
+		layout_builtin.setBackground(new BitmapDrawable(this.getResources(), Tool.get_res_bitmap(R.drawable.bkg)));
 		
 		// 设置存放侧滑栏的容器的布局文件
 		setBehindContentView(R.layout.frame_menu);
@@ -176,7 +182,7 @@ public class AllDish extends SlidingFragmentActivity {
              Dish d = dishes.get(key);
              HashMap<String, Object> map = new HashMap<String, Object>(); 
              
-             if (d.img_bmp == null) d.img_bmp = Tool.decode_res_bitmap(d.img, this);
+             if (d.img_bmp == null) d.img_bmp = Tool.decode_res_bitmap(d.img, this, Constants.DECODE_DISH_IMG_SAMPLE);
              if (d.isAppBuiltIn() || d.isVerifyDone()) {
                	 map.put("icon", d.img_bmp); //添加图像资源的ID 
              }
