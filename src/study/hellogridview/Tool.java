@@ -49,6 +49,8 @@ public class Tool {
 	public DisplayMetrics dm;
 	//public String alldish_jsonstr = "";
 	public String downloading_dish_allfiles = "";
+	
+	public static String [] material_index = {"①", "②", "③", "④", "⑤", "⑥", "⑦", "⑧", "⑨", "⑩"};
 
 	public static HashMap<Integer, Bitmap> image_res_mgr = new HashMap<Integer, Bitmap>(); //一些可以公用的图片资源，比如提示语，启动时加载
 	
@@ -392,7 +394,9 @@ public class Tool {
 			d.water_weight = dishj.getInt("water_weight");
 			d.oil = (byte) dishj.getInt("oil");
 			d.qiangguoliao = (byte) dishj.getInt("qiangguoliao");
-			d.qiangguoliao_content = dishj.getString("qiangguoliao_content");
+			if (dishj.has("qiangguoliao_content") && dishj.get("qiangguoliao_content") instanceof String) {
+				d.qiangguoliao_content = dishj.getString("qiangguoliao_content");
+			}
 			if (dishj.has("sound")) d.sound = dishj.getInt("sound");
 			
 			d.type = dishj.getInt("type");
@@ -426,6 +430,24 @@ public class Tool {
 					String key = element.keys().next().toString();  
 	                String value = element.getString(key);
 					d.fuliao_content_map.put(key, value);
+				}
+			}
+			if (dishj.has("qiangguoliao_content") && dishj.get("qiangguoliao_content") instanceof JSONArray) {
+				JSONArray array_qiangguoliao = dishj.getJSONArray("qiangguoliao_content");
+				for (int i = 0; i < array_qiangguoliao.length(); ++i) {
+					JSONObject element = array_qiangguoliao.getJSONObject(i);
+					String key = element.keys().next().toString();  
+	                String value = element.getString(key);
+					d.qiangguoliao_content_map.put(key, value);
+				}
+			}
+			if (dishj.has("tiaoliao_content")) {
+				JSONArray array_tiaoliao = dishj.getJSONArray("tiaoliao_content");
+				for (int i = 0; i < array_tiaoliao.length(); ++i) {
+					JSONObject element = array_tiaoliao.getJSONObject(i);
+					String key = element.keys().next().toString();  
+	                String value = element.getString(key);
+					d.tiaoliao_content_map.put(key, value);
 				}
 			}
 			
@@ -528,13 +550,29 @@ public class Tool {
 		image_res_mgr.put(R.raw.add_zhuliao_water_tiaoliao_chn, decode_res_bitmap(R.raw.add_zhuliao_water_tiaoliao_chn, context));
 		image_res_mgr.put(R.raw.add_zhuliao_water_chn, decode_res_bitmap(R.raw.add_zhuliao_water_chn, context));
 		
-		// 简洁界面
+		// 简洁界面和标准界面
 		image_res_mgr.put(R.drawable.simple_bkg, decode_res_bitmap(R.drawable.simple_bkg, context));
 		image_res_mgr.put(R.raw.locked, decode_res_bitmap(R.raw.locked, context));
 		image_res_mgr.put(R.raw.unlock, decode_res_bitmap(R.raw.unlock, context));
+		image_res_mgr.put(R.drawable.standard_bkg, decode_res_bitmap(R.drawable.standard_bkg, context));
 		
 		// 操作引导图片
 		//image_res_mgr.put(R.raw.right_slide, decode_res_bitmap(R.raw.right_slide, context));
+		
+		// 左滑菜单图标
+		image_res_mgr.put(R.drawable.vegetable_96, decode_res_bitmap(R.drawable.vegetable_96, context));
+		image_res_mgr.put(R.drawable.home_dish_96, decode_res_bitmap(R.drawable.home_dish_96, context));
+		image_res_mgr.put(R.drawable.spicy_dish_96, decode_res_bitmap(R.drawable.spicy_dish_96, context));
+		image_res_mgr.put(R.drawable.chuan_dish_96, decode_res_bitmap(R.drawable.chuan_dish_96, context));
+		image_res_mgr.put(R.drawable.seafood_96, decode_res_bitmap(R.drawable.seafood_96, context));
+		
+		// 其他
+		image_res_mgr.put(R.drawable.unfavorite_dish_72, decode_res_bitmap(R.drawable.unfavorite_dish_72, context));
+		image_res_mgr.put(R.drawable.favorite_dish_72, decode_res_bitmap(R.drawable.favorite_dish_72, context));
+		image_res_mgr.put(R.drawable.shareto, decode_res_bitmap(R.drawable.shareto, context));
+		image_res_mgr.put(R.drawable.bkg_darker, decode_res_bitmap(R.drawable.bkg_darker, context));
+		
+
 	}
 	
 	public static Bitmap get_res_bitmap(int resid) {
@@ -568,5 +606,13 @@ public class Tool {
 			Account.device_id = tm.getDeviceId();
 		}
 		return Account.device_id;
+	}
+	
+	public static String sec2str(short total_seconds) {
+		int minites = total_seconds/60;
+		int seconds = total_seconds - minites * 60;
+		String separator = seconds < 10 ? ":0" : ":";
+		String minites_prefix =  minites < 10 ? "0" : "";
+		return minites + separator + seconds + "″";
 	}
 }

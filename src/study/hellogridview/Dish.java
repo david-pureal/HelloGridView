@@ -30,7 +30,7 @@ public class Dish implements Cloneable {
 	public byte fuliao_jiaoban_speed = 7;
 	public byte water = 0;//0代表不需加水， 1代表加入主料时水，2代表加入辅料时水
 	public int water_weight = 0; // 加水量 ， 单位：克
-	public byte oil = 10; //加油量
+	public byte oil = 30; //加油量
 	public byte qiangguoliao = 1;//炝锅料 0表示无， 1表示有
 	
 	public Integer img = R.drawable.tudousi;   // APP自带的菜谱
@@ -55,6 +55,8 @@ public class Dish implements Cloneable {
 	public String device_id;
 	
 	// 材料是有序的
+	public LinkedHashMap<String, String> qiangguoliao_content_map = new LinkedHashMap<String, String>();
+	public LinkedHashMap<String, String> tiaoliao_content_map = new LinkedHashMap<String, String>();
 	public LinkedHashMap<String, String> zhuliao_content_map = new LinkedHashMap<String, String>();
 	public LinkedHashMap<String, String> fuliao_content_map = new LinkedHashMap<String, String>();
 	
@@ -62,6 +64,12 @@ public class Dish implements Cloneable {
 		String description;
 		BitmapDrawable img_drawable;
 		String path;
+		int img_resid; // 内置菜谱使用
+		public Material(int resid, String desc) {
+			img_resid = resid;
+			description = desc;
+		}
+		public Material(){}
 	}
 	//备料图文详解：包括肉类怎么预处理、菜类切成什么形状
 	public ArrayList<Material> prepare_material_detail = new ArrayList<Material>(); 
@@ -165,7 +173,6 @@ public class Dish implements Cloneable {
 			dishj.put("water_weight", water_weight);
 			dishj.put("oil", oil & 0xff);
 			dishj.put("qiangguoliao", qiangguoliao & 0xff);
-			dishj.put("qiangguoliao_content", qiangguoliao_content);
 			dishj.put("sound", sound);
 			
 			dishj.put("type", type);
@@ -199,6 +206,26 @@ public class Dish implements Cloneable {
 			    fuliao_array.put(element);
 			}
 			dishj.put("fuliao_content", fuliao_array);
+			
+			JSONArray qiangguoliao_array = new JSONArray();
+			for (Iterator<String> it = qiangguoliao_content_map.keySet().iterator();it.hasNext();)
+			{
+			    String key = it.next();
+			    JSONObject element = new JSONObject();
+			    element.put(key, qiangguoliao_content_map.get(key));
+			    qiangguoliao_array.put(element);
+			}
+			dishj.put("qiangguoliao_content", qiangguoliao_array);
+			
+			JSONArray tiaoliao_array = new JSONArray();
+			for (Iterator<String> it = tiaoliao_content_map.keySet().iterator();it.hasNext();)
+			{
+			    String key = it.next();
+			    JSONObject element = new JSONObject();
+			    element.put(key, tiaoliao_content_map.get(key));
+			    tiaoliao_array.put(element);
+			}
+			dishj.put("tiaoliao_content", tiaoliao_array);
 			
 			JSONArray material_array = new JSONArray();
 			for (int i = 0; i < prepare_material_detail.size(); ++i)
@@ -241,6 +268,16 @@ public class Dish implements Cloneable {
 				dish.dishid = 1;
 				dish.materials.add(R.drawable.tudousi_1);
 				dish.materials.add(R.drawable.qiangguoliao);
+				
+				dish.zhuliao_content_map.put("土豆丝", "230克");
+				dish.zhuliao_content_map.put("青椒丝", "20克");
+				dish.zhuliao_content_map.put("红椒丝", "20克");
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.qiangguoliao, "炝锅料"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.tudousi_1, "土豆丝、青椒、红椒切成丝"));
+				dish.qiangguoliao_content_map.put("姜丝", "5克");
+				dish.qiangguoliao_content_map.put("蒜片", "5克");
+				dish.tiaoliao_content_map.put("鸡精", "2克");
+				dish.tiaoliao_content_map.put("盐", "2克");
 				alldish_map.put(dish.dishid, dish);
 			}
 			
@@ -261,6 +298,13 @@ public class Dish implements Cloneable {
 			dish1.dishid = 2;
 			dish1.materials.add(R.drawable.chaocaixin_1);
 			dish1.materials.add(R.drawable.qiangguoliao);
+			
+			dish1.zhuliao_content_map.put("青菜条", "350克");
+			dish1.prepare_material_detail.add(dish1.new Material(R.drawable.qiangguoliao, "炝锅料"));
+			dish1.prepare_material_detail.add(dish1.new Material(R.drawable.chaocaixin_1, "青菜"));
+			dish1.qiangguoliao_content_map.put("姜丝", "5克");
+			dish1.qiangguoliao_content_map.put("蒜片", "5克");
+			dish1.tiaoliao_content_map.put("盐", "2克");
 			alldish_map.put(dish1.dishid, dish1);
 			
 			Dish dish2 = new Dish(R.drawable.fanqiechaodan, "番茄炒蛋");
@@ -280,6 +324,12 @@ public class Dish implements Cloneable {
 			dish2.dishid = 3;
 			dish2.materials.add(R.drawable.fanqiejidan_1);
 			dish2.materials.add(R.drawable.fanqiejidan_2);
+			
+			dish2.zhuliao_content_map.put("鸡蛋", "3个");
+			dish2.fuliao_content_map.put("番茄块", "230克");
+			dish2.prepare_material_detail.add(dish2.new Material(R.drawable.fanqiejidan_1, "3个鸡蛋加盐打匀"));
+			dish2.prepare_material_detail.add(dish2.new Material(R.drawable.fanqiejidan_2, "番茄切块"));
+			dish2.tiaoliao_content_map.put("盐", "2克");
 			alldish_map.put(dish2.dishid, dish2);
 			
 			Dish dish3 = new Dish(R.drawable.maladoufu, "麻辣豆腐");
@@ -300,6 +350,18 @@ public class Dish implements Cloneable {
 			dish3.dishid = 4;
 			dish3.materials.add(R.drawable.maladoufu_1);
 			dish3.materials.add(R.drawable.maladoufu_2);
+			
+			dish3.zhuliao_content_map.put("嫩豆腐块", "350克");
+			dish3.prepare_material_detail.add(dish3.new Material(R.drawable.maladoufu_2, "姜丝、蒜片，干红椒段，麻椒粒"));
+			dish3.prepare_material_detail.add(dish3.new Material(R.drawable.maladoufu_1, "嫩豆腐块"));
+			dish3.qiangguoliao_content_map.put("姜丝", "5克");
+			dish3.qiangguoliao_content_map.put("蒜片", "5克");
+			dish3.qiangguoliao_content_map.put("干红椒段", "3克");
+			dish3.qiangguoliao_content_map.put("麻椒粒", "2克");
+			dish3.tiaoliao_content_map.put("鸡精", "2克");
+			dish3.tiaoliao_content_map.put("盐", "2克");
+			dish3.tiaoliao_content_map.put("老抽", "2克");
+			dish3.tiaoliao_content_map.put("生抽", "10克");
 			alldish_map.put(dish3.dishid, dish3);
 			
 			Dish dish4 = new Dish(R.drawable.congbaoyangrou, "葱爆羊肉");
@@ -320,6 +382,19 @@ public class Dish implements Cloneable {
 			dish4.materials.add(R.drawable.congbaoyangrou_1);
 			dish4.materials.add(R.drawable.congbaoyangrou_2);
 			dish4.materials.add(R.drawable.qiangguoliao);
+			
+			dish4.zhuliao_content_map.put("薄羊肉片", "130克");
+			dish4.fuliao_content_map.put("大葱段", "150克");
+			dish4.fuliao_content_map.put("红萝卜丝", "30克");
+			dish4.fuliao_content_map.put("木耳片", "20克");
+			dish4.prepare_material_detail.add(dish4.new Material(R.drawable.qiangguoliao, "姜片、蒜片"));
+			dish4.prepare_material_detail.add(dish4.new Material(R.drawable.congbaoyangrou_1, "薄羊肉片"));
+			dish4.prepare_material_detail.add(dish4.new Material(R.drawable.congbaoyangrou_2, "大葱段、红萝卜丝、木耳片"));
+			dish4.qiangguoliao_content_map.put("姜丝", "5克");
+			dish4.qiangguoliao_content_map.put("蒜片", "5克");
+			dish4.tiaoliao_content_map.put("鸡精", "2克");
+			dish4.tiaoliao_content_map.put("盐", "2克");
+			dish4.tiaoliao_content_map.put("生抽", "10克");
 			alldish_map.put(dish4.dishid, dish4);
 			
 			Dish dish5 = new Dish(R.drawable.hongshaoyukuai, "红烧鱼块");
@@ -340,6 +415,18 @@ public class Dish implements Cloneable {
 			dish5.materials.add(R.drawable.hongshaoyukuai_1);
 			dish5.materials.add(R.drawable.hongshaoyukuai_2);
 			dish5.materials.add(R.drawable.qiangguoliao);
+			
+			dish5.zhuliao_content_map.put("鱼块", "500克");
+			dish5.fuliao_content_map.put("红椒", "50克");
+			dish5.fuliao_content_map.put("青椒", "50克");
+			dish5.prepare_material_detail.add(dish5.new Material(R.drawable.qiangguoliao, "炝锅料"));
+			dish5.prepare_material_detail.add(dish5.new Material(R.drawable.hongshaoyukuai_1, "鱼清洗后腌制"));
+			dish5.prepare_material_detail.add(dish5.new Material(R.drawable.hongshaoyukuai_2, "红椒、青椒切片"));
+			dish5.qiangguoliao_content_map.put("姜丝", "10克");
+			dish5.qiangguoliao_content_map.put("蒜片", "10克");
+			dish5.tiaoliao_content_map.put("鸡精", "2克");
+			dish5.tiaoliao_content_map.put("盐", "2克");
+			dish5.tiaoliao_content_map.put("生抽", "20克");
 			alldish_map.put(dish5.dishid, dish5);
 			
 			Dish dish6 = new Dish(R.drawable.chaoshuiguo, "炒水果");
@@ -359,6 +446,10 @@ public class Dish implements Cloneable {
 			dish6.dishid = 7;
 			dish6.qiangguoliao = 0;
 			dish6.materials.add(R.drawable.chaoshuiguo_1);
+			
+			dish6.zhuliao_content_map.put("苹果块", "60克");
+			dish6.zhuliao_content_map.put("火龙果块", "60克");
+			dish6.prepare_material_detail.add(dish6.new Material(R.drawable.chaoshuiguo_1, "水果切成小块"));
 			alldish_map.put(dish6.dishid, dish6);
 			
 			Dish dish7 = new Dish(R.drawable.zhahuasheng, "炸花生");
@@ -377,6 +468,10 @@ public class Dish implements Cloneable {
 			dish7.name_english = "Fried peanuts";
 			dish7.dishid = 8;
 			dish7.materials.add(R.drawable.zhahuasheng_1);
+			
+			dish7.zhuliao_content_map.put("花生米", "250克");
+			dish7.prepare_material_detail.add(dish7.new Material(R.drawable.zhahuasheng_1, "干花生米"));
+			dish7.tiaoliao_content_map.put("盐", "3克");
 			alldish_map.put(dish7.dishid, dish7);
 			
 			Dish dish8 = new Dish(R.drawable.qingchaosuantai, "清炒蒜台");
@@ -396,6 +491,15 @@ public class Dish implements Cloneable {
 			dish8.dishid = 9;
 			dish8.materials.add(R.drawable.qingchaosuantai_1);
 			dish8.materials.add(R.drawable.qiangguoliao);
+			
+			dish8.zhuliao_content_map.put("蒜苔段", "250克");
+			dish8.prepare_material_detail.add(dish8.new Material(R.drawable.qiangguoliao, "炝锅料"));
+			dish8.prepare_material_detail.add(dish8.new Material(R.drawable.qingchaosuantai_1, "蒜台切成短条"));
+			dish8.qiangguoliao_content_map.put("姜丝", "5克");
+			dish8.qiangguoliao_content_map.put("蒜片", "5克");
+			dish8.tiaoliao_content_map.put("鸡精", "2克");
+			dish8.tiaoliao_content_map.put("盐", "2克");
+			dish8.tiaoliao_content_map.put("生抽", "10克");
 			alldish_map.put(dish8.dishid, dish8);
 			
 			Dish dish9 = new Dish(R.drawable.suanmiaolarou, "蒜苗腊肉");
@@ -416,6 +520,19 @@ public class Dish implements Cloneable {
 			dish9.materials.add(R.drawable.suanmiaolarou_1);
 			dish9.materials.add(R.drawable.suanmiaolarou_2);
 			dish9.materials.add(R.drawable.qiangguoliao);
+			
+			dish9.zhuliao_content_map.put("腊肉片", "130克");
+			dish9.fuliao_content_map.put("蒜苗段", "150克");
+			dish9.fuliao_content_map.put("红椒片", "20克");
+			dish9.fuliao_content_map.put("青椒片", "20克");
+			dish9.prepare_material_detail.add(dish9.new Material(R.drawable.qiangguoliao, "炝锅料"));
+			dish9.prepare_material_detail.add(dish9.new Material(R.drawable.suanmiaolarou_1, "腊肉切成小片"));
+			dish9.prepare_material_detail.add(dish9.new Material(R.drawable.suanmiaolarou_2, "蒜苗、红椒、青椒切成小片"));
+			dish9.qiangguoliao_content_map.put("姜丝", "5克");
+			dish9.qiangguoliao_content_map.put("蒜片", "5克");
+			dish9.tiaoliao_content_map.put("鸡精", "2克");
+			dish9.tiaoliao_content_map.put("盐", "2克");
+			dish9.tiaoliao_content_map.put("生抽", "10克");
 			alldish_map.put(dish9.dishid, dish9);
 			
 			Dish dish10 = new Dish(R.drawable.hongshaojichi, "红烧鸡翅");
@@ -436,6 +553,18 @@ public class Dish implements Cloneable {
 			dish10.materials.add(R.drawable.hongshaojichi_1);
 			dish10.materials.add(R.drawable.hongshaojichi_2);
 			dish10.materials.add(R.drawable.qiangguoliao);
+			
+			dish10.zhuliao_content_map.put("鸡翅", "5个");
+			dish10.fuliao_content_map.put("红椒片", "30克");
+			dish10.fuliao_content_map.put("青椒片", "30克");
+			dish10.fuliao_content_map.put("香菇片", "40克");
+			dish10.prepare_material_detail.add(dish10.new Material(R.drawable.qiangguoliao, "炝锅料"));
+			dish10.prepare_material_detail.add(dish10.new Material(R.drawable.hongshaojichi_1, "鸡翅根5个，表面切3刀，用老抽、生抽腌制10分钟备用"));
+			dish10.prepare_material_detail.add(dish10.new Material(R.drawable.hongshaojichi_2, "红椒、青椒切成菱形小片"));
+			dish10.qiangguoliao_content_map.put("姜丝", "5克");
+			dish10.qiangguoliao_content_map.put("蒜片", "5克");
+			dish10.tiaoliao_content_map.put("鸡精", "2克");
+			dish10.tiaoliao_content_map.put("盐", "2克");
 			alldish_map.put(dish10.dishid, dish10);
 			
 			Dish dish11 = new Dish(R.drawable.xiqinxiaren, "西芹虾仁");
@@ -456,6 +585,17 @@ public class Dish implements Cloneable {
 			dish11.materials.add(R.drawable.xiqinxiaren_1);
 			dish11.materials.add(R.drawable.xiqinxiaren_2);
 			dish11.materials.add(R.drawable.qiangguoliao);
+			
+			dish11.zhuliao_content_map.put("虾仁", "150克");
+			dish11.fuliao_content_map.put("西芹段", "100克");
+			dish11.fuliao_content_map.put("红萝卜片", "20克");
+			dish11.prepare_material_detail.add(dish11.new Material(R.drawable.qiangguoliao, "炝锅料"));
+			dish11.prepare_material_detail.add(dish11.new Material(R.drawable.xiqinxiaren_1, "虾仁用料酒腌制5分钟"));
+			dish11.prepare_material_detail.add(dish11.new Material(R.drawable.xiqinxiaren_2, "西芹小段，红萝卜切成菱形小片"));
+			dish11.qiangguoliao_content_map.put("姜丝", "5克");
+			dish11.qiangguoliao_content_map.put("蒜片", "5克");
+			dish11.tiaoliao_content_map.put("鸡精", "2克");
+			dish11.tiaoliao_content_map.put("盐", "2克");
 			alldish_map.put(dish11.dishid, dish11);
 			
 			Dish dish12 = new Dish(R.drawable.chaoqingcai, "新内菜谱");
@@ -464,8 +604,6 @@ public class Dish implements Cloneable {
 			dish12.name_english = "tomato chip";
 			dish12.dishid = 13;
 			alldish_map.put(dish12.dishid, dish12);
-			
-		
 		}
 		
 		return alldish_map;
@@ -527,6 +665,9 @@ public class Dish implements Cloneable {
 	}
 	public boolean isVerifyDone() {
 		return (type & Constants.DISH_VERIFY_ACCEPT) != 0;
+	}
+	public boolean hasNotUploaded() {
+		return this.dishid > USER_MAKE_DISH_START_ID;
 	}
 
 	public static void remove_not_uploaded_dish(Dish dish) {

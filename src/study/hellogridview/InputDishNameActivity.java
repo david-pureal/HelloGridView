@@ -56,7 +56,7 @@ public class InputDishNameActivity extends Activity {
         		int new_dish_id = Dish.addDish(new_dish);
         		Log.v("InputDishNameActivity", "new_dish_id = " + new_dish_id);
         		
-        		Intent intent = new Intent(InputDishNameActivity.this, MakeDishActivity.class);
+        		Intent intent = new Intent(InputDishNameActivity.this, MakeDishActivityJ.class);
             	intent.putExtra("dish_id", new_dish_id); 
             	startActivity(intent); 
             	finish();

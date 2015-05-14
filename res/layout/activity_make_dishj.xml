@@ -1,0 +1,478 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout_makedish"
+    android:background="@drawable/bkg_darker"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" >
+    
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical" >
+
+        <ImageView
+            android:id="@+id/makedish_img"
+            android:layout_width="fill_parent"
+            android:layout_height="250dp"
+            android:layout_weight="1"
+            android:scaleType="fitXY"
+             />
+        <!-- android:src="@drawable/camera" -->
+
+		<LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal" >
+
+	        <study.hellogridview.CustomFontTextView
+	            android:id="@+id/makedish_name"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_marginLeft="110dp"
+	            android:drawablePadding="20dp"
+	            android:drawableRight="@drawable/editable_20"
+	            android:focusable="true"
+	            android:focusableInTouchMode="true"
+	            android:text="炒土豆丝"
+	            android:textColor="#000000"
+	            android:textSize="30sp"
+	            android:textStyle="bold" />
+	        
+	    </LinearLayout>
+		
+        <!-- 油 -->
+		<RelativeLayout
+		    android:layout_width="fill_parent"
+		    android:layout_height="fill_parent"
+		    android:layout_marginTop="20dp"
+		    android:gravity="center_vertical"
+		    android:orientation="horizontal"
+		    android:paddingLeft="0dp" >
+
+	        <TextView
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_marginLeft="5dp"
+	            android:text="1.底油 "
+	            android:textColor="#000000"
+	            android:textSize="25sp" />
+
+	        <TextView
+	            android:id="@+id/makedish_oil"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_marginLeft="@dimen/makedish_left_margin"
+	            android:layout_centerVertical="true"
+	            android:text="30克"
+	            android:textColor="#555555"
+	            android:textSize="17sp" />
+
+	    </RelativeLayout>
+		    
+		<!-- 炝锅料表格 --> 
+		<TextView
+		    android:id="@+id/makedish_qiangguoliao_title"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_marginLeft="5dp"
+		    android:layout_marginTop="5dp"
+		    android:text="2.炝锅料"
+		    android:textColor="#000000"
+		    android:textSize="25sp" />
+		<TextView
+		        android:id="@+id/add_qiangguoliao_tv"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_gravity="center_vertical"
+		        android:layout_marginLeft="@dimen/makedish_left_margin"
+		        android:drawableLeft="@drawable/add_stuff_tiny"
+		        android:drawablePadding="10dp"
+		        android:gravity="center_vertical"
+		        android:text="添加炝锅料"
+		        android:textColor="#E34F1B"
+		        android:textSize="17sp" />
+		<TableLayout
+		    android:id="@+id/table_qiangguoliao"
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:layout_marginLeft="25dp"
+		    android:layout_marginTop="5dp"
+		    android:stretchColumns="*" >
+		</TableLayout>  
+		    
+        <TextView
+            android:id="@+id/makedish_zhuliao_title"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="10dp"
+            android:layout_weight="1"
+            android:text="3.主料"
+            android:textColor="#000000"
+            android:textSize="25sp" />
+		
+	    <TextView
+	        android:id="@+id/makedish_add_zhuliao"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_gravity="center_vertical"
+	        android:layout_marginTop="5dp"
+	        android:drawableLeft="@drawable/add_stuff_tiny"
+	        android:drawablePadding="10dp"
+	        android:gravity="center_vertical"
+	        android:paddingLeft="@dimen/makedish_left_margin"
+	        android:text="添加主料"
+	        android:textColor="#E34F1B"
+	        android:textSize="17sp" />
+	    
+	    <!-- 主料原料表格-->
+	    <TableLayout
+		    android:id="@+id/table_zhuliao"
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:layout_marginLeft="25dp"
+		    android:layout_marginTop="5dp"
+		    android:stretchColumns="*" >
+		 </TableLayout>
+	    
+	    <TextView
+	        android:id="@+id/makedish_set_zhuliao_param_tv"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_gravity="center_vertical"
+	        android:layout_marginTop="5dp"
+	        android:drawableLeft="@drawable/add_stuff_tiny"
+	        android:drawablePadding="10dp"
+	        android:gravity="center_vertical"
+	        android:paddingLeft="@dimen/makedish_left_margin"
+	        android:text="设置参数"
+	        android:textColor="#E34F1B"
+	        android:textSize="17sp" />
+	    
+		 <!-- 主料参数表格 -->
+	    <TableLayout
+		    android:id="@+id/table_zhuliao_param"
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:layout_marginLeft="25dp"
+		    android:layout_marginTop="5dp"
+		    android:stretchColumns="*" >
+		 </TableLayout>
+        
+	   <TextView
+	       	android:id="@+id/makedish_fuliao_title"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="10dp"
+            android:layout_weight="1"
+            android:maxLines="8"
+            android:text="4.辅料"
+            android:textColor="#000000"
+            android:textSize="25sp" />
+	   
+	   <TextView
+	        android:id="@+id/makedish_add_fuliao"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_marginTop="5dp"
+	        android:drawableLeft="@drawable/add_stuff_tiny"
+	        android:drawablePadding="10dp"
+	        android:gravity="center_vertical"
+	        android:paddingLeft="@dimen/makedish_left_margin"
+	        android:text="添加辅料"
+	        android:textColor="#E34F1B"
+	        android:textSize="17sp" />
+        
+        <!-- 辅料表格 -->
+        <TableLayout
+		    android:id="@+id/table_fuliao"
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:layout_marginLeft="25dp"
+		    android:layout_marginTop="5dp"
+		    android:stretchColumns="*" >
+		 </TableLayout>
+	    
+	    <TextView
+	        android:id="@+id/makedish_set_fuliao_param_tv"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_gravity="center_vertical"
+	        android:layout_marginTop="5dp"
+	        android:drawableLeft="@drawable/add_stuff_tiny"
+	        android:drawablePadding="10dp"
+	        android:gravity="center_vertical"
+	        android:paddingLeft="@dimen/makedish_left_margin"
+	        android:text="设置参数"
+	        android:textColor="#E34F1B"
+	        android:textSize="17sp" />
+	    
+		 <!-- 主料参数表格 -->
+	    <TableLayout
+		    android:id="@+id/table_fuliao_param"
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:layout_marginLeft="25dp"
+		    android:layout_marginTop="5dp"
+		    android:stretchColumns="*" >
+		 </TableLayout>
+        
+        <!-- 调料表格 --> 
+        <TextView
+            android:id="@+id/makedish_tiaoliao_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:text="5.调料 "
+            android:textColor="#000000"
+            android:textSize="25sp" />
+      	<TextView
+    	    android:id="@+id/add_tiaoliao_tv"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_marginLeft="@dimen/makedish_left_margin"
+	        android:layout_gravity="center_vertical"
+	        android:drawableLeft="@drawable/add_stuff_tiny"
+	        android:drawablePadding="10dp"
+	        android:gravity="center_vertical"
+	        android:text="添加调料"
+	        android:textColor="#E34F1B"
+	        android:textSize="17sp" />
+        
+		<TableLayout
+		    android:id="@+id/table_tiaoliao"
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:layout_marginLeft="25dp"
+		    android:layout_marginTop="5dp"
+		    android:stretchColumns="*" >
+		</TableLayout>
+        
+		<!-- 水 -->
+		<RelativeLayout
+		    android:layout_width="fill_parent"
+		    android:layout_height="fill_parent"
+		    android:layout_marginTop="10dp"
+		    android:orientation="horizontal">
+
+	        <TextView
+	            android:id="@+id/makedish_water_title"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:text="6.加水  "
+	            android:textColor="#000000"
+	            android:layout_marginLeft="5dp"
+	            android:textSize="25sp" />
+	        
+	        <CheckBox
+	            android:id="@+id/makedish_zhuliao_water"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_marginLeft="@dimen/makedish_left_margin"
+	            android:layout_marginTop="5dp"
+	            android:layout_weight="1"
+	            android:checked="false"
+	            android:button="@drawable/cb_drw"
+	            android:text="   是否加水"
+	            android:textColor="#555555"
+	            android:textSize="17sp" />
+
+	    </RelativeLayout>
+		
+        
+	    <TextView
+	        android:id="@+id/makedish_material_title"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="10dp"
+            android:layout_weight="1"
+            android:maxLines="8"
+            android:text="7.备料图文"
+            android:textColor="#000000"
+            android:textSize="25sp" />
+        
+        <!-- 备料图文表格 -->
+		<TableLayout
+		    android:id="@+id/table_material"
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:layout_marginLeft="5dp"
+		    android:layout_marginTop="5dp"
+		    android:stretchColumns="*" >
+		    <!-- android:shrinkColumns="0,1" -->
+		    <TextView
+		        android:id="@+id/table_material_image_addrow"
+		        android:layout_width="wrap_content"
+			        android:layout_height="wrap_content"
+			        android:layout_gravity="center_vertical"
+			        android:layout_marginLeft="135dp"
+			        android:layout_marginTop="10dp"
+			        android:drawableLeft="@drawable/add_stuff_tiny"
+			        android:drawablePadding="10dp"
+			        android:gravity="center_vertical"
+			        android:text="添加图文"
+			        android:textColor="#E34F1B"
+			        android:textSize="17sp" />
+
+		</TableLayout>  <!-- 备料图文表格 -->
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="20dp"
+            android:layout_weight="1" >
+
+            <Button
+                android:id="@+id/makedish_startcook"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginLeft="60dp"
+                android:background="@drawable/blue_bkg"
+                android:textColor="#ffffff"
+                android:textSize="20sp"
+                android:text="开始" />
+
+            <Button
+                android:id="@+id/makedish_upload"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginRight="60dp"
+                android:background="@drawable/blue_bkg"
+                android:textColor="#ffffff"
+                android:textSize="20sp"
+                android:text="上传" />
+
+            <Button
+                android:id="@+id/makedish_replace"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginRight="60dp"
+                android:background="@drawable/blue_bkg"
+                android:textColor="#ffffff"
+                android:textSize="20sp"
+                android:text="替换" />
+
+        </RelativeLayout>
+        
+        <!-- 开始、替换按钮的解释 -->
+        <RelativeLayout
+            android:id="@+id/explain"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginTop="0dp"
+            android:orientation="horizontal" >
+            
+            <TextView
+	            android:id="@+id/explain_start"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_marginLeft="57dp"
+	            android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+	            android:text="点一次炒一次"
+	            android:textSize="13sp"
+	            android:textColor="#666666" />
+            <TextView
+	            android:id="@+id/explain_replace"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_marginRight="62dp"
+	            android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+	            android:text="保存到机器"
+	            android:textSize="13sp"
+	            android:textColor="#666666" />
+        </RelativeLayout>
+
+        <ProgressBar
+            android:id="@+id/progressBar1"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="10dp"
+            android:layout_weight="2.59"
+            android:max="5"
+            android:text="同步中"
+            android:progress="0" />
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginTop="15dp"
+            android:layout_marginLeft="-25dp"
+            android:layout_marginBottom="20dp"
+            android:gravity="right" >
+
+	        <Button
+	            android:id="@+id/makedish_verify"
+	            android:layout_width="115dp"
+	            android:layout_height="wrap_content"
+	            android:layout_gravity="center_horizontal"
+	            android:layout_marginLeft="10dp"
+	            android:text="审核通过" />
+	        
+	        <ImageView
+                android:id="@+id/favorite"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_gravity="bottom"
+                android:layout_marginLeft="45dp"
+                android:layout_marginTop="5dp"
+                android:scaleType="fitXY"
+                 />
+            
+            <TextView
+                android:id="@+id/favorite_tv"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_marginLeft="80dp"
+		        android:layout_marginTop="15dp"
+		        android:layout_gravity="bottom"
+		        android:gravity="bottom"
+		        android:text="收藏"
+		        android:textColor="#666666"
+		        android:textSize="13sp" />
+            
+	        <ImageView
+	            android:id="@+id/makedish_shareto"
+	            android:layout_width="180dp"
+		        android:layout_height="45dp"
+		        android:layout_alignParentRight="true"
+		        android:layout_alignParentTop="true"
+		        android:layout_marginRight="20dp"
+	            android:scaleType="fitXY"
+             />
+
+	    </RelativeLayout>
+	    
+	    
+	    <!-- android:src="@drawable/shareto" -->
+	    
+        <TextView
+            android:id="@+id/makedish_delete"
+            android:layout_width="136dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="30dp"
+            android:layout_marginTop="15dp"
+            android:background="@drawable/red_backgrd"
+            android:gravity="center"
+            android:visibility="gone"
+            android:text="  删  除    "
+            android:textColor="#ffffff"
+            android:textSize="20dp" />
+
+    </LinearLayout>
+            
+</ScrollView>
+

@@ -176,11 +176,9 @@ public class AllDish extends SlidingFragmentActivity {
              Dish d = dishes.get(key);
              HashMap<String, Object> map = new HashMap<String, Object>(); 
              
-             if (d.isAppBuiltIn()) {
-              	 map.put("icon", d.img); //添加图像资源的ID 
-             }
-             else if (d.isVerifyDone()) {
-             	 map.put("icon", d.img_bmp); //添加图像资源的ID
+             if (d.img_bmp == null) d.img_bmp = Tool.decode_res_bitmap(d.img, this);
+             if (d.isAppBuiltIn() || d.isVerifyDone()) {
+               	 map.put("icon", d.img_bmp); //添加图像资源的ID 
              }
              else { continue;}
               
@@ -215,10 +213,8 @@ public class AllDish extends SlidingFragmentActivity {
 	        	Log.v("OnItemClickListener", "position = " + position + "id = " + id);
 	        	Dish dish = Dish.getDishById(index_id_list.get(position));
 	        	
-	        	Intent intent;
-	        	if (dish.isAppBuiltIn()) intent = new Intent(AllDish.this, DishActivity.class);
-	        	else intent = new Intent(AllDish.this, MakeDishActivity.class);
-	        	
+	        	Intent intent = new Intent(AllDish.this, MakeDishActivityJ.class);
+	        	intent.putExtra("editable", false);
 	        	intent.putExtra("dish_id", dish.dishid); 
 	        	startActivity(intent);		
 	        }  

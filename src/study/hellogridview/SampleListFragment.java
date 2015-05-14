@@ -78,7 +78,8 @@ public class SampleListFragment extends ListFragment {
 				convertView = LayoutInflater.from(getContext()).inflate(R.layout.row, null);
 			}
 			ImageView icon = (ImageView) convertView.findViewById(R.id.row_icon);
-			icon.setImageResource(getItem(position).iconRes);
+			//icon.setImageResource(getItem(position).iconRes);
+			icon.setImageBitmap(Tool.get_res_bitmap(getItem(position).iconRes));
 			icon.setFocusable(false);  
 			icon.setFocusableInTouchMode(false);
 			

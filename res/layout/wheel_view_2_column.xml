@@ -21,6 +21,7 @@
             android:layout_height="wrap_content" />
         
         <TextView 
+            android:id="@+id/column_1_name"
             android:layout_width="wrap_content"
         	android:layout_height="fill_parent"
             android:text="分"
@@ -34,6 +35,7 @@
 			android:layout_marginLeft="3dp"/>
         
         <TextView 
+            android:id="@+id/column_2_name"
             android:layout_width="wrap_content"
         	android:layout_height="fill_parent"
             android:text="秒"

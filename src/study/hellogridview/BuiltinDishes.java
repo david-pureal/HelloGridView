@@ -225,13 +225,8 @@ public class BuiltinDishes extends SlidingFragmentActivity {
             	 if (!Account.isFavorite(d)) continue;
              }
              
-             if (d.isAppBuiltIn()) {
-             	map.put("icon", d.img); //添加图像资源的ID 
-             }
-             else {
-             	//BitmapDrawable bd = d.img_drawable;
-             	map.put("icon", d.img_bmp); //添加图像资源的ID 
-             }
+             if (d.img_bmp == null) d.img_bmp = Tool.decode_res_bitmap(d.img, this);
+             map.put("icon", d.img_bmp); //添加图像资源的ID 
              map.put("name", d.name_chinese);//按序号做ItemText 
              
              index_id_list.add(d.dishid);
@@ -267,11 +262,13 @@ public class BuiltinDishes extends SlidingFragmentActivity {
 	        	Dish dish = Dish.getDishById(index_id_list.get(position));
 	        	
 	        	Intent intent;
-	        	if (dish.isAppBuiltIn()) intent = new Intent(BuiltinDishes.this, DishActivity.class);
-	        	else intent = new Intent(BuiltinDishes.this, MakeDishActivity.class);
+	        	if (dish.isAppBuiltIn()) intent = new Intent(BuiltinDishes.this, MakeDishActivityJ.class);
+	        	else intent = new Intent(BuiltinDishes.this, MakeDishActivityJ.class);
 	        	
 	        	intent.putExtra("dish_id", dish.dishid); 
 	        	intent.putExtra("title", tv.getText().toString()); 
+	        	
+	        	intent.putExtra("editable", tv.getText().toString().equals("自编菜谱"));
 	        	startActivity(intent);
 	        }  
 	     });

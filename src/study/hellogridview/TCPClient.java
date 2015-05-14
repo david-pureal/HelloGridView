@@ -40,7 +40,7 @@ public class TCPClient {
 	public CurStateActivity curstate_activity;
 	public BuiltinDishes buildin_activity;
 	public SettingActivity setting_activity;
-	public MakeDishActivity makedish_activity;
+	public MakeDishActivityJ makedish_activity;
 	public AllDish alldish_activity;
 	
 	private DeviceState ds;
@@ -155,7 +155,7 @@ public class TCPClient {
 		this.setting_activity = sact;
 	}
 	
-	public void set_makedishact(MakeDishActivity sact) {
+	public void set_makedishact(MakeDishActivityJ sact) {
 		this.makedish_activity = sact;
 	}
 	
@@ -183,7 +183,7 @@ public class TCPClient {
 	}
 	
 	public void notify_connect_state() {
-		if (main_activity.getHandler() != null) main_activity.getHandler().sendEmptyMessage(Constants.MSG_ID_CONNECT_STATE);
+		if (main_activity != null && main_activity.getHandler() != null) main_activity.getHandler().sendEmptyMessage(Constants.MSG_ID_CONNECT_STATE);
 		if (buildin_activity != null && buildin_activity.getHandler() != null) {
 			buildin_activity.getHandler().sendEmptyMessage(Constants.MSG_ID_CONNECT_STATE);
 		}
@@ -716,9 +716,11 @@ public class TCPClient {
 				ds.jiaoban_speed = bs[23];
 			}
 			ds.is_pot_in = bs[26];
-			ds.is_lock = bs[27];
+			ds.is_unlock = bs[27];
+			ds.device_id = this.gotInt(bs, 28);
 			ds.use_sound = bs[32];
 			ds.use_english = bs[33];
+			ds.temp_set = bs[34] & 0xff;
 			
 			RespPackage rp_ms = new RespPackage();
 			rp_ms.reqid_head = gotInt(bs, 10);

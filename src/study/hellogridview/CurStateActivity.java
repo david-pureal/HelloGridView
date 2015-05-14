@@ -42,7 +42,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	public byte jiaoban_speed = 1;
 	public int dish_id = 1;
 	public Dish dish;
-	public byte modify_state = (byte) 0xE0; //时间、温度、搅拌、控制。。。是否被用户改动过的标识位，最高字节为时间，以此类推
+	public byte modify_state = (byte) 0x0; //时间、温度、搅拌、控制。。。是否被用户改动过的标识位，最高字节为时间，以此类推
 	public byte control = 3;                // 0表示开始炒菜，1表示暂停，2表示取消，3表示解锁， 4表示上锁
 	
 	public final String net_mode = "AP";    // wifi模块的工作模式：AP或者STA
@@ -228,11 +228,12 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
             	time_tv.setTextColor(Color.YELLOW);
             	temp_tv.setTextColor(Color.BLACK);
             	jiaoban_tv.setTextColor(Color.BLACK);
-//            	time_tv.setBackgroundResource(R.drawable.circle_yellow_128);
-//            	temp_tv.setBackgroundResource(R.drawable.circle_gray_128);
-//            	jiaoban_tv.setBackgroundResource(R.drawable.circle_gray_128);
+            	
+            	is_setting_param = true;
+            	current_twinkle_times = 0;
             	
             	CurStateActivity.this.update_seekbar();
+            	
             }  
         });
         temp_tv = (TextView) findViewById(R.id.temp);
@@ -240,12 +241,12 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
             @Override  
             public void onClick(View v) {  
             	selected_param = temp_tv;
-//            	temp_tv.setBackgroundResource(R.drawable.circle_yellow_128);
-//            	time_tv.setBackgroundResource(R.drawable.circle_gray_128);
-//            	jiaoban_tv.setBackgroundResource(R.drawable.circle_gray_128);
             	time_tv.setTextColor(Color.BLACK);
             	temp_tv.setTextColor(Color.YELLOW);
             	jiaoban_tv.setTextColor(Color.BLACK);
+            	
+            	is_setting_param = true;
+            	current_twinkle_times = 0;
             	
             	CurStateActivity.this.update_seekbar();
             }  
@@ -258,6 +259,9 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
             	time_tv.setTextColor(Color.BLACK);
             	temp_tv.setTextColor(Color.BLACK);
             	jiaoban_tv.setTextColor(Color.YELLOW);
+            	
+            	is_setting_param = true;
+            	current_twinkle_times = 0;
             	
             	CurStateActivity.this.update_seekbar();
             }  
@@ -291,63 +295,32 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 		            case MotionEvent.ACTION_UP:
 		            	
 		            	if (selected_param.getId() == R.id.temp) {
+		            		CurStateActivity.this.modify_state = (byte)0x40;
 		            		int t = (CurStateActivity.this.temp & 0x00ff)+ i*2;
 		            		t = Math.min(200, t);
 		            		CurStateActivity.this.temp = (byte) Math.max(0, t);
 		        		} else if (selected_param.getId() == R.id.jiaoban) {
+		        			CurStateActivity.this.modify_state = (byte)0x20;
 		        			CurStateActivity.this.jiaoban_speed = (byte) (CurStateActivity.this.jiaoban_speed + i*1);
 		        			CurStateActivity.this.jiaoban_speed = (byte) Math.min(8, CurStateActivity.this.jiaoban_speed & 0xff);
 		        			CurStateActivity.this.jiaoban_speed = (byte) Math.max(1, CurStateActivity.this.jiaoban_speed & 0xff);
 		        		} else if (selected_param.getId() == R.id.time) {
 		        			Log.v("CurStateActivity", "ds.time =" + ds.time);
+		        			CurStateActivity.this.modify_state = (byte)0x80;
 		        			ds.time = (short) (ds.time + i*10);
 		        			ds.time = (short) Math.min(MAX_TIME, ds.time);
 		        			ds.time = (short) Math.max(0, ds.time);
 		        			Log.v("CurStateActivity", "CurStateActivity set time = " + ds.time);
 		        		}
 		            	
-		            	CurStateActivity.this.modify_state = (byte)0xE0;
 		            	CurStateActivity.this.onStopTrackingTouch(CurStateActivity.this.bar);
 		            	
 		            	selected_param.setTextColor(Color.YELLOW);
+		            	current_twinkle_times = 0;
+		            	
 		                break;
 		        	}
 	        	}
-//	        	else if (v.equals(start_pause)) { // 长按start_pause3秒，停止炒菜
-//	        		switch (event.getAction()) {
-//		            case MotionEvent.ACTION_DOWN:
-//		            	Log.v("CurStateActivity", "ACTION_DOWN");
-//		            	down_timestamp = System.currentTimeMillis();
-//		          	  	break;
-//		            case MotionEvent.ACTION_UP:
-//		            	if (System.currentTimeMillis() - down_timestamp > 3000) {
-//		            		if (ds.working_state != Constants.MACHINE_WORK_STATE_STOP) {
-//		            			control = Constants.MACHINE_WORK_STATE_STOP;
-//		            			modify_state = (byte) 0x10;
-//			                	is_do_stop = true;
-//		            		}
-//		            	}
-//		            	else {
-//		            		if (ds.working_state == Constants.MACHINE_WORK_STATE_COOKING) control = Constants.MACHINE_WORK_STATE_PAUSE;
-//		                	else if (ds.working_state == Constants.MACHINE_WORK_STATE_PAUSE) control = Constants.MACHINE_WORK_STATE_COOKING;
-//		                	else if (ds.working_state == Constants.MACHINE_WORK_STATE_STOP) control = Constants.MACHINE_WORK_STATE_COOKING;
-//		                	modify_state = (byte) 0x10;
-//		            	}
-//		            	
-//		            	Message msg = new Message();  
-//	                    msg.what = 0x345;  
-//	                    Package data = new Package(Package.Set_Param);
-//	                    msg.obj = data.getBytes();
-//	                    tcpclient.sendMsg(msg);
-//	                    
-//	                    //play stop voice
-//	                    if (is_do_stop) {
-//		                    player_stop = MediaPlayer.create(CurStateActivity.this, R.raw.voice_stop);
-//		                    player_stop.start();
-//	                    }
-//		                break;
-//		        	}
-//	        	}
 	        	else if (v.equals(main)) {
 	        		Log.v("CurStateActivity", "main.x = " + event.getX() + ", main.y = " + event.getY());
 	        		boolean down_on_lock = false;
@@ -399,12 +372,10 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
             }  
         });
 		
-		
 		//android:src="@drawable/state_bg"
 		main = (ImageView) findViewById(R.id.main);
 		main.setOnTouchListener(new PicOnTouchListener(0));
-		main.setBackgroundResource(R.drawable.standard_bkg);
-		
+		//main.setBackgroundResource(R.drawable.standard_bkg);
 		
 		start_pause = (ImageView) findViewById(R.id.start_pause);
 		//start_pause.setOnTouchListener(new PicOnTouchListener(0));
@@ -451,7 +422,6 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
             	is_standard_ui = !is_standard_ui;
             	switch_ui_tv.setText(is_standard_ui ? "简洁" : "标准");
             	//main.setImageResource(is_standard_ui ? R.drawable.standard_bkg : R.drawable.simple_bkg);
-            	ui_changed = true;
             	handler.sendEmptyMessage(0x234);
             }  
         });
@@ -464,7 +434,6 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         draw_temp_baselin(); 
 	} // oncreate
 	
-	public boolean ui_changed = false;
 
 	public final static int STATE_HEATING = 0;
 	public final int STATE_ADD_OIL = 1;
@@ -485,8 +454,8 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	
 	static Bitmap canvas_bmp = null;
 	static Bitmap simple_bkg_bmp = null;
+	static Bitmap standard_bkg_bmp = null;
 	static ByteBuffer background_buffer; // 缓冲，每次绘制后canvas_bmp会被修改， 下次绘制时使用该buffer把canvas_bmp还原到初始状态
-	static ByteBuffer simple_background_buffer;
 	
 	int width     = 0;
 	int height    = 0;
@@ -527,19 +496,15 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	int jiaoban_current_pos = 0;
 	int wait_count = 0;
 	
+	boolean is_setting_param = false; // 设置参数时，要闪烁显示
+	final int twinkle_times = 5;
+	int current_twinkle_times = 0;
+	
 	// 画设定的温度线，用绿色线
 	private void draw_temp_baselin() {
 		if (dish == null) {
 			Log.v("CurStateActivity", "dishid=" + dish_id + " is not exist, skip drawing");
 			return;
-		}
-		
-		if (ui_changed) {
-			ui_changed = false;
-			if (!is_standard_ui && simple_background_buffer == null) {
-				//canvas_bmp = Bitmap.createBitmap(width, height, Config.ARGB_8888);
-				//simple_background_buffer = ByteBuffer.allocate(canvas_bmp.getByteCount()); 
-			}
 		}
         
         if (canvas_bmp == null) {
@@ -547,10 +512,10 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         	canvas_bmp = Bitmap.createBitmap(width, height, Config.ARGB_8888); // 每次都创建会的话导致OutOfMemoryError
         	background_buffer = ByteBuffer.allocate(canvas_bmp.getByteCount());
         	simple_bkg_bmp = Tool.get_res_bitmap(R.drawable.simple_bkg);
+        	standard_bkg_bmp = Tool.get_res_bitmap(R.drawable.standard_bkg);
         }
         else {
         	background_buffer.position(0);
-        	if (simple_background_buffer !=null ) simple_background_buffer.position(0);
             canvas_bmp.copyPixelsFromBuffer(background_buffer);
         }
         
@@ -559,11 +524,11 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         paint.setAntiAlias(false); //去锯齿 
         paint.setStrokeWidth(3);
 
-        float scale = 1; //(float) (480.0 / width * 0.7);
+        float scale = 1;//(float) (480.0 / width * 0.7);
+        Rect bkg_rect = new Rect(0, 0, width, height);
         if (!is_standard_ui) {
         	// draw simple background
-        	Rect rect = new Rect(0, 0, width, height);
-        	canvas.drawBitmap(simple_bkg_bmp, null, rect, null);
+        	canvas.drawBitmap(simple_bkg_bmp, null, bkg_rect, null);
         	
         	// 温度
         	int temp = ds.temp & 0xff;
@@ -601,6 +566,9 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         	return;
         }
         
+        // draw simple background
+    	canvas.drawBitmap(standard_bkg_bmp, null, bkg_rect, null);
+        
         // 绿色的标准线段
         paint.setColor(Color.GREEN);
         int zhuliao_time = dish.zhuliao_time & 0xffff;
@@ -626,11 +594,13 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         paint.setColor(Color.rgb(246, 221, 53)); // 字的颜色
         paint.setTextSize(110 * scale);
         paint.setStyle(Paint.Style.FILL);
-        if (temp >= 100) {
-        	canvas.drawText("" + temp, temperature_x, temperature_y, paint);
-        }
-        else {
-        	canvas.drawText("" + temp, temperature_x_2, temperature_y, paint);
+        if (!(selected_param.getId() == R.id.temp && is_setting_param && ++current_twinkle_times < twinkle_times && current_twinkle_times%2 == 0)) {
+	        if (temp >= 100) {
+	        	canvas.drawText("" + temp, temperature_x, temperature_y, paint);
+	        }
+	        else {
+	        	canvas.drawText("" + temp, temperature_x_2, temperature_y, paint);
+	        }
         }
         
         // total time
@@ -638,13 +608,22 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 		int seconds = ds.time - minites * 60;
 		String separator = seconds < 10 ? ":0" : ":";
 		String minites_prefix =  minites < 10 ? "0" : "";
-        canvas.drawText(minites_prefix + minites + separator + seconds, time_x, time_y, paint);
+		if (!(selected_param.getId() == R.id.time && is_setting_param && ++current_twinkle_times < twinkle_times && current_twinkle_times%2 == 0)) {
+			canvas.drawText(minites_prefix + minites + separator + seconds, time_x, time_y, paint);
+		}
 
         // jiaoban
         paint.setTextSize(90 * scale);
         Typeface tf_default = paint.getTypeface();
         paint.setTypeface(MainActivity.typeFace_fzzy);
-        canvas.drawText(this.jiaoban_str.get(Math.max(0, ds.jiaoban_speed-1)), jiaoban_x, jiaoban_y, paint);
+        if (!(selected_param.getId() == R.id.jiaoban && is_setting_param && ++current_twinkle_times < twinkle_times && current_twinkle_times%2 == 0)) {
+        	canvas.drawText(this.jiaoban_str.get(Math.max(0, ds.jiaoban_speed-1)), jiaoban_x, jiaoban_y, paint);
+        }
+        
+        if (is_setting_param && current_twinkle_times == twinkle_times) {
+        	Log.v("CurStateActivity", "set param twinkle finished.");
+        	is_setting_param = false;
+        }
         
         // dish name
         final int name_x = (int) (130.0/Constants.UI_WIDTH * width);
@@ -1011,9 +990,6 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 		} else if (selected_param.getId() == R.id.time) {
 			ds.time = (short) (((float)(progress)/100) * 3599);
 		}
-		
-		this.modify_state = (byte)0xE0;
-		this.updateall();
 	}
 	
 	public void update_operator_button() {
@@ -1046,15 +1022,6 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	public Handler getHandler() {
     	return this.handler;
     }
-	
-//	@Override
-//	public boolean onKeyDown(int keyCode, KeyEvent event) {
-//	    if (keyCode == KeyEvent.KEYCODE_BACK) {
-//	        moveTaskToBack(true);
-//	        return true;
-//	    }
-//	    return super.onKeyDown(keyCode, event);
-//	}
 	
 	@Override  
     protected void onPause() {  

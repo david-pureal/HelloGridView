@@ -36,6 +36,8 @@ public class TableEditActivity extends Activity {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_table_edit);
 		
+		tableLayout = (TableLayout) findViewById(R.id.table_edit_table);
+		
 		edit_title = (TextView) findViewById(R.id.edit_title);
 		Intent intent = getIntent();
 		String title = intent.getStringExtra("edit_title");
@@ -43,9 +45,32 @@ public class TableEditActivity extends Activity {
 		int dish_id = intent.getIntExtra("dish_id", 0);
 		if (title.equals("主料"))
 			content_map = Dish.getDishById(dish_id).zhuliao_content_map;
-		else
+		else if (title.equals("辅料"))
 			content_map = Dish.getDishById(dish_id).fuliao_content_map;
+		else if (title.equals("炝锅料")) {
+			content_map = Dish.getDishById(dish_id).qiangguoliao_content_map;
+			
+			TableRow tr0 = (TableRow) tableLayout.getChildAt(0);
+			((TextView)(tr0.findViewWithTag(key))).setText("姜丝");
+			((TextView)(tr0.findViewWithTag(value))).setText("5克");
+			
+			TableRow tr1 = (TableRow) tableLayout.getChildAt(1);
+			((TextView)(tr1.findViewWithTag(key))).setText("蒜片");
+			((TextView)(tr1.findViewWithTag(value))).setText("5克");
+		}
+		else if (title.equals("调料")) {
+			content_map = Dish.getDishById(dish_id).tiaoliao_content_map;
+			
+			TableRow tr0 = (TableRow) tableLayout.getChildAt(0);
+			((TextView)(tr0.findViewWithTag(key))).setText("盐");
+			((TextView)(tr0.findViewWithTag(value))).setText("5克");
+			
+			TableRow tr1 = (TableRow) tableLayout.getChildAt(1);
+			((TextView)(tr1.findViewWithTag(key))).setText("鸡精");
+			((TextView)(tr1.findViewWithTag(value))).setText("5克");
+		}
 		row_count = content_map.size();
+		fill_table(content_map);
 		
 		
 		TextView cancel = (TextView) findViewById(R.id.cancel);
@@ -64,9 +89,6 @@ public class TableEditActivity extends Activity {
             	save_to_dish();
             }  
         });
-		
-		tableLayout = (TableLayout) findViewById(R.id.table_edit_table);
-		fill_table(content_map);
 		
 		table_edit_addrow = (TextView) findViewById(R.id.table_edit_addrow);
 		table_edit_addrow.setOnClickListener(new OnClickListener() {  
@@ -125,6 +147,7 @@ public class TableEditActivity extends Activity {
 	}
 	
 	 public void fill_table(LinkedHashMap<String, String> lmap) {
+
 		 if (!lmap.isEmpty()) {
 			 tableLayout.removeViews(0, 2);
 		 }

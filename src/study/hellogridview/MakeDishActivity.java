@@ -155,7 +155,7 @@ public class MakeDishActivity extends Activity {
 		//new_dish_id = dish_id;
 		
 		tcpClient = TCPClient.getInstance();
-        tcpClient.set_makedishact(this);
+        //tcpClient.set_makedishact(this);
 		
 		makedish_img = (ImageView) findViewById(R.id.makedish_img); 
 		//makedish_img.setImageDrawable(new_dish.img_drawable);
@@ -729,7 +729,7 @@ public class MakeDishActivity extends Activity {
             @Override  
             public void onClick(View v) {  
             	Log.v("MakeDishActivity", "make verify done");
-            	HttpUtils.VerifyDish(new_dish, true, MakeDishActivity.this);
+            	//HttpUtils.VerifyDish(new_dish, true, MakeDishActivity.this);
             }  
         });
 		

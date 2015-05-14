@@ -12,6 +12,7 @@
     android:background="@drawable/bkg_darker"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent" >
+    <!-- android:background="@drawable/bkg_darker" -->
     
     <LinearLayout
         android:layout_width="fill_parent"
@@ -26,7 +27,8 @@
             android:layout_height="250dp"
             android:layout_weight="1"
             android:scaleType="fitXY"
-            android:src="@drawable/tudousi" />
+             />
+        <!-- android:src="@drawable/tudousi" -->
 
         <LinearLayout
             android:layout_width="fill_parent"
@@ -51,7 +53,8 @@
                 android:layout_gravity="right"
                 android:layout_marginLeft="30dp"
                 android:scaleType="fitXY"
-                android:src="@drawable/unfavorite_dish_72" />
+                 />
+            <!-- android:src="@drawable/unfavorite_dish_72" -->
 
         </LinearLayout>
 
@@ -75,7 +78,8 @@
             android:layout_marginTop="10dp"
             android:layout_weight="1"
             android:scaleType="fitXY"
-            android:src="@drawable/tudousi_peiliao" />
+             />
+        <!-- android:src="@drawable/tudousi_peiliao" -->
         
         <ImageView
             android:id="@+id/material_2"
@@ -156,13 +160,14 @@
 
 	        <ImageView
 	            android:id="@+id/shareto"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
+	            android:layout_width="200dp"
+	            android:layout_height="50dp"
 	            android:layout_alignParentRight="true"
 	            android:layout_alignParentTop="true"
 	            android:layout_marginRight="10dp"
 	            android:scaleType="fitXY"
-	            android:src="@drawable/shareto" />
+	             />
+	        <!-- android:src="@drawable/shareto" -->
 
 	        </RelativeLayout>
     </LinearLayout>

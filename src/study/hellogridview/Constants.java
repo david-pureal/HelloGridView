@@ -10,7 +10,7 @@ public final class Constants {
 	public static final int CONNECTING   = 0;
 	public static final int CONNECTED    = 1;
 	public static final int DISCONNECTED = -1;
-	public static final int CONNECT_TIMEOUT = 20000;//  milliseconds
+	public static final int CONNECT_TIMEOUT = 10000;//  milliseconds
 	
 	// machine work state
 	public static final byte MACHINE_WORK_STATE_COOKING = 0x00; // 0正在做菜；1暂停；2待机
@@ -26,10 +26,10 @@ public final class Constants {
 	public static final int UI_HEIGHT   = 272;
 	
 	// message id
-	public static final int MSG_ID_STA_IP = 100;
+	public static final int MSG_ID_STA_IP        = 100;
 	public static final int MSG_ID_UPLOAD_RESULT = 200;
 	public static final int MSG_ID_DOWNLOAD_ICON = 300;
-	public static final int MSG_ID_VERIFY_DONE = 400;
+	public static final int MSG_ID_VERIFY_DONE   = 400;
 	public static final int MSG_ID_FAVORITE_DONE = 500;
 	public static final int MSG_ID_REGISTER_DONE = 600;
 	public static final int MSG_ID_CONNECT_STATE = 700;

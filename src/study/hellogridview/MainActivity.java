@@ -76,6 +76,8 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
 	public static Typeface typeFace;
 	public static Typeface typeFace_fzzy;
 	
+	static MainActivity instance;
+	
 	/** 
      * ViewPager 
      */  
@@ -107,6 +109,8 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		instance = this;
 		
 		Log.v("MainActivity", "onCreate");
 		
@@ -391,11 +395,9 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
              Dish d = dishes.get(key);
              HashMap<String, Object> map = new HashMap<String, Object>(); 
               
-             if (d.isAppBuiltIn()) {
-               	 map.put("icon", d.img); //添加图像资源的ID 
-             }
-             else if (d.isVerifyDone()) {
-             	 map.put("icon", d.img_bmp); //添加图像资源的ID
+             if (d.img_bmp == null) d.img_bmp = Tool.decode_res_bitmap(d.img, MainActivity.this);
+             if (d.isAppBuiltIn() || d.isVerifyDone()) {
+               	 map.put("icon", d.img_bmp); //添加图像资源的ID 
              }
              else { continue;}
               
@@ -428,9 +430,8 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
  	        	Log.v("OnItemClickListener", "position = " + position + "id = " + id);
  	        	Dish dish = Dish.getDishById(index_id_list.get(position));
  	        	
- 	        	Intent intent;
- 	        	if (dish.isAppBuiltIn()) intent = new Intent(MainActivity.this, DishActivity.class);
- 	        	else intent = new Intent(MainActivity.this, MakeDishActivity.class);
+ 	        	Intent intent = new Intent(MainActivity.this, MakeDishActivityJ.class);
+ 	        	intent.putExtra("editable", false);
  	        	
  	        	intent.putExtra("dish_id", dish.dishid); 
  	        	startActivity(intent);	

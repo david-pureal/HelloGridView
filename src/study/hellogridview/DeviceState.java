@@ -18,10 +18,11 @@ public class DeviceState {
 	public byte working_state = Constants.MACHINE_WORK_STATE_STOP; //机器工作状态： 0，正在做菜；1暂停；2待机
 	public short time = 580;
 	public byte temp = (byte) 180; // 温度
+	public int temp_set = 180; // 设置的温度
 	public byte jiaoban_speed = 5;
 	public short dishid = 1;
 	public byte is_pot_in = 1; //锅是否在位
-	public byte is_lock = 0; //屏幕是否已锁
+	public byte is_unlock = 0; //是否解锁，1是0否
 	
 	public int device_id = 0;  // 机器识别码
 	public boolean got_builtin = false;
@@ -34,6 +35,6 @@ public class DeviceState {
 	public short[] builtin_dishids;
 	
 	public boolean is_locked() {
-		return is_lock != 0;
+		return is_unlock == 0;
 	}
 }

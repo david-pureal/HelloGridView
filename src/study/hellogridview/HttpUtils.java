@@ -296,7 +296,7 @@ public class HttpUtils {
     	});
 	}
 	
-	public static void VerifyDish(final Dish dish, final boolean is_accept, final MakeDishActivity context) {
+	public static void VerifyDish(final Dish dish, final boolean is_accept, final MakeDishActivityJ context) {
     	if (dish.isAppBuiltIn()) return;
     	
     	new Thread() {

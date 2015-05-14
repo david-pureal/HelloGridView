@@ -127,10 +127,10 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
 		dish = Dish.getDishById(dish_id);
 		dish_img = (ImageView) findViewById(R.id.dish_img); 
 		Dish d = Dish.getDishById(dish_id);
-		if (d.isAppBuiltIn()) dish_img.setImageResource(d.img);
-		else {
-			dish_img.setImageBitmap(d.img_bmp);
-		}
+		
+		if (d.img_bmp == null) d.img_bmp = Tool.decode_res_bitmap(d.img, this);
+		dish_img.setImageBitmap(d.img_bmp);
+		
 		
 		dish_detail = (TextView) findViewById(R.id.dish_detail); 
 		dish_detail.setText(dish.text);
@@ -324,7 +324,8 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
         });
         
         favorite = (ImageView) findViewById(R.id.favorite);
-        favorite.setImageResource(Account.isFavorite(dish) ? R.drawable.favorite_dish_72 : R.drawable.unfavorite_dish_72);
+        int favorite_resid = Account.isFavorite(dish) ? R.drawable.favorite_dish_72 : R.drawable.unfavorite_dish_72;
+        favorite.setImageBitmap(Tool.get_res_bitmap(favorite_resid));
         favorite.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) {
@@ -333,7 +334,8 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
 //                	intent.putExtra("header", "登录后才能收藏");
 //                	startActivityForResult(intent, 9);
             		boolean is_fav = Account.do_local_favorite(dish);
-            		favorite.setImageResource(is_fav ? R.drawable.favorite_dish_72 : R.drawable.unfavorite_dish_72);
+            		int favorite_resid = Account.isFavorite(dish) ? R.drawable.favorite_dish_72 : R.drawable.unfavorite_dish_72;
+                    favorite.setImageBitmap(Tool.get_res_bitmap(favorite_resid));
             		String text = is_fav ? "已收藏" : "取消收藏";
             		Toast.makeText(DishActivity.this, text, Toast.LENGTH_SHORT).show();
             	} else {
@@ -350,6 +352,7 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
         share_to_wechat.setVisibility(View.GONE);
         
         shareto = (ImageView) findViewById(R.id.shareto);
+        shareto.setImageBitmap(Tool.get_res_bitmap(R.drawable.shareto));
         shareto.setOnClickListener(this);
         
         material_1 = (ImageView) findViewById(R.id.material_1); 
