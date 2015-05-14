@@ -602,8 +602,357 @@ public class Dish implements Cloneable {
 			dish12.img_tiny = R.raw.tudousi_tiny;
 			dish12.text = "1、底油：30克\n2、炝锅料：姜片5克、蒜片5克 \n3、主料：虾仁150克（加10克料酒腌制5分钟）\n4、辅料：西芹段100克、红萝卜菱形片20克\n5、水和调料：水10克、盐2克、鸡精2克"; 
 			dish12.name_english = "tomato chip";
-			dish12.dishid = 13;
+			dish12.dishid = 50;
 			alldish_map.put(dish12.dishid, dish12);
+			
+			{
+				Dish dish = new Dish(R.drawable.xiangganroupian, "香干肉片");
+				dish.img_tiny = R.drawable.xiangganroupian_tiny;
+				dish.zhuliao_temp = (byte) 180;
+				dish.fuliao_temp = (byte) 180;
+				dish.zhuliao_time = (short) 60;
+				dish.fuliao_time = (short) 160;
+				dish.zhuliao_jiaoban_speed = 8;
+				dish.fuliao_jiaoban_speed = 5;
+				dish.water = 2;
+				dish.water_weight = 20;
+				dish.oil = 30;
+				dish.qiangguoliao = 1;
+				dish.name_english = "xiangganrou";
+				dish.dishid = 13;
+				
+				dish.zhuliao_content_map.put("瘦肉片", "100克");
+				dish.fuliao_content_map.put("香干条",  "150克");
+				dish.fuliao_content_map.put("香芹段",  "30克");
+				dish.fuliao_content_map.put("红椒",   "20克");
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.qiangguoliao, "炝锅料"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.xiangganroupian_1, "加入1克生粉和5克生抽腌制10分钟"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.xiangganroupian_2, "香干条，香芹段，红椒菱形片"));
+				dish.qiangguoliao_content_map.put("姜丝", "5克");
+				dish.qiangguoliao_content_map.put("蒜片", "5克");
+				dish.tiaoliao_content_map.put("鸡精", "2克");
+				dish.tiaoliao_content_map.put("盐", "2克");
+				dish.tiaoliao_content_map.put("生抽", "5克");
+				alldish_map.put(dish.dishid, dish);
+			}
+			
+			{
+				Dish dish = new Dish(R.drawable.jiandouchaorou, "剪豆炒肉");
+				dish.img_tiny = R.drawable.jiandouchaorou_tiny;
+				dish.zhuliao_temp = (byte) 190;
+				dish.fuliao_temp = (byte) 190;
+				dish.zhuliao_time = (short) 60;
+				dish.fuliao_time = (short) 170;
+				dish.zhuliao_jiaoban_speed = 8;
+				dish.fuliao_jiaoban_speed = 4;
+				dish.water = 2;
+				dish.water_weight = 20;
+				dish.oil = 35;
+				dish.qiangguoliao = 1;
+				dish.name_english = "jiandourou";
+				dish.dishid = 14;
+				
+				dish.zhuliao_content_map.put("瘦肉片", "100克");
+				dish.fuliao_content_map.put("荷兰豆",  "170克");
+				dish.fuliao_content_map.put("玉米粒",  "30克");
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.qiangguoliao, "炝锅料"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.xiangganroupian_1, "加入1克生粉和5克生抽腌制10分钟"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.jiandouchaorou_2, "荷兰豆，玉米粒"));
+				dish.qiangguoliao_content_map.put("姜丝", "5克");
+				dish.qiangguoliao_content_map.put("蒜片", "5克");
+				dish.tiaoliao_content_map.put("鸡精", "2克");
+				dish.tiaoliao_content_map.put("盐", "2克");
+				alldish_map.put(dish.dishid, dish);
+			}
+			
+			{
+				Dish dish = new Dish(R.drawable.yangcongniurou, "洋葱牛肉");
+				dish.img_tiny = R.drawable.yangcongniurou_tiny;
+				dish.zhuliao_temp = (byte) 180;
+				dish.fuliao_temp = (byte) 180;
+				dish.zhuliao_time = (short) 60;
+				dish.fuliao_time = (short) 180;
+				dish.zhuliao_jiaoban_speed = 8;
+				dish.fuliao_jiaoban_speed = 5;
+				dish.water = 2;
+				dish.water_weight = 15;
+				dish.oil = 35;
+				dish.qiangguoliao = 1;
+				dish.name_english = "onion beaf";
+				dish.dishid = 15;
+				
+				dish.zhuliao_content_map.put("牛肉片", "130克");
+				dish.fuliao_content_map.put("洋葱",  "150克");
+				dish.fuliao_content_map.put("青椒",  "10克");
+				dish.fuliao_content_map.put("红椒",  "10克");
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.qiangguoliao, "炝锅料"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.yangcongniurou_1, "加入1克生粉和5克生抽5克料酒腌制10分钟"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.yangcongniurou_2, "洋葱，青椒，红椒"));
+				dish.qiangguoliao_content_map.put("姜丝", "5克");
+				dish.qiangguoliao_content_map.put("蒜片", "5克");
+				dish.tiaoliao_content_map.put("鸡精", "2克");
+				dish.tiaoliao_content_map.put("盐", "2克");
+				alldish_map.put(dish.dishid, dish);
+			}
+			
+			{
+				Dish dish = new Dish(R.drawable.qingchaoyouyu, "清炒鱿鱼");
+				dish.img_tiny = R.drawable.qingchaoyouyu_tiny;
+				dish.zhuliao_temp = (byte) 185;
+				dish.fuliao_temp = (byte) 185;
+				dish.zhuliao_time = (short) 60;
+				dish.fuliao_time = (short) 180;
+				dish.zhuliao_jiaoban_speed = 4;
+				dish.fuliao_jiaoban_speed = 4;
+				dish.water = 0;
+				dish.water_weight = 0;
+				dish.oil = 30;
+				dish.qiangguoliao = 1;
+				dish.name_english = "squid";
+				dish.dishid = 16;
+				
+				dish.zhuliao_content_map.put("生鱿鱼", "300克");
+				dish.fuliao_content_map.put("青椒片",  "50克");
+				dish.fuliao_content_map.put("红萝卜片",  "50克");
+				dish.fuliao_content_map.put("木耳",  "20克");
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.qiangguoliao, "炝锅料"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.yangcongniurou_1, "生鱿鱼片"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.yangcongniurou_2, "青椒片，红萝卜片，木耳"));
+				dish.qiangguoliao_content_map.put("姜丝", "5克");
+				dish.qiangguoliao_content_map.put("蒜片", "5克");
+				dish.tiaoliao_content_map.put("鸡精", "2克");
+				dish.tiaoliao_content_map.put("盐", "2克");
+				alldish_map.put(dish.dishid, dish);
+			}
+			
+			{
+				Dish dish = new Dish(R.drawable.qingjiaochaorou, "青椒炒肉");
+				dish.img_tiny = R.drawable.qingjiaochaorou_tiny;
+				dish.zhuliao_temp = (byte) 180;
+				dish.fuliao_temp = (byte) 180;
+				dish.zhuliao_time = (short) 60;
+				dish.fuliao_time = (short) 190;
+				dish.zhuliao_jiaoban_speed = 8;
+				dish.fuliao_jiaoban_speed = 6;
+				dish.water = 2;
+				dish.water_weight = 15;
+				dish.oil = 30;
+				dish.qiangguoliao = 1;
+				dish.name_english = "squid";
+				dish.dishid = 17;
+				
+				dish.zhuliao_content_map.put("瘦肉片", "100克");
+				dish.fuliao_content_map.put("青椒片",  "120克");
+				dish.fuliao_content_map.put("红椒",  "50克");
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.qiangguoliao, "炝锅料"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.xiangganroupian_1, "加入1克生粉和5克生抽腌制10分钟"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.qingjiaochaorou_2, "青椒丝，红椒"));
+				dish.qiangguoliao_content_map.put("姜丝", "5克");
+				dish.qiangguoliao_content_map.put("蒜片", "5克");
+				dish.tiaoliao_content_map.put("鸡精", "2克");
+				dish.tiaoliao_content_map.put("盐", "2克");
+				dish.tiaoliao_content_map.put("生抽", "5克");
+				alldish_map.put(dish.dishid, dish);
+			}
+			
+			{
+				Dish dish = new Dish(R.drawable.ziranyangrou, "孜然羊肉");
+				dish.img_tiny = R.drawable.ziranyangrou_tiny;
+				dish.zhuliao_temp = (byte) 180;
+				dish.fuliao_temp = (byte) 180;
+				dish.zhuliao_time = (short) 60;
+				dish.fuliao_time = (short) 200;
+				dish.zhuliao_jiaoban_speed = 8;
+				dish.fuliao_jiaoban_speed = 5;
+				dish.water = 2;
+				dish.water_weight = 20;
+				dish.oil = 40;
+				dish.qiangguoliao = 1;
+				dish.name_english = "lamp";
+				dish.dishid = 18;
+				
+				dish.zhuliao_content_map.put("羊肉片", "150克");
+				dish.fuliao_content_map.put("青椒",  "30克");
+				dish.fuliao_content_map.put("洋葱",  "100克");
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.qiangguoliao, "炝锅料"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.congbaoyangrou_1, "羊肉片"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.ziranyangrou_2, "青椒，洋葱"));
+				dish.qiangguoliao_content_map.put("姜丝", "5克");
+				dish.qiangguoliao_content_map.put("蒜片", "5克");
+				dish.tiaoliao_content_map.put("鸡精", "2克");
+				dish.tiaoliao_content_map.put("盐", "2克");
+				dish.tiaoliao_content_map.put("孜然粉", "3克");
+				alldish_map.put(dish.dishid, dish);
+			}
+			
+			{
+				Dish dish = new Dish(R.drawable.moyushaoya, "魔芋烧鸭");
+				dish.img_tiny = R.drawable.moyushaoya_tiny;
+				dish.zhuliao_temp = (byte) 180;
+				dish.fuliao_temp = (byte) 180;
+				dish.zhuliao_time = (short) 60;
+				dish.fuliao_time = (short) 210;
+				dish.zhuliao_jiaoban_speed = 6;
+				dish.fuliao_jiaoban_speed = 4;
+				dish.water = 2;
+				dish.water_weight = 20;
+				dish.oil = 35;
+				dish.qiangguoliao = 1;
+				dish.name_english = "konjac duck";
+				dish.dishid = 19;
+				
+				dish.zhuliao_content_map.put("鸭块", "150克");
+				dish.fuliao_content_map.put("魔芋",  "100克");
+				dish.fuliao_content_map.put("青椒",  "20克");
+				dish.fuliao_content_map.put("红椒",  "20克");
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.qiangguoliao, "炝锅料"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.moyushaoya_1, "鸭块"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.moyushaoya_2, "魔芋，青椒，红椒"));
+				dish.qiangguoliao_content_map.put("姜丝", "5克");
+				dish.qiangguoliao_content_map.put("蒜片", "5克");
+				dish.tiaoliao_content_map.put("鸡精", "2克");
+				dish.tiaoliao_content_map.put("盐", "2克");
+				alldish_map.put(dish.dishid, dish);
+			}
+			
+			{
+				Dish dish = new Dish(R.drawable.xiqinlachang, "西芹腊肠");
+				dish.img_tiny = R.drawable.xiqinlachang_tiny;
+				dish.zhuliao_temp = (byte) 190;
+				dish.fuliao_temp = (byte) 190;
+				dish.zhuliao_time = (short) 60;
+				dish.fuliao_time = (short) 180;
+				dish.zhuliao_jiaoban_speed = 5;
+				dish.fuliao_jiaoban_speed = 5;
+				dish.water = 2;
+				dish.water_weight = 10;
+				dish.oil = 30;
+				dish.qiangguoliao = 1;
+				dish.name_english = "celery sausage";
+				dish.dishid = 20;
+				
+				dish.zhuliao_content_map.put("腊肠", "150克");
+				dish.fuliao_content_map.put("西芹",  "100克");
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.qiangguoliao, "炝锅料"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.xiqinlachang_1, "腊肠"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.xiqinlachang_2, "西芹"));
+				dish.qiangguoliao_content_map.put("姜丝", "5克");
+				dish.qiangguoliao_content_map.put("蒜片", "5克");
+				dish.tiaoliao_content_map.put("鸡精", "2克");
+				dish.tiaoliao_content_map.put("盐", "2克");
+				alldish_map.put(dish.dishid, dish);
+			}
+			
+			{
+				Dish dish = new Dish(R.drawable.yumihuotui, "玉米火腿");
+				dish.img_tiny = R.drawable.yumihuotui_tiny;
+				dish.zhuliao_temp = (byte) 180;
+				dish.fuliao_temp = (byte) 0;
+				dish.zhuliao_time = (short) 60;
+				dish.fuliao_time = (short) 0;
+				dish.zhuliao_jiaoban_speed = 4;
+				dish.fuliao_jiaoban_speed = 4;
+				dish.water = 0;
+				dish.water_weight = 0;
+				dish.oil = 30;
+				dish.qiangguoliao = 0;
+				dish.name_english = "corn ham";
+				dish.dishid = 21;
+				
+				dish.zhuliao_content_map.put("玉米粒", "100克");
+				dish.zhuliao_content_map.put("火腿丁", "80克");
+				dish.zhuliao_content_map.put("青豆", "50克");
+				dish.zhuliao_content_map.put("红萝卜丁", "30克");
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.yumihuotui_1, "玉米粒，火腿丁，青豆，红萝卜丁"));
+				dish.tiaoliao_content_map.put("盐", "1克");
+				alldish_map.put(dish.dishid, dish);
+			}
+			
+			{
+				Dish dish = new Dish(R.drawable.chaoxingbaogu, "炒杏鲍菇");
+				dish.img_tiny = R.drawable.chaoxingbaogu_tiny;
+				dish.zhuliao_temp = (byte) 190;
+				dish.fuliao_temp = (byte) 0;
+				dish.zhuliao_time = (short) 60;
+				dish.fuliao_time = (short) 0;
+				dish.zhuliao_jiaoban_speed = 4;
+				dish.fuliao_jiaoban_speed = 4;
+				dish.water = 1;
+				dish.water_weight = 15;
+				dish.oil = 30;
+				dish.qiangguoliao = 1;
+				dish.name_english = "Pleurotus";
+				dish.dishid = 22;
+				
+				dish.zhuliao_content_map.put("杏鲍菇", "300克");
+				dish.zhuliao_content_map.put("红萝卜", "50克");
+				dish.zhuliao_content_map.put("青椒菱形片", "50克");
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.qiangguoliao, "炝锅料"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.chaoxingbaogu_1, "杏鲍菇"));
+				dish.qiangguoliao_content_map.put("姜丝", "5克");
+				dish.qiangguoliao_content_map.put("蒜片", "5克");
+				dish.tiaoliao_content_map.put("鸡精", "2克");
+				dish.tiaoliao_content_map.put("盐", "2克");
+				dish.tiaoliao_content_map.put("蚝油", "10克");
+				alldish_map.put(dish.dishid, dish);
+			}
+			
+			{
+				Dish dish = new Dish(R.drawable.xiaochaojikuai, "小炒鸡块");
+				dish.img_tiny = R.drawable.xiaochaojikuai_tiny;
+				dish.zhuliao_temp = (byte) 180;
+				dish.fuliao_temp = (byte) 180;
+				dish.zhuliao_time = (short) 60;
+				dish.fuliao_time = (short) 180;
+				dish.zhuliao_jiaoban_speed = 6;
+				dish.fuliao_jiaoban_speed = 5;
+				dish.water = 2;
+				dish.water_weight = 20;
+				dish.oil = 35;
+				dish.qiangguoliao = 1;
+				dish.name_english = "chicken lump";
+				dish.dishid = 23;
+				
+				dish.zhuliao_content_map.put("鸡块", "150克");
+				dish.fuliao_content_map.put("青椒", "50克");
+				dish.fuliao_content_map.put("红椒", "50克");
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.qiangguoliao, "炝锅料"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.xiaochaojikuai_1, "鸡块"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.xiaochaojikuai_2, "青椒，红椒"));
+				dish.qiangguoliao_content_map.put("姜丝", "5克");
+				dish.qiangguoliao_content_map.put("蒜片", "5克");
+				dish.tiaoliao_content_map.put("鸡精", "2克");
+				dish.tiaoliao_content_map.put("盐", "2克");
+				alldish_map.put(dish.dishid, dish);
+			}
+			
+			{
+				Dish dish = new Dish(R.drawable.liangguachaorou, "凉瓜炒肉");
+				dish.img_tiny = R.drawable.liangguachaorou_tiny;
+				dish.zhuliao_temp = (byte) 180;
+				dish.fuliao_temp = (byte) 180;
+				dish.zhuliao_time = (short) 60;
+				dish.fuliao_time = (short) 240;
+				dish.zhuliao_jiaoban_speed = 8;
+				dish.fuliao_jiaoban_speed = 5;
+				dish.water = 2;
+				dish.water_weight = 25;
+				dish.oil = 40;
+				dish.qiangguoliao = 1;
+				dish.name_english = "balsam pear";
+				dish.dishid = 24;
+				
+				dish.zhuliao_content_map.put("瘦肉片", "100克");
+				dish.fuliao_content_map.put("凉瓜", "220克");
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.qiangguoliao, "炝锅料"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.xiangganroupian_1, "加入1个生粉和5克生抽腌制10分钟"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.liangguachaorou_2, "凉瓜"));
+				dish.qiangguoliao_content_map.put("姜丝", "5克");
+				dish.qiangguoliao_content_map.put("蒜片", "5克");
+				dish.tiaoliao_content_map.put("鸡精", "2克");
+				dish.tiaoliao_content_map.put("盐", "2克");
+				alldish_map.put(dish.dishid, dish);
+			}
 		}
 		
 		return alldish_map;

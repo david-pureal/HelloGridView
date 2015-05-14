@@ -407,6 +407,7 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
              map.put("name", d.name_chinese);//°´ÐòºÅ×öItemText 
              al.add(map);
              index_id_list.add(d.dishid);
+             if (index_id_list.size() == 12) break;
          }
          
          SimpleAdapter sa= new SimpleAdapter(MainActivity.this, al, R.layout.image_text,new String[]{"icon","name"},new int[]{R.id.ItemImage,R.id.ItemText});

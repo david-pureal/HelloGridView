@@ -157,7 +157,7 @@ public class AllDish extends SlidingFragmentActivity {
 		tv.setText(intent.getStringExtra("title"));
 		
 		TextView category_tv = (TextView) findViewById(R.id.category_tv);
-		category_tv.setVisibility(View.VISIBLE);
+		//category_tv.setVisibility(View.VISIBLE);
 		category_tv.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) {  
