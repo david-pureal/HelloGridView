@@ -31,6 +31,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.NetworkInfo.State;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Environment;
@@ -210,14 +211,19 @@ public class Tool {
 	
 	public String getSSid(Context context){
 		WifiManager wm = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-		if(wm != null){
+		if(wm != null) {
 			WifiInfo wi = wm.getConnectionInfo();
 			if (wi != null) {
-				String s = wi.getSSID();
-				if(s.length()>2&&s.charAt(0) == '"'&&s.charAt(s.length() -1) == '"'){
-					return s.substring(1,s.length()-1);
+				ConnectivityManager manager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+				NetworkInfo wifi = manager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+				Log.v("tool", "Is wifi connected = " + (wifi.getState()==State.CONNECTED));
+				if (wifi.getState() == State.CONNECTED) {
+					String s = wi.getSSID();
+					if(s.length()>2&&s.charAt(0) == '"'&&s.charAt(s.length() -1) == '"'){
+						return s.substring(1,s.length()-1);
+					}
 				}
-			}
+			} //if (wi != null) {
 		}
 		return "";
 	}
@@ -412,6 +418,10 @@ public class Tool {
 			
 			if (dishj.has("device_id")) {
 				d.device_id = dishj.getString("device_id");
+			}
+			
+			if (dishj.has("intro") && dishj.get("intro") instanceof String) {
+				d.intro = dishj.getString("intro");
 			}
 			
 			// 主料，辅料和备料图文
@@ -652,4 +662,5 @@ public class Tool {
 		String minites_prefix =  minites < 10 ? "0" : "";
 		return minites + separator + seconds + "″";
 	}
+	
 }

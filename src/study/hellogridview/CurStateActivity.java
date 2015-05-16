@@ -327,21 +327,19 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	        		boolean down_on_tiny_image = false;
 	        		switch (event.getAction()) {
 		            case MotionEvent.ACTION_DOWN:
-		            	if (event.getX() < lock_rect.right && event.getY() < lock_rect.bottom) down_on_lock = true;
+		            	if (event.getX() < lock_rect.right*1.5 && event.getY() < lock_rect.bottom*1.5) down_on_lock = true;
 		            	if (event.getX() > img_tiny_rect.left && event.getY() < img_tiny_rect.bottom) down_on_tiny_image = true;
 		            case MotionEvent.ACTION_UP:
-		            	if (event.getX() < lock_rect.right && event.getY() < lock_rect.bottom && down_on_lock) {
+		            	if (event.getX() < lock_rect.right*1.5 && event.getY() < lock_rect.bottom*1.5 && down_on_lock) {
 		            		control = ds.is_locked() ? Constants.MACHINE_UNLOCK_MACHINE : Constants.MACHINE_LOCK_MACHINE;
 		                	modify_state = (byte) 0x10;
 		                	Log.v("CurStateActivity", "change lock state, current locked = " + ds.is_locked());
 		                	
-		                	if (control == Constants.MACHINE_UNLOCK_MACHINE) { // 只能解锁，不能上锁，上锁是自动完成
-			                	Message msg = new Message();  
-			                    msg.what = 0x345;  
-			                    Package data = new Package(Package.Set_Param);
-			                    msg.obj = data.getBytes();
-			                    tcpclient.sendMsg(msg);
-		                	}
+		                	Message msg = new Message();  
+		                    msg.what = 0x345;  
+		                    Package data = new Package(Package.Set_Param);
+		                    msg.obj = data.getBytes();
+		                    tcpclient.sendMsg(msg);
 		            	}
 		            	else if (event.getX() > img_tiny_rect.left && event.getY() < img_tiny_rect.bottom && down_on_tiny_image) {
 		            		is_button_hide = !is_button_hide;
@@ -524,7 +522,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         paint.setAntiAlias(false); //去锯齿 
         paint.setStrokeWidth(3);
 
-        float scale = 0.7f * 1;//(float) (480.0 / width * 0.7);
+        float scale = 0.7f;// (float) (480.0 / width * 0.55);
         Rect bkg_rect = new Rect(0, 0, width, height);
         if (!is_standard_ui) {
         	// draw simple background

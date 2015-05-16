@@ -19,8 +19,11 @@ import java.util.List;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -50,6 +53,8 @@ public class TCPClient {
 	
 	public boolean is_stop = false;
 	
+	boolean check_resp_thread_is_pause = true;
+	
 	private TCPClient() {
 		init();
 		Log.v("tcpclient", "in TCPClient()");
@@ -72,13 +77,15 @@ public class TCPClient {
 					if (!m.getIp().equals(Constants.AP_IP) && 
 							!Tool.getInstance().getSSid(main_activity).startsWith(Constants.AP_NAME_PREFIX)){
 						Log.v("tcpclient", "find device in sta mode, ip = " + m.getIp());
-						connect_ip_sta(m.getIp());
+						if (connect_state != Constants.CONNECTED) {
+							connect_ip_sta(m.getIp());
+						}
 					}
 				}
 			}
 		};
 		
-		//  发送心跳
+		//  发送心跳, keep-alive
 		new Thread() {
 			@Override
 			public void run() {
@@ -97,6 +104,48 @@ public class TCPClient {
 						} else {
 							Log.v("TcpClient", "socket is not connected yet, try heartbeat after 180 seconds");
 							Thread.sleep(180*1000);
+						}
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+		}.start();
+		
+		//  在connected的情况下检查机器是不是没有了响应
+		new Thread() {
+			@Override
+			public void run() {
+				Log.v("tcpclient", "check machine resp Thread starting");
+				while (true) {
+					try {
+						if (!check_resp_thread_is_pause) {
+							long curr = System.currentTimeMillis();
+							if (curr - last_resp_timestamp >= Constants.CONNECTED_RESP_TIMEOUT) {
+								notify_connect_state(Constants.DISCONNECTED);
+								Log.v("tcpclient", "disconnected because check machine resp fail.");
+								// TODO reconnect
+								String curr_ssid = Tool.getInstance().getSSid(main_activity);
+								// AP 模式下，关闭机器并立即，此时并没有检测到wifi变化，但socket已经断开，需要重新连接到 AP的wifi
+								if (clientThread.current_ip.equals(Constants.AP_IP) && curr_ssid.equals(connected_ssid)) {
+									WifiManager mWifiManager = (WifiManager) main_activity.getSystemService(Context.WIFI_SERVICE); 
+							        // 取得WifiInfo对象  
+							        WifiInfo mWifiInfo = mWifiManager.getConnectionInfo(); 
+							        int id = mWifiInfo.getNetworkId();
+							        boolean res = mWifiManager.disconnect();
+							        //Thread.sleep(1000);
+							        mWifiManager.enableNetwork(id, true);
+							        Log.v("tcpclient", "check machine resp reconnect to current AP wifi res = " + res);
+								}
+							}
+							else {
+								Log.v("TcpClient", "check machine resp ok, recheck after 3 seconds");
+								Thread.sleep(3*1000);
+							}
+						} else {
+							Log.v("TcpClient", "socket is not connected yet, try check machine resp after 5 seconds");
+							Thread.sleep(5*1000);
 						}
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
@@ -125,6 +174,9 @@ public class TCPClient {
 	}
 	
 	public void connect_ip_sta(String sta_ip) {
+		MyPreference.set_sta_ip(main_activity, sta_ip);
+		Log.v("tcpclient", "set_sta_ip = " + sta_ip + " done.");
+
 		if (clientThread != null && clientThread.revHandler != null) {
 			Message msg = new Message();
 			msg.what = Constants.MSG_ID_STA_IP;
@@ -182,26 +234,45 @@ public class TCPClient {
         Log.v("tcpclient", "do get favorite from device");
 	}
 	
-	public void notify_connect_state() {
-		if (main_activity != null && main_activity.getHandler() != null) main_activity.getHandler().sendEmptyMessage(Constants.MSG_ID_CONNECT_STATE);
-		if (buildin_activity != null && buildin_activity.getHandler() != null) {
-			buildin_activity.getHandler().sendEmptyMessage(Constants.MSG_ID_CONNECT_STATE);
-		}
-		if (dish_activity != null && dish_activity.getHandler() != null) {
-			dish_activity.getHandler().sendEmptyMessage(Constants.MSG_ID_CONNECT_STATE);
-		}
-		if (setting_activity != null && setting_activity.getHandler() != null) {
-			setting_activity.getHandler().sendEmptyMessage(Constants.MSG_ID_CONNECT_STATE);
-		}
-		if (alldish_activity != null && alldish_activity.getHandler() != null) {
-			alldish_activity.getHandler().sendEmptyMessage(Constants.MSG_ID_CONNECT_STATE);
-		}
+	String connected_ssid = "";
+	
+	public void notify_connect_state(int con_state) {
+		synchronized (this) {
+			if (connect_state == con_state) return;
+			
+			connect_state = con_state;
+			if (connect_state == Constants.CONNECTING) {
+				TCPClient.getInstance().start_connecting_timestamp = System.currentTimeMillis();
+			}
+			else if (connect_state == Constants.CONNECTED) {
+				connected_ssid = Tool.getInstance().getSSid(main_activity);
+				last_resp_timestamp = System.currentTimeMillis();
+				check_resp_thread_is_pause = false;
+			}
+			else if (connect_state == Constants.DISCONNECTED) {
+				check_resp_thread_is_pause = true;
+			}
+			
+			if (main_activity != null && main_activity.getHandler() != null) main_activity.getHandler().sendEmptyMessage(Constants.MSG_ID_CONNECT_STATE);
+			if (buildin_activity != null && buildin_activity.getHandler() != null) {
+				buildin_activity.getHandler().sendEmptyMessage(Constants.MSG_ID_CONNECT_STATE);
+			}
+			if (dish_activity != null && dish_activity.getHandler() != null) {
+				dish_activity.getHandler().sendEmptyMessage(Constants.MSG_ID_CONNECT_STATE);
+			}
+			if (setting_activity != null && setting_activity.getHandler() != null) {
+				setting_activity.getHandler().sendEmptyMessage(Constants.MSG_ID_CONNECT_STATE);
+			}
+			if (alldish_activity != null && alldish_activity.getHandler() != null) {
+				alldish_activity.getHandler().sendEmptyMessage(Constants.MSG_ID_CONNECT_STATE);
+			}
 		
-		long current = System.currentTimeMillis();
-//		if (connect_state != Constants.CONNECTED && current - start_connecting_timestamp > 10*Constants.CONNECT_TIMEOUT) {
-//			Log.w("tcpclient", "取消尝试重连， 200秒没有重连上了");
-//			is_stop = true;
-//		}
+//			long current = System.currentTimeMillis();
+//			if (connect_state != Constants.CONNECTED && current - start_connecting_timestamp > 10*Constants.CONNECT_TIMEOUT) {
+//				Log.w("tcpclient", "取消尝试重连， 200秒没有重连上了");
+//				is_stop = true;
+//			}
+		}
 	}
 	
 	/**
@@ -252,7 +323,10 @@ public class TCPClient {
 		public String current_ip = "";
 		public short port = Constants.AP_STA_PORT;
 
-		public ClientThread() {}
+		public ClientThread() {
+			ip_sta = MyPreference.get_sta_ip(main_activity);
+			Log.v("tcpclient", "get_sta_ip = " + ip_sta + " done.");
+		}
 		
 		public ClientThread(Handler handler) {
 			this.handler = handler;
@@ -264,106 +338,11 @@ public class TCPClient {
 		
 		public void set_ip_sta(String ip_sta) {
 			this.ip_sta = ip_sta;
+			
 			if (s.isConnected() && !this.current_ip.equals(ip_sta)) {
-				connect_state = Constants.CONNECTING;
-				start_connecting_timestamp = System.currentTimeMillis();
-				notify_connect_state();
+				notify_connect_state(Constants.CONNECTING);
 				reconnect(ip_sta);
 			}
-		}
-		
-		int notifycount = 0;
-		public boolean notify(DishActivity act) {
-			if (notifycount > 10 && notifycount%3 != 0) {
-				// don't bother too often
-				++notifycount;
-				return true;
-			}
-			if (act != null && act.getHandler() != null) {
-				act.getHandler().post(new Runnable() {
-					String info = "连接到设备失败(请确认wifi已连接到" + Constants.AP_NAME_PREFIX + ip_ap +";" + port + " failed! try reconnect...";
-					@Override
-					public void run() {
-						// TODO Auto-generated method stub
-						if (curstate_activity != null) Toast.makeText(curstate_activity, info, Toast.LENGTH_SHORT).show();
-						else if (buildin_activity != null) Toast.makeText(buildin_activity, info, Toast.LENGTH_SHORT).show();
-						else if (setting_activity != null) Toast.makeText(setting_activity, info, Toast.LENGTH_SHORT).show();
-					}
-				});
-				++notifycount;
-				return true;
-			}
-			return false;
-		}
-		
-		public boolean notify_setting(SettingActivity act) {
-			if (notifycount > 10 && notifycount%3 != 0) {
-				// don't bother too often
-				++notifycount;
-				return true;
-			}
-			if (act != null && act.getHandler() != null) {
-				act.getHandler().post(new Runnable() {
-					String info = "连接到设备失败(请确认wifi已连接到" + Constants.AP_NAME_PREFIX + ip_ap +";" + port + " failed! try reconnect...";
-					@Override
-					public void run() {
-						// TODO Auto-generated method stub
-						if (curstate_activity != null) Toast.makeText(curstate_activity, info, Toast.LENGTH_SHORT).show();
-						else if (buildin_activity != null) Toast.makeText(buildin_activity, info, Toast.LENGTH_SHORT).show();
-						else if (setting_activity != null) Toast.makeText(setting_activity, info, Toast.LENGTH_SHORT).show();
-					}
-				});
-				++notifycount;
-				return true;
-			}
-			return false;
-		}
-		
-		public boolean notify_curstate(CurStateActivity act) {
-			if (notifycount > 10 && notifycount%3 != 0) {
-				// don't bother too often
-				++notifycount;
-				return true;
-			}
-			if (act != null && act.getHandler() != null) {
-				act.getHandler().post(new Runnable() {
-					String info = "连接到设备失败(请确认wifi已连接到" + Constants.AP_NAME_PREFIX + ip_ap +";" + port + " failed! try reconnect...";
-					@Override
-					public void run() {
-						// TODO Auto-generated method stub
-						if (curstate_activity != null) Toast.makeText(curstate_activity, info, Toast.LENGTH_SHORT).show();
-						else if (buildin_activity != null) Toast.makeText(buildin_activity, info, Toast.LENGTH_SHORT).show();
-						else if (setting_activity != null) Toast.makeText(setting_activity, info, Toast.LENGTH_SHORT).show();
-					}
-				});
-				++notifycount;
-				return true;
-			}
-			return false;
-		}
-		
-		public boolean notify_buildin(BuiltinDishes act) {
-
-			if (notifycount > 10 && notifycount%3 != 0) {
-				// don't bother too often
-				++notifycount;
-				return true;
-			}
-			if (act != null && act.getHandler() != null) {
-				act.getHandler().post(new Runnable() {
-					String info = "连接到设备失败(请确认wifi已连接到" + Constants.AP_NAME_PREFIX + ip_ap +";" + port + " failed! try reconnect...";
-					@Override
-					public void run() {
-						// TODO Auto-generated method stub
-						if (curstate_activity != null) Toast.makeText(curstate_activity, info, Toast.LENGTH_SHORT).show();
-						else if (buildin_activity != null) Toast.makeText(buildin_activity, info, Toast.LENGTH_SHORT).show();
-						else if (setting_activity != null) Toast.makeText(setting_activity, info, Toast.LENGTH_SHORT).show();
-					}
-				});
-				++notifycount;
-				return true;
-			}
-			return false;
 		}
 
 		@Override
@@ -376,10 +355,8 @@ public class TCPClient {
 						if (!Tool.getInstance().isWifiConnected(main_activity)) {
 							Log.v("tcpclient", "not connected to any wifi, don't try to connect device");
 							
-							long current = System.currentTimeMillis();
-							if (connect_state == Constants.CONNECTING /*&& current - start_connecting_timestamp > Constants.CONNECT_TIMEOUT / 2*/) {
-								connect_state = Constants.DISCONNECTED;
-								notify_connect_state();
+							if (connect_state == Constants.CONNECTING) {
+								notify_connect_state(Constants.DISCONNECTED);
 							}
 							
 							Thread.sleep(3000);
@@ -401,8 +378,8 @@ public class TCPClient {
 							
 							long current = System.currentTimeMillis();
 							if (connect_state == Constants.CONNECTING && current - start_connecting_timestamp > Constants.CONNECT_TIMEOUT) {
-								connect_state = Constants.DISCONNECTED;
-								notify_connect_state();
+								//connect_state = Constants.DISCONNECTED;
+								notify_connect_state(Constants.DISCONNECTED);
 							}
 							
 							Thread.sleep(5000);
@@ -410,27 +387,28 @@ public class TCPClient {
 						}
 						
 						if (s.isConnected()) {
-							connect_state = Constants.CONNECTED;
-							notify_connect_state();
+							//connect_state = Constants.CONNECTED;
+							notify_connect_state(Constants.CONNECTED);
 							
 							break;
 						} else {
 							long current = System.currentTimeMillis();
 							if (connect_state == Constants.CONNECTING && current - start_connecting_timestamp > Constants.CONNECT_TIMEOUT) {
-								connect_state = Constants.DISCONNECTED;
-								notify_connect_state();
+								//connect_state = Constants.DISCONNECTED;
+								notify_connect_state(Constants.DISCONNECTED);
 							}
 							Thread.sleep(10000);
 						}
 					} catch (Exception e) {
 						e.printStackTrace();
+						Log.v("tcpclient", "exception name = " + e.getCause().getClass()); //java.net.SocketException, fcntl failed EBADF (Bad file number)
 						Log.e("tcpclient", "socket connect to " + ip_ap +";" + port + " failed! try reconnect...");
 						//if (notify(dish_activity) || notify_curstate(curstate_activity) || notify_buildin(buildin_activity) || notify_setting(setting_activity));
 						
 						long current = System.currentTimeMillis();
 						if (connect_state == Constants.CONNECTING && current - start_connecting_timestamp > Constants.CONNECT_TIMEOUT) {
-							connect_state = Constants.DISCONNECTED;
-							notify_connect_state();
+							//connect_state = Constants.DISCONNECTED;
+							notify_connect_state(Constants.DISCONNECTED);
 						}
 						Thread.sleep(10000);
 					}
@@ -456,7 +434,6 @@ public class TCPClient {
 						if (msg.what == 0x345) {
 							// 将用户在文本框输入的内容写入网络
 							try {
-								//os.write((msg.obj.toString() + "\r\n").getBytes("gbk"));
 								ByteArrayOutputStream bst= (ByteArrayOutputStream)(msg.obj);
 								Log.v("tcpclient", "len(sendMsg.obj)=" + bst.size());
 								Log.v("tcpclient", "send data =" + getstr(bst));
@@ -469,9 +446,7 @@ public class TCPClient {
 							} catch (SocketException e) {
 								Log.v("tcpclient", "sendMsg SocketException, try to reconnect");
 								e.printStackTrace();
-								connect_state = Constants.CONNECTING;
-								start_connecting_timestamp = System.currentTimeMillis();
-								notify_connect_state();
+								notify_connect_state(Constants.CONNECTING);
 								reconnect(current_ip);
 							}
 							catch (Exception e) {
@@ -522,9 +497,7 @@ public class TCPClient {
 					
 					// read error
 					Log.v("tcpclient", "read package error!");
-					connect_state = Constants.CONNECTING;
-					start_connecting_timestamp = System.currentTimeMillis();
-					notify_connect_state();
+					notify_connect_state(Constants.CONNECTING);
 					reconnect(current_ip);
 				}
 				Log.v("tcpclient", "ReceiveThread exit");
@@ -548,6 +521,11 @@ public class TCPClient {
 						s.close();
 					}
 					
+					if (s.isConnected()) {
+						s.close();
+						Thread.sleep(1000);
+					}
+					
 					s = new Socket();
 					s.connect(new InetSocketAddress(ip, port), Constants.BBXC_SOCKET_TIMEOUT);
 					
@@ -557,8 +535,7 @@ public class TCPClient {
 						recv_data = new ReceiveThread();
 						recv_data.recv_thread.start();
 						
-						connect_state = Constants.CONNECTED;
-						notify_connect_state();
+						notify_connect_state(Constants.CONNECTED);
 						do_heartbeat(); // get builtin dishes
 						Log.v("tcpclient", "successfully reconnect to ip:" + ip);
 						break;
@@ -567,23 +544,30 @@ public class TCPClient {
 						Log.v("tcpclient", "failed reconnect to ip:" + ip);
 						long current = System.currentTimeMillis();
 						if (connect_state == Constants.CONNECTING && current - start_connecting_timestamp > Constants.CONNECT_TIMEOUT) {
-							connect_state = Constants.DISCONNECTED;
-							notify_connect_state();
+							notify_connect_state(connect_state = Constants.DISCONNECTED);
 						}
 						
-						Thread.sleep(5*1000);
+						synchronized (TCPClient.getInstance()) {
+							TCPClient.getInstance().wait(5*1000);
+							Log.v("tcpclient", "after wait for wifi connected.");
+						}
+						
+						//Thread.sleep(5*1000);
 					}
 				} catch (Exception io) {
 					io.printStackTrace();
 					Log.v("tcpclient", "exception failed reconnect to ip:" + ip);
 					long current = System.currentTimeMillis();
 					if (connect_state == Constants.CONNECTING && current - start_connecting_timestamp > Constants.CONNECT_TIMEOUT) {
-						connect_state = Constants.DISCONNECTED;
-						notify_connect_state();
+						//connect_state = Constants.DISCONNECTED;
+						notify_connect_state(Constants.DISCONNECTED);
 					}
 					
 					try {
-						Thread.sleep(5*1000);
+						synchronized (TCPClient.getInstance()) {
+							TCPClient.getInstance().wait(5*1000);
+							Log.v("tcpclient", "after wait for wifi connected.");
+						}
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -645,6 +629,8 @@ public class TCPClient {
 		return (short) (((bs[i+1] << 8) & 0xff00) | ((bs[i] << 0) & 0xff));
 	}
 	
+	long last_resp_timestamp = 0;
+	
 	protected void OnReceive(ByteArrayOutputStream bytestream) {
 		// TODO Auto-generated method stub
 		byte[] bs = bytestream.toByteArray();
@@ -674,17 +660,6 @@ public class TCPClient {
 			Message msg_ack = new Message();
 			msg_ack.what = 0x123;
 			msg_ack.obj = rp_ack;
-//			if (this.setting_activity != null && setting_activity.getHandler() != null) {
-//				setting_activity.getHandler().sendMessage(msg_ack);
-//			} else {
-//				Log.v("tcpclient", "setting_activity.getHandler() is null");
-//			}
-//			
-//			if (this.buildin_activity != null && buildin_activity.getHandler() != null) {
-//				buildin_activity.getHandler().sendMessage(msg_ack);
-//			} else {
-//				Log.v("tcpclient", "buildin_activity.getHandler() is null");
-//			}
 			
 			if (this.dish_activity != null && dish_activity.getHandler() != null) {
 				dish_activity.getHandler().sendMessage(msg_ack);
@@ -701,6 +676,8 @@ public class TCPClient {
 				Log.e("tcpclient", "Machine_State package length error! " + bs.length);
 				break;
 			}
+			
+			last_resp_timestamp = System.currentTimeMillis();
 			
 			ds = DeviceState.getInstance();
 			ds.working_state = bs[16];
@@ -737,11 +714,11 @@ public class TCPClient {
 				Log.v("tcpclient", "curstate_activity.getHandler() is null");
 			}
 			
-//			if (this.setting_activity != null && setting_activity.getHandler() != null) {
-//				setting_activity.getHandler().sendMessage(msg);
-//			} else {
-//				Log.v("tcpclient", "setting_activity.getHandler() is null");
-//			}
+			if (this.setting_activity != null && setting_activity.getHandler() != null) {
+				setting_activity.getHandler().sendMessage(msg);
+			} else {
+				Log.v("tcpclient", "setting_activity.getHandler() is null");
+			}
 			break;
 		case Package.Get_Favorite_Resp:
 			Log.v("tcpclient", "Get_Favorite_Resp package");

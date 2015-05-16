@@ -7,6 +7,8 @@ public class MyPreference {
     public static final String SHAREDPREFERENCES_NAME = "my_pref";
     //引导界面KEY
     private static final String KEY_GUIDE_ACTIVITY = "guide_activity";
+    // STA模式的ip地址
+    private static final String KEY_STA_IP = "sta_ip";
     
     /**
      * 判断activity是否引导过
@@ -39,5 +41,23 @@ public class MyPreference {
         .edit()
         .putString(KEY_GUIDE_ACTIVITY, sb.toString())
         .commit();
+    }
+    
+    public static String get_sta_ip(Context context) {
+    	if(context != null) {
+    		String ip = context.getSharedPreferences(SHAREDPREFERENCES_NAME, Context.MODE_WORLD_READABLE)
+                    .getString(KEY_STA_IP, "");
+    		return ip;
+    	}
+    	return "";
+    }
+    
+    public static void set_sta_ip(Context context, String sta_ip) {
+    	if(context != null) {
+    		context.getSharedPreferences(SHAREDPREFERENCES_NAME, Context.MODE_WORLD_READABLE)//保存修改后的值
+            .edit()
+            .putString(KEY_STA_IP, sta_ip)
+            .commit();
+    	}
     }
 }

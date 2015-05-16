@@ -25,6 +25,13 @@ public class EditActivity extends Activity {
 		edit_title.setText(intent.getStringExtra("edit_title"));
 		
 		editText = (EditText)findViewById(R.id.edit_content);  
+		String title = intent.getStringExtra("edit_title");
+		if (title.equals("²ËÆ×Ãû³Æ")) {
+			editText.setHint("ÇëÊäÈë²ËÆ×Ãû³Æ");
+		}
+		else if (title.equals("²ËÆ×¼ò½é")) {
+			editText.setHint("ÇëÊäÈë¼ò½é");
+		}
 		editText.setText(intent.getStringExtra("edit_content_input"));
 		
 		TextView cancel = (TextView) findViewById(R.id.cancel);

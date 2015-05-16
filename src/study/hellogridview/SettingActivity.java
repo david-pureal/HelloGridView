@@ -1,32 +1,15 @@
 package study.hellogridview;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.NetworkInterface;
-
-import org.apache.http.Header;
-
 import com.example.smartlinklib.ModuleInfo;
 import com.example.smartlinklib.SmartLinkManipulator;
 import com.example.smartlinklib.SmartLinkManipulator.ConnectCallBack;
-import com.loopj.android.http.AsyncHttpResponseHandler;
-import com.loopj.android.http.FileAsyncHttpResponseHandler;
-import com.loopj.android.http.RequestParams;
 
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.Settings;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.content.res.AssetFileDescriptor;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MotionEvent;
@@ -41,7 +24,6 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -94,17 +76,17 @@ public class SettingActivity extends Activity implements OnTouchListener {
 				m_startBtn.setText("开始链接");
 				break;
 			case 0x123:
-			 {   
-             	RespPackage rp = (RespPackage) msg.obj;
-             	Log.v("SettingActivity", "SettingActivity got resp, cmdtype_head=" + (rp.cmdtype_head&0xff) + ", cmdtype_body=" + (rp.cmdtype_body&0xff));
-             	if (rp.cmdtype_head == Package.ACK && rp.cmdtype_body == Package.Set_Option && !rp.is_ok) {
-             		SettingActivity.this.tell("Set_Option fail!");
-             	}
-             	else if (rp.cmdtype_head == Package.Machine_State) {
-             		SettingActivity.this.OnResp(rp);
-             	}
-             	Log.v("SettingActivity", "SettingActivity got event");
-             }  
+				{   
+				 	RespPackage rp = (RespPackage) msg.obj;
+				 	Log.v("SettingActivity", "SettingActivity got resp, cmdtype_head=" + (rp.cmdtype_head&0xff) + ", cmdtype_body=" + (rp.cmdtype_body&0xff));
+				 	if (rp.cmdtype_head == Package.ACK && rp.cmdtype_body == Package.Set_Option && !rp.is_ok) {
+				 		SettingActivity.this.tell("Set_Option fail!");
+				 	}
+				 	else if (rp.cmdtype_head == Package.Machine_State) {
+				 		SettingActivity.this.OnResp(rp);
+				 	}
+				 	Log.v("SettingActivity", "SettingActivity got event");
+				}  
 			case Constants.MSG_ID_CONNECT_STATE:
 			{
 				Log.v("SettingActivity", "got event MSG_ID_CONNECT_STATE = " + tcpclient.connect_state);
@@ -201,11 +183,6 @@ public class SettingActivity extends Activity implements OnTouchListener {
 				if(!isconncting){
 					isconncting = true;
 					sm = SmartLinkManipulator.getInstence(SettingActivity.this);
-					//不管在不在发送 先停止发送  释放所有缓存
-//					sm.StopConnection();
-					
-					//再次获取实例 加载需要的信息
-//					sm = SmartLinkManipulator.getInstence(MainActivity.this);
 					
 					String ss = Tool.getInstance().getSSid(SettingActivity.this);
 					Log.v("smartlink", "ssid=" + ss);
@@ -279,7 +256,6 @@ public class SettingActivity extends Activity implements OnTouchListener {
 				
 				@Override
 				public void run() {
-					// TODO Auto-generated method stub
 					Toast.makeText(SettingActivity.this, info, Toast.LENGTH_SHORT).show();
 				}
 			});
@@ -355,7 +331,6 @@ public class SettingActivity extends Activity implements OnTouchListener {
 	ConnectCallBack callback = new ConnectCallBack() {
 		@Override
 		public void onConnectTimeOut() {
-			// TODO Auto-generated method stub
 			handler.post(new Runnable() {
 				@Override
 				public void run() {
@@ -369,11 +344,9 @@ public class SettingActivity extends Activity implements OnTouchListener {
 		
 		@Override
 		public void onConnect(final ModuleInfo mi) {
-			// TODO Auto-generated method stub
 			handler.post(new Runnable() {
 				@Override
 				public void run() {
-					// TODO Auto-generated method stub
 					Toast.makeText(SettingActivity.this, 
 							"发现设备  "+mi.getMid()+"mac"+ mi.getMac()+"IP"+mi.getModuleIP(), 
 							Toast.LENGTH_SHORT).show();
@@ -383,11 +356,9 @@ public class SettingActivity extends Activity implements OnTouchListener {
 		}
 		@Override
 		public void onConnectOk() {
-			// TODO Auto-generated method stub
 			handler.post(new Runnable() {
 				@Override
 				public void run() {
-					// TODO Auto-generated method stub
 					Toast.makeText(SettingActivity.this, "配置完成", Toast.LENGTH_SHORT).show();
 					m_startBtn.setText("开始链接");
 					isconncting = false;

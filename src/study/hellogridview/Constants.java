@@ -11,6 +11,7 @@ public final class Constants {
 	public static final int CONNECTED    = 1;
 	public static final int DISCONNECTED = -1;
 	public static final int CONNECT_TIMEOUT = 10000;//  milliseconds
+	public static final int CONNECTED_RESP_TIMEOUT = 5000; // 连接机器成功后，如果超过5秒没收到机器数据，则认为断开
 	
 	// machine work state
 	public static final byte MACHINE_WORK_STATE_COOKING = 0x00; // 0正在做菜；1暂停；2待机

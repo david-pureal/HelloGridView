@@ -24,7 +24,7 @@ public class SplashActivity extends Activity {
 	
 	Handler handler;
 	
-	boolean need_skip = true;
+	boolean need_skip = false;
 	
 	@Override
     protected void onCreate(Bundle savedInstanceState) {

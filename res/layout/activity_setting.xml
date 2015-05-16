@@ -14,17 +14,19 @@
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
         android:layout_marginTop="20dp"
-        android:text="使用英文"
-        android:textOn="开启"
+        android:text="语言选择"
+        android:textOn="英文"
+        android:textOff="中文"
         android:textColor="#000000"
         android:textSize="20sp"
-        android:scrollbarStyle="insideOverlay" />  
-          
+        android:scrollbarStyle="outsideOverlay"
+        />          
     <Switch
         android:id="@+id/switch_sound"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
+        android:visibility="gone"
         android:layout_marginTop="20dp"
         android:text="语音提示"
         android:textOn="开启"

@@ -20,8 +20,8 @@ public class NetworkConnectChangedReceiver extends BroadcastReceiver {
             switch (wifiState) {  
             case WifiManager.WIFI_STATE_DISABLED:  
             	Log.v("NetworkChanged", "wifiState DISABLED " + wifiState);
-            	TCPClient.getInstance().connect_state = Constants.DISCONNECTED;
-            	TCPClient.getInstance().notify_connect_state();
+            	//TCPClient.getInstance().connect_state = Constants.DISCONNECTED;
+            	TCPClient.getInstance().notify_connect_state(Constants.DISCONNECTED);
                 break;  
             case WifiManager.WIFI_STATE_ENABLED:
             	Log.v("NetworkChanged", "wifiState ENABLED " + wifiState);
@@ -29,7 +29,7 @@ public class NetworkConnectChangedReceiver extends BroadcastReceiver {
             case WifiManager.WIFI_STATE_DISABLING: 
             	Log.v("NetworkChanged", "wifiState DISABLING " + wifiState);
                 break;  
-            }  
+            }
         }  
 		
         // 这个监听wifi的连接状态即是否连上了一个有效无线路由，当上边广播的状态是WifiManager.WIFI_STATE_DISABLING，和WIFI_STATE_DISABLED的时候，根本不会接到这个广播。  
@@ -38,15 +38,22 @@ public class NetworkConnectChangedReceiver extends BroadcastReceiver {
             Parcelable parcelableExtra = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);  
             if (null != parcelableExtra) {  
                 NetworkInfo networkInfo = (NetworkInfo) parcelableExtra;  
-                State state = networkInfo.getState();  
-                boolean isConnected = state == State.CONNECTED;// 当然，这边可以更精确的确定状态  
-                Log.v("NetworkChanged", "isConnected = " + isConnected);  
-                if (isConnected) {  
-                	TCPClient.getInstance().is_stop = false;
-                	TCPClient.getInstance().connect_state = Constants.CONNECTING;
-                	TCPClient.getInstance().start_connecting_timestamp = System.currentTimeMillis();
-                	TCPClient.getInstance().notify_connect_state();
-                } else {  
+                State wifistate = networkInfo.getState();  
+                Log.v("NetworkChanged", "wifistate = " + wifistate);  
+                if (wifistate == State.DISCONNECTED) {    // wifi断开
+                	//TCPClient.getInstance().is_stop = true;
+                	TCPClient.getInstance().notify_connect_state(Constants.DISCONNECTED);
+                } 
+                else if (wifistate == State.CONNECTED){   // wifi连上
+                	// 如果当前已经连接上机器了，就不要推送了，否则产生连上机器后，但是右上角连接状态是连接中
+                	// 这个是因为线程竞争引起的，在收到改CONNECTING之前，其他线程已经查询到wifi连接成功并连接机器
+                	if (TCPClient.getInstance().connect_state != Constants.CONNECTED) {
+                		TCPClient.getInstance().notify_connect_state(Constants.CONNECTING);
+                	}
+                	synchronized (TCPClient.getInstance()) {
+                		// wakeup reconnect thread
+						TCPClient.getInstance().notify();
+					}
                 }  
             }  
         }

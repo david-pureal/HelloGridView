@@ -53,6 +53,7 @@ public class Dish implements Cloneable {
 	public String author_id;
 	public String author_name;
 	public String device_id;
+	public String intro = "";
 	
 	// 材料是有序的
 	public LinkedHashMap<String, String> qiangguoliao_content_map = new LinkedHashMap<String, String>();
@@ -185,6 +186,8 @@ public class Dish implements Cloneable {
 			
 			dishj.put("device_id", device_id);
 			
+			dishj.put("intro", intro);
+			
 
 			// 主料，辅料和备料图文写入文件
 			JSONArray zhuliao_array = new JSONArray();
@@ -266,8 +269,7 @@ public class Dish implements Cloneable {
 				dish.name_english = "tomato chip";
 				//dish0.sound = R.raw.tudousi_voice;
 				dish.dishid = 1;
-				dish.materials.add(R.drawable.tudousi_1);
-				dish.materials.add(R.drawable.qiangguoliao);
+				dish.intro = "清爽可口，咸的，酸的，辣的都很好吃。土豆营养齐全，易于消化，在欧美享有＂第二面包＂的称号。";
 				
 				dish.zhuliao_content_map.put("土豆丝", "230克");
 				dish.zhuliao_content_map.put("青椒丝", "20克");
@@ -296,8 +298,7 @@ public class Dish implements Cloneable {
 			dish1.name_english = "Fried peanuts";
 			//dish1.sound = R.raw.tudousi_voice;
 			dish1.dishid = 2;
-			dish1.materials.add(R.drawable.chaocaixin_1);
-			dish1.materials.add(R.drawable.qiangguoliao);
+			dish1.intro = "品质柔嫩，风味可口，富含维生素、叶绿素、微量元素以及能促进肠道蠕动的纤维素。";
 			
 			dish1.zhuliao_content_map.put("青菜条", "350克");
 			dish1.prepare_material_detail.add(dish1.new Material(R.drawable.qiangguoliao, "炝锅料"));
@@ -322,8 +323,8 @@ public class Dish implements Cloneable {
 			dish2.name_english = "Tomato Eggs";
 			//dish2.sound = R.raw.tudousi_voice;
 			dish2.dishid = 3;
-			dish2.materials.add(R.drawable.fanqiejidan_1);
-			dish2.materials.add(R.drawable.fanqiejidan_2);
+			dish2.intro = "口味宜人，营养丰富，细软中带有一点点弹性，番茄与鸡蛋的软嫩相协调，既酸甜又爽滑，具有健美抗衰老的作用。";
+
 			
 			dish2.zhuliao_content_map.put("鸡蛋", "3个");
 			dish2.fuliao_content_map.put("番茄块", "230克");
@@ -348,9 +349,8 @@ public class Dish implements Cloneable {
 			dish3.name_english = "Mapo Tofu";
 			//dish3.sound = R.raw.tudousi_voice;
 			dish3.dishid = 4;
-			dish3.materials.add(R.drawable.maladoufu_1);
-			dish3.materials.add(R.drawable.maladoufu_2);
-			
+			dish3.intro = "麻、辣、香、嫩、鲜、滑，经济而且实惠，好吃不贵。豆腐高营养、低脂肪、低热量。可称为最健康的食品之一。";
+
 			dish3.zhuliao_content_map.put("嫩豆腐块", "350克");
 			dish3.prepare_material_detail.add(dish3.new Material(R.drawable.maladoufu_2, "姜丝、蒜片，干红椒段，麻椒粒"));
 			dish3.prepare_material_detail.add(dish3.new Material(R.drawable.maladoufu_1, "嫩豆腐块"));
@@ -379,9 +379,7 @@ public class Dish implements Cloneable {
 			dish4.text = "1、底油：35克\n2、炝锅料：姜片5克、蒜片5克\n3、主料：薄羊肉片130克\n4、辅料：大葱段150克、红萝卜丝30克、木耳片20克\n5、水和调料：水25克、盐2克、鸡精2克、生抽10克."; 
 			dish4.name_english = "Scallion Mutton";
 			dish4.dishid = 5;
-			dish4.materials.add(R.drawable.congbaoyangrou_1);
-			dish4.materials.add(R.drawable.congbaoyangrou_2);
-			dish4.materials.add(R.drawable.qiangguoliao);
+			dish4.intro = "葱香浓郁，羊肉鲜嫩，营养价值高，有壮阳健肾、补虚养身的功效。";
 			
 			dish4.zhuliao_content_map.put("薄羊肉片", "130克");
 			dish4.fuliao_content_map.put("大葱段", "150克");
@@ -412,9 +410,7 @@ public class Dish implements Cloneable {
 			dish5.text = "1、底油：50克\n2、炝锅料：姜片10克、蒜片10克\n3、主料：鱼块500克\n4、辅料：红椒50克、青椒50克\n5、水：50克\n6、调料：盐3克、鸡精2克、生抽20克"; 
 			dish5.name_english = "Fish block";
 			dish5.dishid = 6;
-			dish5.materials.add(R.drawable.hongshaoyukuai_1);
-			dish5.materials.add(R.drawable.hongshaoyukuai_2);
-			dish5.materials.add(R.drawable.qiangguoliao);
+			dish5.intro = "营养丰富，鲜香味美，健康保健功效之佳肴。";
 			
 			dish5.zhuliao_content_map.put("鱼块", "500克");
 			dish5.fuliao_content_map.put("红椒", "50克");
@@ -445,7 +441,7 @@ public class Dish implements Cloneable {
 			dish6.name_english = "Fried fruit";
 			dish6.dishid = 7;
 			dish6.qiangguoliao = 0;
-			dish6.materials.add(R.drawable.chaoshuiguo_1);
+			dish6.intro = "清鲜爽口，去湿保胃，女士减肥之佳品，适合胃寒湿重人士食用。";
 			
 			dish6.zhuliao_content_map.put("苹果块", "60克");
 			dish6.zhuliao_content_map.put("火龙果块", "60克");
@@ -468,6 +464,7 @@ public class Dish implements Cloneable {
 			dish7.name_english = "Fried peanuts";
 			dish7.dishid = 8;
 			dish7.materials.add(R.drawable.zhahuasheng_1);
+			dish7.intro = "香香脆脆、质松可口，含维生素及矿物质钙磷铁等营养成分，但热量与脂肪含量高，不要贪口多吃就行。";
 			
 			dish7.zhuliao_content_map.put("花生米", "250克");
 			dish7.prepare_material_detail.add(dish7.new Material(R.drawable.zhahuasheng_1, "干花生米"));
@@ -489,8 +486,7 @@ public class Dish implements Cloneable {
 			dish8.text = "1、底油：30克\n2、炝锅料：姜片5克、蒜片5克 \n3、主料：蒜苔段250克\n4、水和调料：水25克、盐2克、鸡精2克、生抽10克"; 
 			dish8.name_english = "Garlic sprout";
 			dish8.dishid = 9;
-			dish8.materials.add(R.drawable.qingchaosuantai_1);
-			dish8.materials.add(R.drawable.qiangguoliao);
+			dish8.intro = "蒜台中含有丰富的维生素Ｃ，具有降血脂及预防冠心病和动脉硬化的作用，并可防止血栓的形成。杀菌能力强，可起到预防流感和防止伤口感染的功效。";
 			
 			dish8.zhuliao_content_map.put("蒜苔段", "250克");
 			dish8.prepare_material_detail.add(dish8.new Material(R.drawable.qiangguoliao, "炝锅料"));
@@ -517,9 +513,7 @@ public class Dish implements Cloneable {
 			dish9.text = "1、底油：35克\n2、炝锅料：姜片5克、蒜片5克\n3、主料：腊肉片130克\n4、辅料：蒜苗段150克、红椒菱形片20克、青椒菱形片20克\n5、水和调料：水25克、盐2克、鸡精2克、生抽10克"; 
 			dish9.name_english = "Garlic Bacon";
 			dish9.dishid = 10;
-			dish9.materials.add(R.drawable.suanmiaolarou_1);
-			dish9.materials.add(R.drawable.suanmiaolarou_2);
-			dish9.materials.add(R.drawable.qiangguoliao);
+			dish9.intro = "蒜苗腊肉是湖南传统名菜，醇香美味，健脾开胃，腊肉含钠量较高，高血压患者少吃。";
 			
 			dish9.zhuliao_content_map.put("腊肉片", "130克");
 			dish9.fuliao_content_map.put("蒜苗段", "150克");
@@ -550,9 +544,7 @@ public class Dish implements Cloneable {
 			dish10.text = "1、底油：40克\n2、炝锅料：姜片5克、蒜片10克 \n3、主料：鸡翅根5个（表面切3刀，加2克老抽、10克生抽腌制10分钟备用）\n4、辅料：红椒菱形片30克、青椒菱形片30克、香菇片40克\n5、水和调料：水25克、盐2克、鸡精2克"; 
 			dish10.name_english = "Chicken wings";
 			dish10.dishid = 11;
-			dish10.materials.add(R.drawable.hongshaojichi_1);
-			dish10.materials.add(R.drawable.hongshaojichi_2);
-			dish10.materials.add(R.drawable.qiangguoliao);
+			dish10.intro = "鲜香滑嫩，鸡翅有温中益气、补精添髓、强腰健胃等功效，丰富的胶原蛋白，对于保持皮肤光泽、增强皮肤弹性均有好处。";
 			
 			dish10.zhuliao_content_map.put("鸡翅", "5个");
 			dish10.fuliao_content_map.put("红椒片", "30克");
@@ -582,9 +574,7 @@ public class Dish implements Cloneable {
 			dish11.text = "1、底油：30克\n2、炝锅料：姜片5克、蒜片5克 \n3、主料：虾仁150克（加10克料酒腌制5分钟）\n4、辅料：西芹段100克、红萝卜菱形片20克\n5、水和调料：水10克、盐2克、鸡精2克"; 
 			dish11.name_english = "Celery shrimp";
 			dish11.dishid = 12;
-			dish11.materials.add(R.drawable.xiqinxiaren_1);
-			dish11.materials.add(R.drawable.xiqinxiaren_2);
-			dish11.materials.add(R.drawable.qiangguoliao);
+			dish11.intro = "虾仁营养丰富，鲜嫩可口，西芹可以降压健脑、清肠利便、解毒消肿。西芹虾仁是女士美容瘦脸之佳肴。";
 			
 			dish11.zhuliao_content_map.put("虾仁", "150克");
 			dish11.fuliao_content_map.put("西芹段", "100克");
@@ -598,12 +588,12 @@ public class Dish implements Cloneable {
 			dish11.tiaoliao_content_map.put("盐", "2克");
 			alldish_map.put(dish11.dishid, dish11);
 			
-			Dish dish12 = new Dish(R.drawable.chaoqingcai, "新内菜谱");
-			dish12.img_tiny = R.raw.tudousi_tiny;
-			dish12.text = "1、底油：30克\n2、炝锅料：姜片5克、蒜片5克 \n3、主料：虾仁150克（加10克料酒腌制5分钟）\n4、辅料：西芹段100克、红萝卜菱形片20克\n5、水和调料：水10克、盐2克、鸡精2克"; 
-			dish12.name_english = "tomato chip";
-			dish12.dishid = 50;
-			alldish_map.put(dish12.dishid, dish12);
+//			Dish dish12 = new Dish(R.drawable.chaoqingcai, "新内置菜谱");
+//			dish12.img_tiny = R.raw.tudousi_tiny;
+//			dish12.text = "1、底油：30克\n2、炝锅料：姜片5克、蒜片5克 \n3、主料：虾仁150克（加10克料酒腌制5分钟）\n4、辅料：西芹段100克、红萝卜菱形片20克\n5、水和调料：水10克、盐2克、鸡精2克"; 
+//			dish12.name_english = "tomato chip";
+//			dish12.dishid = 50;
+//			alldish_map.put(dish12.dishid, dish12);
 			
 			{
 				Dish dish = new Dish(R.drawable.xiangganroupian, "香干肉片");
@@ -620,6 +610,7 @@ public class Dish implements Cloneable {
 				dish.qiangguoliao = 1;
 				dish.name_english = "xiangganrou";
 				dish.dishid = 13;
+				dish.intro = "一道开胃下饭的家常好菜。香干中富含蛋白质、维生素、钙、铁、镁、锌、钠等营养元素，营养价值高。";
 				
 				dish.zhuliao_content_map.put("瘦肉片", "100克");
 				dish.fuliao_content_map.put("香干条",  "150克");
@@ -651,6 +642,7 @@ public class Dish implements Cloneable {
 				dish.qiangguoliao = 1;
 				dish.name_english = "jiandourou";
 				dish.dishid = 14;
+				dish.intro = "荷兰豆爽脆可口，肉片软嫩多汁，吃起来还带有一点点的甜味，食材搭配也合理，实为一道经典的家常热菜。";
 				
 				dish.zhuliao_content_map.put("瘦肉片", "100克");
 				dish.fuliao_content_map.put("荷兰豆",  "170克");
@@ -680,6 +672,7 @@ public class Dish implements Cloneable {
 				dish.qiangguoliao = 1;
 				dish.name_english = "onion beaf";
 				dish.dishid = 15;
+				dish.intro = "鲜香爽口、营养健康。洋葱富含多种微量元素，能促进脂肪代谢，降低血脂、抗动脉硬化、抑制癌症。";
 				
 				dish.zhuliao_content_map.put("牛肉片", "130克");
 				dish.fuliao_content_map.put("洋葱",  "150克");
@@ -710,6 +703,7 @@ public class Dish implements Cloneable {
 				dish.qiangguoliao = 1;
 				dish.name_english = "squid";
 				dish.dishid = 16;
+				dish.intro = "色艳味香、质嫩有咬劲，越嚼越鲜。鱿鱼的营养价值非常高，富含多种人体所需的营养成分。但鱿鱼性质寒凉，脾胃虚寒的人也应少吃。高血脂、高胆固醇、应慎食。";
 				
 				dish.zhuliao_content_map.put("生鱿鱼", "300克");
 				dish.fuliao_content_map.put("青椒片",  "50克");
@@ -740,6 +734,7 @@ public class Dish implements Cloneable {
 				dish.qiangguoliao = 1;
 				dish.name_english = "squid";
 				dish.dishid = 17;
+				dish.intro = "荤素搭配，清新爽脆。想要漂亮的ＭＭ们更是要多吃此菜，青椒、红椒中所包含的维生素Ｃ可以让爱美的你更漂亮哦。";
 				
 				dish.zhuliao_content_map.put("瘦肉片", "100克");
 				dish.fuliao_content_map.put("青椒片",  "120克");
@@ -770,6 +765,7 @@ public class Dish implements Cloneable {
 				dish.qiangguoliao = 1;
 				dish.name_english = "lamp";
 				dish.dishid = 18;
+				dish.intro = "质地软嫩，鲜辣咸香，营养丰富。此菜品较适合在秋冬季节食用";
 				
 				dish.zhuliao_content_map.put("羊肉片", "150克");
 				dish.fuliao_content_map.put("青椒",  "30克");
@@ -800,6 +796,7 @@ public class Dish implements Cloneable {
 				dish.qiangguoliao = 1;
 				dish.name_english = "konjac duck";
 				dish.dishid = 19;
+				dish.intro = "魔芋烧鸭是四川传统名菜。色泽红亮，魔芋酥软细腻，鸭肉肥酥，滋味咸中带鲜，辣而有香。";
 				
 				dish.zhuliao_content_map.put("鸭块", "150克");
 				dish.fuliao_content_map.put("魔芋",  "100克");
@@ -830,6 +827,7 @@ public class Dish implements Cloneable {
 				dish.qiangguoliao = 1;
 				dish.name_english = "celery sausage";
 				dish.dishid = 20;
+				dish.intro = "非常美味的家常小炒。芹菜是属于高纤维食物，经肠内消化作用能产生抗氧化剂，常吃芹菜，可以有效的帮助皮肤抗衰老。";
 				
 				dish.zhuliao_content_map.put("腊肠", "150克");
 				dish.fuliao_content_map.put("西芹",  "100克");
@@ -858,6 +856,7 @@ public class Dish implements Cloneable {
 				dish.qiangguoliao = 0;
 				dish.name_english = "corn ham";
 				dish.dishid = 21;
+				dish.intro = "美味的家常菜。玉米中含有大量的营养保健物质，经常食用玉米皮和玉米油对降低人体胆固醇十分有益。";
 				
 				dish.zhuliao_content_map.put("玉米粒", "100克");
 				dish.zhuliao_content_map.put("火腿丁", "80克");
@@ -883,6 +882,7 @@ public class Dish implements Cloneable {
 				dish.qiangguoliao = 1;
 				dish.name_english = "Pleurotus";
 				dish.dishid = 22;
+				dish.intro = "杏鲍菇素有＂素肉＂之称，营养丰富，富含蛋白质、碳水化合物、维生素及钙、镁等矿物质，可以提高人体免疫功能，对人体具有抗癌、降血脂、润肠胃以及美容等作用。";
 				
 				dish.zhuliao_content_map.put("杏鲍菇", "300克");
 				dish.zhuliao_content_map.put("红萝卜", "50克");
@@ -912,6 +912,7 @@ public class Dish implements Cloneable {
 				dish.qiangguoliao = 1;
 				dish.name_english = "chicken lump";
 				dish.dishid = 23;
+				dish.intro = "本菜含有丰富的蛋白质、氨基酸、维生素以及微量元素，具有开胃、益气、润肺的功效，尤其适合老年人及身体虚弱人士食用。";
 				
 				dish.zhuliao_content_map.put("鸡块", "150克");
 				dish.fuliao_content_map.put("青椒", "50克");
@@ -941,6 +942,7 @@ public class Dish implements Cloneable {
 				dish.qiangguoliao = 1;
 				dish.name_english = "balsam pear";
 				dish.dishid = 24;
+				dish.intro = "味道鲜美、口感丰富、清凉去火、养颜美容。经常食用苦瓜可以消炎退热、降低血压、血脂、血糖、促进新陈代谢。";
 				
 				dish.zhuliao_content_map.put("瘦肉片", "100克");
 				dish.fuliao_content_map.put("凉瓜", "220克");

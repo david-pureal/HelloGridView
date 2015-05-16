@@ -55,7 +55,7 @@
         android:layout_gravity="top"
         android:layout_marginTop="10dp"
         android:gravity="start"
-        android:hint="请输入用料"
+        android:hint="请输入菜谱名称"
         android:imeOptions="normal"
         android:inputType="textMultiLine"
         android:maxLength="100"

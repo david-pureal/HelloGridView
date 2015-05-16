@@ -21,6 +21,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Bitmap.CompressFormat;
+import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -30,17 +31,20 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
+import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -55,6 +59,7 @@ public class MakeDishActivityJ extends Activity {
 	ImageView makedish_img;
 	TextView makedish_name;
 	TextView makedish_brief;
+	TextView makedish_brief_add;
 	Button makedish_startcook;
 	Button makedish_save;
 	
@@ -124,6 +129,9 @@ public class MakeDishActivityJ extends Activity {
 	private TextView makedish_delete;
 	RelativeLayout explain;
 	
+	boolean is_starting_cook = false;
+	int image_package_count = Integer.MAX_VALUE;
+	
 	@SuppressLint("HandlerLeak")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -178,8 +186,26 @@ public class MakeDishActivityJ extends Activity {
             }  
         });
 		
-		//makedish_brief = (TextView) findViewById(R.id.makedish_brief); 
-		//makedish_brief.setText("填写简介");
+		makedish_brief = (TextView) findViewById(R.id.makedish_brief); 
+		makedish_brief_add = (TextView) findViewById(R.id.makedish_brief_add);
+		makedish_brief.setOnClickListener(new OnClickListener() {  
+			@Override  
+			public void onClick(View v) {  
+				Intent intent = new Intent(MakeDishActivityJ.this, EditActivity.class);
+				intent.putExtra("edit_title", "菜谱简介");
+            	intent.putExtra("edit_content_input", new_dish.intro);
+            	startActivityForResult(intent, 17);
+			}  
+		});
+		makedish_brief_add.setOnClickListener(new OnClickListener() {  
+			@Override  
+			public void onClick(View v) {  
+				Intent intent = new Intent(MakeDishActivityJ.this, EditActivity.class);
+				intent.putExtra("edit_title", "菜谱简介");
+            	intent.putExtra("edit_content_input", new_dish.intro);
+            	startActivityForResult(intent, 17);
+			}  
+		});
 		
 		add_qiangguoliao_tv = (TextView) findViewById(R.id.add_qiangguoliao_tv);
 		add_qiangguoliao_tv.setOnClickListener(new OnClickListener() {  
@@ -232,14 +258,24 @@ public class MakeDishActivityJ extends Activity {
             		Toast.makeText(MakeDishActivityJ.this, "请先连接机器", Toast.LENGTH_SHORT).show();
             		return;
             	}
-                try {  
+            	if (DeviceState.getInstance().working_state == Constants.MACHINE_WORK_STATE_COOKING) {
+            		Toast.makeText(MakeDishActivityJ.this, "已经在炒菜了", Toast.LENGTH_SHORT).show();
+            		return;
+            	}
+            	
+                try {
                     Message msg = new Message();  
                     msg.what = 0x345;  
                     Package data = new Package(Package.Send_Dish, MakeDishActivityJ.this.new_dish);
                     msg.obj = data.getBytes();
                     tcpClient.sendMsg(msg); 
                     
-                    MakeDishActivityJ.this.resp_cmd108_count = 0;
+                    is_starting_cook = true;
+                	image_package_count = data.get_img_pkg_count();
+                	progressBar1.setMax(image_package_count - 1); //从0开始的
+                	progressBar1.setVisibility(View.VISIBLE);
+                    resp_cmd108_count = 0;
+                    Log.e("MakeDishActivityJ", "starting cook, image_package_count = " + image_package_count);
                     
                 	ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     while(data.get_img_pkg(baos) && baos.size() != 0) {
@@ -248,11 +284,16 @@ public class MakeDishActivityJ extends Activity {
                     	msgtmp.what = 0x345; 
                     	msgtmp.obj = baos;
                     	tcpClient.sendMsg(msgtmp); 
+                    	
                     	baos = new ByteArrayOutputStream();
                     }
                 } catch (Exception e) { 
                 	e.printStackTrace();
-                	Log.v("MakeDishActivityJ", "prepare package data exception");
+                	Log.e("MakeDishActivityJ", "startcook prepare package data exception");
+                	is_starting_cook = false;
+                	image_package_count = Integer.MAX_VALUE;
+                	progressBar1.setVisibility(View.GONE);
+                	Toast.makeText(MakeDishActivityJ.this, "开始炒菜失败", Toast.LENGTH_SHORT).show();
                 }  
             }  
         }); 
@@ -303,6 +344,7 @@ public class MakeDishActivityJ extends Activity {
         });
 		
 		// 消息处理
+		// TODO just for handler mark
         handler = new Handler() {  
             @Override  
             public void handleMessage(Message msg) {  
@@ -317,15 +359,18 @@ public class MakeDishActivityJ extends Activity {
                 	} 
                 	
                 	if ((rp.cmdtype_head&0xff) == 127 && (rp.cmdtype_body&0xff) == 108) {
-                		++ MakeDishActivityJ.this.resp_cmd108_count;
-                		progressBar1.incrementProgressBy(1);
+                		++ resp_cmd108_count;
+                		progressBar1.setProgress(resp_cmd108_count);
                 	}
                 	
                 	Log.v("MakeDishActivityJ", "current_cmd=" + current_cmd + ", resp_cmd108_count=" + resp_cmd108_count);
-                	if (MakeDishActivityJ.this.resp_cmd108_count == 5) { //目前图片都是分成5个帧传输的
-                		MakeDishActivityJ.this.resp_cmd108_count = 0;
+                	if (resp_cmd108_count == image_package_count) { //目前图片都是分成5个帧传输的
+                		resp_cmd108_count = 0;
+                		is_starting_cook = false;
+                		image_package_count = Integer.MAX_VALUE;
             			progressBar1.setVisibility(View.GONE);
             			progressBar1.setProgress(0);
+            			
                 		if (current_cmd == 101) {
 	                		Log.v("MakeDishActivityJ", "start cook dish(" + new_dish.dishid + ") done, go to CurStateActivity");
 	        	        	Intent intent = new Intent(MakeDishActivityJ.this, CurStateActivity.class);
@@ -730,6 +775,14 @@ public class MakeDishActivityJ extends Activity {
 				zhuliao_water_cb.setClickable(false);
 			}
 			
+			makedish_brief.setText("　　" + new_dish.intro + "\n  ");
+			makedish_brief.setVisibility(new_dish.intro.isEmpty() ? View.GONE : View.VISIBLE);
+			makedish_brief_add.setVisibility(editable && new_dish.intro.isEmpty() ? View.VISIBLE : View.GONE);
+			if (!editable) {
+				makedish_brief.setOnClickListener(null);
+				makedish_brief_add.setOnClickListener(null);
+			}
+			
 			makedish_oil_tv.setText("" + new_dish.oil + "克");
 			if (!editable) makedish_oil_tv.setOnClickListener(null);
 			
@@ -913,6 +966,13 @@ public class MakeDishActivityJ extends Activity {
 	        	 makedish_name.setText(name);
 	    	 }
 	         break;
+	     case 17:
+        	 if (data != null) {
+        		 String  name = data.getStringExtra("edit_content_output");
+        		 new_dish.intro = name;
+        		 init_param();
+        	 }
+             break;
 	     case 8: // 登录返回
 	    	 if (Account.is_login) {
 	    		 Log.v("MakeDishActivityJ", "login return success, do upload");
@@ -937,6 +997,7 @@ public class MakeDishActivityJ extends Activity {
 	        	 fill_liao_table(table_tiaoliao, new_dish.tiaoliao_content_map);
         	 }
              break; 
+	     
 	     }
          
          //makedish_img.setImageDrawable(new_dish.img_drawable);

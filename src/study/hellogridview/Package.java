@@ -10,14 +10,6 @@ import android.content.res.AssetFileDescriptor;
 import android.content.res.Resources;
 import android.util.Log;
 
-// 机器功能选项，1为语音提示； 2为使用英文
-enum Option {	
-	SOUND(1),
-	USE_ENGLISH(2);
-	
-	Option(int i){}
-}
-
 //命令类型
 enum CMD_TYPE {
 	Send_Dish(101),         // 手机发送菜谱数据给机器
@@ -66,14 +58,12 @@ public class Package {
 	short dishid_be_replaced = 0;
 
 	Package(byte cmdtype) {
-		activity = TCPClient.getInstance().dish_activity;
 		curstate_activity = TCPClient.getInstance().curstate_activity;
 		this.reqid = (int) (System.currentTimeMillis() / 1000);
 		this.cmdtype = cmdtype;
 	}
 	
 	Package(byte cmdtype, Dish dish) {
-		activity = TCPClient.getInstance().dish_activity;
 		curstate_activity = TCPClient.getInstance().curstate_activity;
 		this.cmdtype = cmdtype;
 		this.dish = dish;
@@ -308,6 +298,9 @@ public class Package {
 	public int sound_frame_index = 0;
 	public byte[] img_data;
 	public byte[] sound_data;
+	public int get_img_pkg_count() {
+		return img_data.length / 1024 + 1;
+	}
 	public boolean get_img_pkg(ByteArrayOutputStream tmp) {
 		tmp.reset();
 		int total = img_data.length / 1024;
@@ -380,7 +373,7 @@ public class Package {
 		FileInputStream inStream = null;
 		if (this.cmdtype == Package.Send_Dish) {
 			if (dish.isAppBuiltIn()) {
-				fd = TCPClient.getInstance().dish_activity.getResources().openRawResourceFd(dish.img_tiny);
+				fd = TCPClient.getInstance().main_activity.getResources().openRawResourceFd(dish.img_tiny);
 				Log.i("Package", "dish.img_tiny = " + dish.img_tiny);
 				//fd_sound = TCPClient.getInstance().dish_activity.getResources().openRawResourceFd(dish.sound);
 				
@@ -406,7 +399,7 @@ public class Package {
 			//fd = TCPClient.getInstance().buildin_activity.getResources().openRawResourceFd(dish.img_tiny);
 			//fd_sound = TCPClient.getInstance().buildin_activity.getResources().openRawResourceFd(dish.sound);
 			if (dish.isAppBuiltIn()) {
-				fd = TCPClient.getInstance().dish_activity.getResources().openRawResourceFd(dish.img_tiny);
+				fd = TCPClient.getInstance().main_activity.getResources().openRawResourceFd(dish.img_tiny);
 				Log.i("Package", "dish.img_tiny = " + dish.img_tiny);
 				//fd_sound = TCPClient.getInstance().dish_activity.getResources().openRawResourceFd(dish.sound);
 				

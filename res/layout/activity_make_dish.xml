@@ -38,11 +38,14 @@
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_marginTop="10dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
             android:layout_weight="1"
             android:maxLines="8"
-            android:text=""
+            android:text="清爽可口，咸的，酸的，辣的都很好吃。土豆营养齐全，易于消化，在欧美享有“第二面包”的称号。"
             android:textColor="#000000"
             android:textSize="20sp" />
+        
         <!-- EditText
 	        android:layout_width="275dp"
 	        android:layout_height="wrap_content"
