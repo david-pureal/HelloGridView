@@ -198,6 +198,7 @@ public class Tool {
 		return null;
 	}
 	
+	// 有bug， 第一次没有连接wifi，但是后续连上wifi后，仍然返回false
 	public boolean isWifiConnected(Context context) { 
 		if (context != null) { 
 			ConnectivityManager mConnectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE); 

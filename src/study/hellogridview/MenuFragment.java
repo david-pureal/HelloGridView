@@ -93,32 +93,19 @@ public class MenuFragment extends Fragment {
             @Override  
             public void onClick(View v) {  
             	Intent intent = new Intent(getActivity(),BuiltinDishes.class);
-            	intent.putExtra("title", String.valueOf("快捷菜谱")); 
-            	//if (getActivity().getClass() != BuiltinDishes.class)
-            		startActivity(intent); 
-//            		if (getActivity().getClass() == MainActivity.class && ((MainActivity)getActivity()).main_in_stack_count == 1)
-//                		;
-//                	else getActivity().finish();
-//            		
-            	//else 
-            		//sm.toggle(); 
+            	intent.putExtra("title", Constants.BUILTIN_CNAME); 
+            	startActivity(intent); 
             	 
             }
         });	
 		builtin_tv = (TextView) getView().findViewById(R.id.builtin_dishes_tv);
+		builtin_tv.setText(Constants.BUILTIN_CNAME);
 		builtin_tv.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) {  
             	Intent intent = new Intent(getActivity(),BuiltinDishes.class);
-            	intent.putExtra("title", String.valueOf("快捷菜谱")); 
-            	//if (getActivity().getClass() != BuiltinDishes.class)
-            		startActivity(intent);
-//            	if (getActivity().getClass() == MainActivity.class && ((MainActivity)getActivity()).main_in_stack_count == 1)
-//            		;
-//            	else getActivity().finish();
-            		
-            	//else 
-            	//	sm.toggle(); 
+            	intent.putExtra("title", Constants.BUILTIN_CNAME); 
+            	startActivity(intent);
             	 
             }
         });
@@ -163,7 +150,7 @@ public class MenuFragment extends Fragment {
             @Override  
             public void onClick(View v) {  
             	Intent intent = new Intent(getActivity(), AllDish.class);
-            	intent.putExtra("title", String.valueOf("全部菜谱")); 
+            	intent.putExtra("title", String.valueOf(Constants.SYSTEM_CNAME)); 
             	//if (getActivity().getClass() != AllDish.class)
             		startActivity(intent); 
             	//else 
@@ -172,11 +159,12 @@ public class MenuFragment extends Fragment {
             }  
         });
 		all_tv = (TextView) getView().findViewById(R.id.alldishes_tv);
+		all_tv.setText(Constants.SYSTEM_CNAME);
 		all_tv.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) {  
             	Intent intent = new Intent(getActivity(),AllDish.class);
-            	intent.putExtra("title", String.valueOf("全部菜谱")); 
+            	intent.putExtra("title", String.valueOf(Constants.SYSTEM_CNAME)); 
             	//if (getActivity().getClass() != AllDish.class)
             		startActivity(intent); 
             	//else 
@@ -187,14 +175,27 @@ public class MenuFragment extends Fragment {
 		
 		ImageView temp = null; 
 		temp = (ImageView) getView().findViewById(R.id.share);
-//		temp.setOnClickListener(new OnClickListener() {  
-//            @Override  
-//            public void onClick(View v) {  
-//                startActivity(new Intent(getActivity(),BuiltinDishes.class));  
-//                //finish();//关闭当前Activity  
-//            }  
-//        });
-		temp = (ImageView) getView().findViewById(R.id.account);
+		temp.setOnClickListener(new OnClickListener() {  
+            @Override  
+            public void onClick(View v) {  
+            	Intent intent = new Intent(getActivity(),BuiltinDishes.class);
+            	intent.putExtra("title", String.valueOf("用户菜谱")); 
+            	startActivity(intent);  
+            }  
+        });
+		share_tv = (TextView) getView().findViewById(R.id.share_tv);
+		share_tv.setText("用户菜谱");
+		share_tv.setOnClickListener(new OnClickListener() {  
+            @Override  
+            public void onClick(View v) {  
+            	Intent intent = new Intent(getActivity(),BuiltinDishes.class);
+            	intent.putExtra("title", String.valueOf("用户菜谱")); 
+            	startActivity(intent);   
+            }  
+        });
+		
+		
+//		temp = (ImageView) getView().findViewById(R.id.account);
 //		temp.setOnClickListener(new OnClickListener() {  
 //            @Override  
 //            public void onClick(View v) {  

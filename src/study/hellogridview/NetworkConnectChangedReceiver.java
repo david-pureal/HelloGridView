@@ -50,10 +50,30 @@ public class NetworkConnectChangedReceiver extends BroadcastReceiver {
                 	if (TCPClient.getInstance().connect_state != Constants.CONNECTED) {
                 		TCPClient.getInstance().notify_connect_state(Constants.CONNECTING);
                 	}
-                	synchronized (TCPClient.getInstance()) {
-                		// wakeup reconnect thread
-						TCPClient.getInstance().notify();
-					}
+                	
+                	if (TCPClient.getInstance().connect_state_reason == Constants.WAIT_WIFI_CONNECTED) 	{
+	                	synchronized (TCPClient.getInstance().clientThread) {
+	                		// wakeup wait wifi connected thread
+	                		TCPClient.getInstance().clientThread.notify();
+						}
+                	}
+                	
+                	if (TCPClient.getInstance().connect_state_reason == Constants.RECONNECTING 
+                			|| TCPClient.getInstance().connect_state_reason == Constants.RECONNECTING_WAIT) 	
+                	{
+                		if (Tool.getInstance().getSSid(TCPClient.getInstance().main_activity).startsWith(Constants.AP_NAME_PREFIX)) {
+							Log.e("tcpclient", "socket connect use ip_ap");
+							TCPClient.getInstance().clientThread.current_ip = Constants.AP_IP;
+                		}
+                		
+                		if (TCPClient.getInstance().connect_state_reason == Constants.RECONNECTING_WAIT) {
+		                	synchronized (TCPClient.getInstance()) {
+		                		// wakeup reconnect thread
+		                		
+								TCPClient.getInstance().notify();
+							}
+                		}
+                	}
                 }  
             }  
         }

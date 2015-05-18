@@ -18,12 +18,15 @@ import android.os.Message;
 import android.provider.Settings;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.SimpleAdapter.ViewBinder;
 import android.widget.Button;
 import android.widget.GridView;
@@ -138,10 +141,6 @@ public class BuiltinDishes extends SlidingFragmentActivity {
 		Intent intent = getIntent();
 		tv.setText(intent.getStringExtra("title"));
 		
-		//ImageView make_new_dish = (ImageView) findViewById(R.id.make_new_dish);
-		//make_new_dish.setImageResource(R.drawable.make_new_dish_128);
-		//make_new_dish.setVisibility(View.GONE);
-		
 		if (intent.getStringExtra("title").equalsIgnoreCase("自编菜谱")) {
 			 Log.v("BuiltinDishes", "自编菜谱");
 			 //make_new_dish.setVisibility(View.GONE);
@@ -158,6 +157,11 @@ public class BuiltinDishes extends SlidingFragmentActivity {
 		else if (intent.getStringExtra("title").equalsIgnoreCase("菜谱审核")) {
 			 Log.v("BuiltinDishes", "菜谱审核");
 			 //make_new_dish.setVisibility(View.GONE);
+		}
+		else if (intent.getStringExtra("title").equals("用户菜谱")) {
+			LinearLayout.LayoutParams lp = (LayoutParams) tv.getLayoutParams();
+			lp.leftMargin = 230;
+			tv.setText("所有用户分享的菜谱");
 		}
 		
 	} // oncreate
@@ -209,7 +213,7 @@ public class BuiltinDishes extends SlidingFragmentActivity {
              int key = it.next();
              Dish d = dishes.get(key);
              HashMap<String, Object> map = new HashMap<String, Object>(); 
-             if (title.equals("快捷菜谱")) {
+             if (title.equals(Constants.BUILTIN_CNAME)) {
             	 int pos = Arrays.binarySearch(ds.builtin_dishids, (short)key);
             	 if (pos < 0) {
             		 continue;
@@ -229,6 +233,10 @@ public class BuiltinDishes extends SlidingFragmentActivity {
              }
              else if (title.equals("收藏菜谱")) {
             	 if (!Account.isFavorite(d)) continue;
+             }
+             else if (title.equals("所有用户分享的菜谱")) {
+            	 if (d.isAppBuiltIn()) continue;
+            	 if (d.hasNotUploaded()) continue;
              }
              
              if (d.img_bmp == null) d.img_bmp = Tool.decode_res_bitmap(d.img, this, Constants.DECODE_DISH_IMG_SAMPLE);

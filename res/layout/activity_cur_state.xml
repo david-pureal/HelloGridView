@@ -71,8 +71,8 @@
         android:layout_marginLeft="420dp"
         android:gravity="center"
         android:text="简洁"
-        android:textColor="#222222"
-        android:textSize="18sp" />
+        android:textColor="#888888"
+        android:textSize="14sp" />
 
     <ImageView
         android:id="@+id/back"
@@ -81,7 +81,22 @@
         android:layout_alignLeft="@+id/main"
         android:layout_alignParentBottom="true"
         android:layout_marginLeft="0dp"
-        android:src="@drawable/back_32" />
+        android:src="@drawable/back_32" 
+        android:visibility="gone"
+        />
+    
+    <TextView
+        android:id="@+id/back_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/main"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="10dp"
+        android:layout_marginBottom="10dp"
+        android:gravity="center"
+        android:text="返回"
+        android:textColor="#888888"
+        android:textSize="14sp" />
 
     <TextView
         android:id="@+id/temp"

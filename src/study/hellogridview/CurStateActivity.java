@@ -6,7 +6,6 @@ import java.util.List;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -29,9 +28,6 @@ import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.WindowManager;
 import android.widget.ImageView;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
@@ -78,7 +74,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	public TextView switch_ui_tv;
 	public boolean is_standard_ui = true;
 	
-	public boolean is_button_hide = true;
+	public boolean is_button_hide = false;
 	
 	//private long down_timestamp = 0;
 
@@ -205,7 +201,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
                 	} else {
                 		//stop_cook.setVisibility(View.GONE);
                 		//CurStateActivity.this.jiaoban_speed = 1;
-                		state = STATE_HEATING;
+                		state = Constants.STATE_HEATING;
                 		t = 50;
                 		data.clear();
                 	}
@@ -328,7 +324,8 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	        		switch (event.getAction()) {
 		            case MotionEvent.ACTION_DOWN:
 		            	if (event.getX() < lock_rect.right*1.5 && event.getY() < lock_rect.bottom*1.5) down_on_lock = true;
-		            	if (event.getX() > img_tiny_rect.left && event.getY() < img_tiny_rect.bottom) down_on_tiny_image = true;
+		            	//if (event.getX() > img_tiny_rect.left && event.getY() < img_tiny_rect.bottom) down_on_tiny_image = true;
+		            	if (event.getX() < width/0.7f && event.getY() < height/0.7f) down_on_tiny_image = true;
 		            case MotionEvent.ACTION_UP:
 		            	if (event.getX() < lock_rect.right*1.5 && event.getY() < lock_rect.bottom*1.5 && down_on_lock) {
 		            		control = ds.is_locked() ? Constants.MACHINE_UNLOCK_MACHINE : Constants.MACHINE_LOCK_MACHINE;
@@ -341,7 +338,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 		                    msg.obj = data.getBytes();
 		                    tcpclient.sendMsg(msg);
 		            	}
-		            	else if (event.getX() > img_tiny_rect.left && event.getY() < img_tiny_rect.bottom && down_on_tiny_image) {
+		            	else if (event.getX() < width/0.7f && event.getY() < height/0.7f && down_on_tiny_image) {
 		            		is_button_hide = !is_button_hide;
 		            		update_operator_button();
 		            		if (!MyPreference.activityIsGuided(CurStateActivity.this, CurStateActivity.this.getClass().getName())) {
@@ -364,6 +361,13 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 		
 		back = (ImageView) findViewById(R.id.back);
 		back.setOnClickListener(new OnClickListener() {  
+            @Override  
+            public void onClick(View v) {  
+            	finish(); 
+            }  
+        });
+		TextView back_tv = (TextView) findViewById (R.id.back_tv);
+		back_tv.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) {  
             	finish(); 
@@ -432,15 +436,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         draw_temp_baselin(); 
 	} // oncreate
 	
-
-	public final static int STATE_HEATING = 0;
-	public final int STATE_ADD_OIL = 1;
-	public final int STATE_ZHULIAO = 2;
-	public final int STATE_ZHULIAO_TISHI_DONE = 3;
-	public final int STATE_FULIAO = 4;
-	public final int STATE_FULIAO_DONE = 5;
-	
-	public static int state = STATE_HEATING;
+	public static int state = Constants.STATE_HEATING;
 	private static boolean zhuliao_voice_done = false;
 	
 	MediaPlayer player_oil;
@@ -547,7 +543,6 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
             canvas.drawText("" + ds.jiaoban_speed, simple_jiaoban_x, simple_jiaoban_y, paint);
             
             // time
-            
             int minites = ds.time / 60;
     		int seconds = ds.time - minites * 60;
     		String separator = seconds < 10 ? ":0" : ":";
@@ -669,30 +664,30 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         int zhu_temp = dish.zhuliao_temp & 0x00ff;
         
         //Log.v("CurStateActivity", "cur_temp =" + cur_temp); 
-        if (state == STATE_HEATING && cur_temp > 90) {
+        if (state == Constants.STATE_HEATING && cur_temp > 90) {
         	zhuliao_voice_done = false;
-        	state = this.STATE_ADD_OIL;
-        } else if (state == STATE_ADD_OIL && cur_temp > zhu_temp - 10) {
+        	state = Constants.STATE_ADD_OIL;
+        } else if (state == Constants.STATE_ADD_OIL && cur_temp > zhu_temp - 10) {
         	zhuliao_i = data.size();
         	zhuliao_voice_done = false;
-        	state = this.STATE_ZHULIAO;
-        } else if (state == STATE_ZHULIAO && data.size() > zhuliao_i + 10) { // 5秒闪烁提示图片
-        	state = STATE_ZHULIAO_TISHI_DONE;
-        } else if (state == STATE_ZHULIAO_TISHI_DONE && dish.fuliao_time != 0 && data.size() > zhuliao_i + 20) { // 保证主料的语音已经播放完，20为10秒
+        	state = Constants.STATE_ZHULIAO;
+        } else if (state == Constants.STATE_ZHULIAO && data.size() > zhuliao_i + 10) { // 5秒闪烁提示图片
+        	state = Constants.STATE_ZHULIAO_TISHI_DONE;
+        } else if (state == Constants.STATE_ZHULIAO_TISHI_DONE && dish.fuliao_time != 0 && data.size() > zhuliao_i + 20) { // 保证主料的语音已经播放完，20为10秒
         	Log.v("CurStateActivity", "ds.time = " + ds.time + "dish.fuliao_time = " + dish.fuliao_time);
         	int time_left = ds.time & 0xffff;
         	if (time_left < (dish.fuliao_time & 0xffff) + 10) {// 在开始辅料时间10秒前
         		fuliao_i = data.size();
         		zhuliao_voice_done = false;
-        		state = STATE_FULIAO;
+        		state = Constants.STATE_FULIAO;
         	}
-        } else if (state == STATE_FULIAO && data.size() > fuliao_i + 10) { // 5秒闪烁提示图片
-        	state = STATE_FULIAO_DONE;
+        } else if (state == Constants.STATE_FULIAO && data.size() > fuliao_i + 10) { // 5秒闪烁提示图片
+        	state = Constants.STATE_FULIAO_DONE;
         }
         
         float img_y_per_temp = (float) ((166.0-159) / 20); // 159.0 ---- 180℃   166.0 ---- 160℃
         // 加油提示语和图片
-        if (state == STATE_ADD_OIL && ds.working_state != Constants.MACHINE_WORK_STATE_STOP 
+        if (state == Constants.STATE_ADD_OIL && ds.working_state != Constants.MACHINE_WORK_STATE_STOP 
         		&& (!zhuliao_voice_done || cur_temp < 110 && data.size() % 2 == 0))
         {
         	if (!zhuliao_voice_done) {
@@ -721,7 +716,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         }
         
         // 主料提示语和图片
-        if (state == STATE_ZHULIAO && ds.working_state != Constants.MACHINE_WORK_STATE_STOP
+        if (state == Constants.STATE_ZHULIAO && ds.working_state != Constants.MACHINE_WORK_STATE_STOP
         		&& (!zhuliao_voice_done || cur_temp < zhu_temp + 10 && data.size() % 2 == 0))
         {
         	int voice_resid = 0;
@@ -769,7 +764,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         }
         
         // 辅料提示语和图片
-        if (state == STATE_FULIAO && ds.working_state != Constants.MACHINE_WORK_STATE_STOP
+        if (state == Constants.STATE_FULIAO && ds.working_state != Constants.MACHINE_WORK_STATE_STOP
         		&& (!zhuliao_voice_done || data.size() % 2 == 0))
         {
         	int voice_resid = 0;
@@ -854,13 +849,13 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	        //paint.setAntiAlias(true);
 	        float cx = (float) (76.0/480 * width);
 	        float cy = (float) (214.0/272 * height);
-	        float bx = cx;
+	        //float bx = cx;
 	        float by = (float) (261.0/272 * height);
 		    
 	        float left_up_x = (float) (72.0/480 * width);
 	        float left_up_y = cy;
 	        float right_up_x = (float) (80.0/480 * width);
-	        float right_up_y = left_up_y;
+	        //float right_up_y = left_up_y;
 	        float left_bottom_x = (float) (68.0/480 * width);
 	        float left_bottom_y = (float) (258.0/272 * height);
 	        float right_bottom_x = (float) (84.0/480 * width);

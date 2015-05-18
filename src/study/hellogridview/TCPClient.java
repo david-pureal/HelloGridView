@@ -49,6 +49,7 @@ public class TCPClient {
 	private DeviceState ds;
 	
 	public int connect_state = Constants.CONNECTING;
+	public int connect_state_reason = 0;
 	public long start_connecting_timestamp = System.currentTimeMillis();
 	
 	public boolean is_stop = false;
@@ -125,18 +126,33 @@ public class TCPClient {
 							if (curr - last_resp_timestamp >= Constants.CONNECTED_RESP_TIMEOUT) {
 								notify_connect_state(Constants.DISCONNECTED);
 								Log.v("tcpclient", "disconnected because check machine resp fail.");
+								
+								clientThread.recv_data.stop = true;
+								Thread.sleep(3000);
+								
 								// TODO reconnect
 								String curr_ssid = Tool.getInstance().getSSid(main_activity);
 								// AP 模式下，关闭机器并立即，此时并没有检测到wifi变化，但socket已经断开，需要重新连接到 AP的wifi
+								Log.v("tcpclient", "check machine resp cur_ip=" + clientThread.current_ip + "," + curr_ssid + ", con_ssid=" + connected_ssid);
 								if (clientThread.current_ip.equals(Constants.AP_IP) && curr_ssid.equals(connected_ssid)) {
+//									clientThread.recv_data.stop = true;
+//									Thread.sleep(1000);
+									
 									WifiManager mWifiManager = (WifiManager) main_activity.getSystemService(Context.WIFI_SERVICE); 
 							        // 取得WifiInfo对象  
 							        WifiInfo mWifiInfo = mWifiManager.getConnectionInfo(); 
 							        int id = mWifiInfo.getNetworkId();
-							        boolean res = mWifiManager.disconnect();
+							        mWifiManager.disconnect();
 							        //Thread.sleep(1000);
 							        mWifiManager.enableNetwork(id, true);
-							        Log.v("tcpclient", "check machine resp reconnect to current AP wifi res = " + res);
+							        Log.v("tcpclient", "check machine resp reconnect to current AP wifi");
+							        
+							        clientThread.reconnect();
+								}
+								else {
+//									clientThread.recv_data.stop = true;
+//									Thread.sleep(3000);
+									clientThread.reconnect();
 								}
 							}
 							else {
@@ -147,7 +163,7 @@ public class TCPClient {
 							Log.v("TcpClient", "socket is not connected yet, try check machine resp after 5 seconds");
 							Thread.sleep(5*1000);
 						}
-					} catch (InterruptedException e) {
+					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
@@ -176,6 +192,10 @@ public class TCPClient {
 	public void connect_ip_sta(String sta_ip) {
 		MyPreference.set_sta_ip(main_activity, sta_ip);
 		Log.v("tcpclient", "set_sta_ip = " + sta_ip + " done.");
+		
+		if (connect_state_reason == Constants.RECONNECTING || connect_state_reason == Constants.RECONNECTING) {
+			clientThread.current_ip = sta_ip;
+		}
 
 		if (clientThread != null && clientThread.revHandler != null) {
 			Message msg = new Message();
@@ -338,11 +358,16 @@ public class TCPClient {
 		
 		public void set_ip_sta(String ip_sta) {
 			this.ip_sta = ip_sta;
-			
-			if (s.isConnected() && !this.current_ip.equals(ip_sta)) {
-				notify_connect_state(Constants.CONNECTING);
-				reconnect(ip_sta);
-			}
+			current_ip = ip_sta;
+//			if (connect_state != Constants.CONNECTED) {
+//				Log.v("tcpclient", "ClientThread.set_ip_sta = " + ip_sta);
+//				current_ip = ip_sta;
+//			}
+//			else if (s.isConnected() && !this.current_ip.equals(ip_sta)) {
+//				notify_connect_state(Constants.CONNECTING);
+//				current_ip = ip_sta;
+//				reconnect();
+//			}
 		}
 
 		@Override
@@ -359,18 +384,31 @@ public class TCPClient {
 								notify_connect_state(Constants.DISCONNECTED);
 							}
 							
-							Thread.sleep(3000);
-							continue;
+//							Thread.sleep(3000);
+//							continue;
+							synchronized (ClientThread.this) {
+								Log.v("tcpclient", "before wait wifi connected.");
+								connect_state_reason = Constants.WAIT_WIFI_CONNECTED;
+								wait();
+								Log.v("tcpclient", "after wait wifi connected.");
+							}
 						}
 						
 						// 如果当前wifi是设备的AP，那就优先使用AP模式
 						if (Tool.getInstance().getSSid(main_activity).startsWith(Constants.AP_NAME_PREFIX)) {
-							s.connect(new InetSocketAddress(ip_ap, port), Constants.BBXC_SOCKET_TIMEOUT);
+							Log.e("tcpclient", "socket connect use ip_ap");
 							current_ip = ip_ap;
+							s.connect(new InetSocketAddress(ip_ap, port), Constants.BBXC_SOCKET_TIMEOUT);
 						}
 						else if (!ip_sta.isEmpty()) {
-							s.connect(new InetSocketAddress(ip_sta, port), Constants.BBXC_SOCKET_TIMEOUT);
+							Log.e("tcpclient", "socket connect use ip_sta isEmpty= " + ip_sta.isEmpty());
 							current_ip = ip_sta;
+							s.connect(new InetSocketAddress(ip_sta, port), Constants.BBXC_SOCKET_TIMEOUT);
+							if (!s.isConnected()) {
+								Log.e("tcpclient", "socket connect to sta_ip fail");
+								ip_sta = "";
+								current_ip = "";
+							}
 						}
 						else {
 							udpBroadcast.send(Constants.CMD_SCAN_MODULES);
@@ -392,6 +430,13 @@ public class TCPClient {
 							
 							break;
 						} else {
+							Log.e("tcpclient", "socket not connected");
+							if (current_ip.equals(ip_sta)) {
+								Log.e("tcpclient", "socket connect to sta_ip fail");
+								ip_sta = "";
+								current_ip = "";
+							}
+							
 							long current = System.currentTimeMillis();
 							if (connect_state == Constants.CONNECTING && current - start_connecting_timestamp > Constants.CONNECT_TIMEOUT) {
 								//connect_state = Constants.DISCONNECTED;
@@ -402,15 +447,22 @@ public class TCPClient {
 					} catch (Exception e) {
 						e.printStackTrace();
 						Log.v("tcpclient", "exception name = " + e.getCause().getClass()); //java.net.SocketException, fcntl failed EBADF (Bad file number)
-						Log.e("tcpclient", "socket connect to " + ip_ap +";" + port + " failed! try reconnect...");
-						//if (notify(dish_activity) || notify_curstate(curstate_activity) || notify_buildin(buildin_activity) || notify_setting(setting_activity));
+						Log.e("tcpclient", "socket connect to " + current_ip +":" + port + " failed! try reconnect...");
+						if (current_ip.equals(ip_sta)) {
+							Log.e("tcpclient", "socket connect to sta_ip fail");
+							ip_sta = "";
+							current_ip = "";
+						}
 						
 						long current = System.currentTimeMillis();
 						if (connect_state == Constants.CONNECTING && current - start_connecting_timestamp > Constants.CONNECT_TIMEOUT) {
 							//connect_state = Constants.DISCONNECTED;
 							notify_connect_state(Constants.DISCONNECTED);
 						}
+						
+						s.close();
 						Thread.sleep(10000);
+						s = new Socket();
 					}
 				}
 				Log.e("tcpclient", "socket connected");
@@ -426,10 +478,10 @@ public class TCPClient {
 				Looper.prepare();
 				// 创建revHandler对象
 				revHandler = new Handler() {
-
 					@SuppressLint("HandlerLeak")
 					@Override
 					public void handleMessage(Message msg) {
+						this.obtainMessage();
 						// 接收到UI线程的中用户输入的数据
 						if (msg.what == 0x345) {
 							// 将用户在文本框输入的内容写入网络
@@ -447,10 +499,11 @@ public class TCPClient {
 								Log.v("tcpclient", "sendMsg SocketException, try to reconnect");
 								e.printStackTrace();
 								notify_connect_state(Constants.CONNECTING);
-								reconnect(current_ip);
+								//reconnect();
 							}
 							catch (Exception e) {
 								e.printStackTrace();
+								notify_connect_state(Constants.CONNECTING);
 								Log.v("tcpclient", "sendMsg exception");
 							}
 						}
@@ -498,16 +551,15 @@ public class TCPClient {
 					// read error
 					Log.v("tcpclient", "read package error!");
 					notify_connect_state(Constants.CONNECTING);
-					reconnect(current_ip);
 				}
 				Log.v("tcpclient", "ReceiveThread exit");
 			}
 		} //ReceiveThread
 		
-		public void reconnect(String ip) {
-			
+		public void reconnect() {
+			connect_state_reason = Constants.RECONNECTING;
 			while (true) {
-				Log.v("tcpclient", "try to reconnect to ip:" + ip + ", is_stop = " + is_stop);
+				Log.v("tcpclient", "try to reconnect to ip:" + current_ip + ", is_stop = " + is_stop);
 				
 				try {
 					if (is_stop) {
@@ -527,7 +579,7 @@ public class TCPClient {
 					}
 					
 					s = new Socket();
-					s.connect(new InetSocketAddress(ip, port), Constants.BBXC_SOCKET_TIMEOUT);
+					s.connect(new InetSocketAddress(current_ip, port), Constants.BBXC_SOCKET_TIMEOUT);
 					
 					if (s.isConnected()) {
 						br = new BufferedInputStream(new DataInputStream(s.getInputStream()));
@@ -537,11 +589,12 @@ public class TCPClient {
 						
 						notify_connect_state(Constants.CONNECTED);
 						do_heartbeat(); // get builtin dishes
-						Log.v("tcpclient", "successfully reconnect to ip:" + ip);
+						connect_state_reason = 0;
+						Log.v("tcpclient", "successfully reconnect to ip:" + current_ip);
 						break;
 					}
 					else {
-						Log.v("tcpclient", "failed reconnect to ip:" + ip);
+						Log.v("tcpclient", "failed reconnect to ip:" + current_ip);
 						long current = System.currentTimeMillis();
 						if (connect_state == Constants.CONNECTING && current - start_connecting_timestamp > Constants.CONNECT_TIMEOUT) {
 							notify_connect_state(connect_state = Constants.DISCONNECTED);
@@ -556,7 +609,7 @@ public class TCPClient {
 					}
 				} catch (Exception io) {
 					io.printStackTrace();
-					Log.v("tcpclient", "exception failed reconnect to ip:" + ip);
+					Log.v("tcpclient", "exception failed reconnect to ip:" + current_ip);
 					long current = System.currentTimeMillis();
 					if (connect_state == Constants.CONNECTING && current - start_connecting_timestamp > Constants.CONNECT_TIMEOUT) {
 						//connect_state = Constants.DISCONNECTED;
@@ -565,6 +618,7 @@ public class TCPClient {
 					
 					try {
 						synchronized (TCPClient.getInstance()) {
+							connect_state_reason = Constants.RECONNECTING_WAIT;
 							TCPClient.getInstance().wait(5*1000);
 							Log.v("tcpclient", "after wait for wifi connected.");
 						}
@@ -591,8 +645,9 @@ public class TCPClient {
 	                nidx = nidx + nreadlen;
 	            } else {
 	                Log.v("tcpclient", "BufferedInputStream read.ret=" + nreadlen + ",bis.avaliable=" + bis.available() + "going to wait data...");
-	                if (TCPClient.getInstance().clientThread.s.isConnected() == false) {
+	                if (TCPClient.getInstance().connect_state != Constants.CONNECTED) {
 	                	Log.e("tcpclient", "socket disconnected!");
+	                	break;
 	                }
 	                // 返回负数表示，现在没有那么多数据，所以等待一会
 	                Thread.sleep(100);
@@ -601,7 +656,7 @@ public class TCPClient {
             } catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-				Log.v("tcpclient", "BufferedInputStream read error! ");
+				Log.v("tcpclient", "read_n BufferedInputStream read error! ");
 				return false;
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
@@ -714,11 +769,11 @@ public class TCPClient {
 				Log.v("tcpclient", "curstate_activity.getHandler() is null");
 			}
 			
-			if (this.setting_activity != null && setting_activity.getHandler() != null) {
-				setting_activity.getHandler().sendMessage(msg);
-			} else {
-				Log.v("tcpclient", "setting_activity.getHandler() is null");
-			}
+//			if (this.setting_activity != null && setting_activity.getHandler() != null) {
+//				setting_activity.getHandler().sendMessage(msg);
+//			} else {
+//				Log.v("tcpclient", "setting_activity.getHandler() is null");
+//			}
 			break;
 		case Package.Get_Favorite_Resp:
 			Log.v("tcpclient", "Get_Favorite_Resp package");
@@ -768,7 +823,7 @@ public class TCPClient {
 				int left_length = (short)(((bytes_length[1] << 8) & 0xff) | (bytes_length[0])) - 2;
 				if (left_length <= 12 || left_length > 2000) {
 					Log.e("tcpclient", "invalid package length = " + (left_length+2) + ", byte[0]=" + (bytes_length[0] & 0xff)  + ", byte[1]=" + (bytes_length[1] & 0xff));
-					return true;// just skip
+					return false;// just skip
 					// TODO fix bug： 应该只忽略一个字节的，现在是忽略了两个字节
 				} else {
 					Log.v("tcpclient", "package length = " + (left_length + 2));
@@ -780,12 +835,12 @@ public class TCPClient {
 					}
 				}
 			}
-			Log.e("tcpclient", "BufferedInputStream read error!");
+			Log.e("tcpclient", "read_package BufferedInputStream read error!");
 			return false;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			Log.e("tcpclient", "BufferedInputStream read error!");
+			Log.e("tcpclient", "read_package exception!");
 			
 			return false;
 		}

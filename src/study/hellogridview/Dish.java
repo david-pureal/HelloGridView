@@ -688,98 +688,6 @@ public class Dish implements Cloneable {
 				alldish_map.put(dish.dishid, dish);
 			}
 			
-			{
-				Dish dish = new Dish(R.drawable.qingchaoyouyu, "清炒鱿鱼");
-				dish.img_tiny = R.drawable.qingchaoyouyu_tiny;
-				dish.zhuliao_temp = (byte) 185;
-				dish.fuliao_temp = (byte) 185;
-				dish.zhuliao_time = (short) 60;
-				dish.fuliao_time = (short) 180;
-				dish.zhuliao_jiaoban_speed = 4;
-				dish.fuliao_jiaoban_speed = 4;
-				dish.water = 0;
-				dish.water_weight = 0;
-				dish.oil = 30;
-				dish.qiangguoliao = 1;
-				dish.name_english = "squid";
-				dish.dishid = 16;
-				dish.intro = "色艳味香、质嫩有咬劲，越嚼越鲜。鱿鱼的营养价值非常高，富含多种人体所需的营养成分。但鱿鱼性质寒凉，脾胃虚寒的人也应少吃。高血脂、高胆固醇、应慎食。";
-				
-				dish.zhuliao_content_map.put("生鱿鱼", "300克");
-				dish.fuliao_content_map.put("青椒片",  "50克");
-				dish.fuliao_content_map.put("红萝卜片",  "50克");
-				dish.fuliao_content_map.put("木耳",  "20克");
-				dish.prepare_material_detail.add(dish.new Material(R.drawable.qiangguoliao, "炝锅料"));
-				dish.prepare_material_detail.add(dish.new Material(R.drawable.yangcongniurou_1, "生鱿鱼片"));
-				dish.prepare_material_detail.add(dish.new Material(R.drawable.yangcongniurou_2, "青椒片，红萝卜片，木耳"));
-				dish.qiangguoliao_content_map.put("姜丝", "5克");
-				dish.qiangguoliao_content_map.put("蒜片", "5克");
-				dish.tiaoliao_content_map.put("鸡精", "2克");
-				dish.tiaoliao_content_map.put("盐", "2克");
-				alldish_map.put(dish.dishid, dish);
-			}
-			
-			{
-				Dish dish = new Dish(R.drawable.qingjiaochaorou, "青椒炒肉");
-				dish.img_tiny = R.drawable.qingjiaochaorou_tiny;
-				dish.zhuliao_temp = (byte) 180;
-				dish.fuliao_temp = (byte) 180;
-				dish.zhuliao_time = (short) 60;
-				dish.fuliao_time = (short) 190;
-				dish.zhuliao_jiaoban_speed = 8;
-				dish.fuliao_jiaoban_speed = 6;
-				dish.water = 2;
-				dish.water_weight = 15;
-				dish.oil = 30;
-				dish.qiangguoliao = 1;
-				dish.name_english = "squid";
-				dish.dishid = 17;
-				dish.intro = "荤素搭配，清新爽脆。想要漂亮的ＭＭ们更是要多吃此菜，青椒、红椒中所包含的维生素Ｃ可以让爱美的你更漂亮哦。";
-				
-				dish.zhuliao_content_map.put("瘦肉片", "100克");
-				dish.fuliao_content_map.put("青椒片",  "120克");
-				dish.fuliao_content_map.put("红椒",  "50克");
-				dish.prepare_material_detail.add(dish.new Material(R.drawable.qiangguoliao, "炝锅料"));
-				dish.prepare_material_detail.add(dish.new Material(R.drawable.xiangganroupian_1, "加入1克生粉和5克生抽腌制10分钟"));
-				dish.prepare_material_detail.add(dish.new Material(R.drawable.qingjiaochaorou_2, "青椒丝，红椒"));
-				dish.qiangguoliao_content_map.put("姜丝", "5克");
-				dish.qiangguoliao_content_map.put("蒜片", "5克");
-				dish.tiaoliao_content_map.put("鸡精", "2克");
-				dish.tiaoliao_content_map.put("盐", "2克");
-				dish.tiaoliao_content_map.put("生抽", "5克");
-				alldish_map.put(dish.dishid, dish);
-			}
-			
-			{
-				Dish dish = new Dish(R.drawable.ziranyangrou, "孜然羊肉");
-				dish.img_tiny = R.drawable.ziranyangrou_tiny;
-				dish.zhuliao_temp = (byte) 180;
-				dish.fuliao_temp = (byte) 180;
-				dish.zhuliao_time = (short) 60;
-				dish.fuliao_time = (short) 200;
-				dish.zhuliao_jiaoban_speed = 8;
-				dish.fuliao_jiaoban_speed = 5;
-				dish.water = 2;
-				dish.water_weight = 20;
-				dish.oil = 40;
-				dish.qiangguoliao = 1;
-				dish.name_english = "lamp";
-				dish.dishid = 18;
-				dish.intro = "质地软嫩，鲜辣咸香，营养丰富。此菜品较适合在秋冬季节食用";
-				
-				dish.zhuliao_content_map.put("羊肉片", "150克");
-				dish.fuliao_content_map.put("青椒",  "30克");
-				dish.fuliao_content_map.put("洋葱",  "100克");
-				dish.prepare_material_detail.add(dish.new Material(R.drawable.qiangguoliao, "炝锅料"));
-				dish.prepare_material_detail.add(dish.new Material(R.drawable.congbaoyangrou_1, "羊肉片"));
-				dish.prepare_material_detail.add(dish.new Material(R.drawable.ziranyangrou_2, "青椒，洋葱"));
-				dish.qiangguoliao_content_map.put("姜丝", "5克");
-				dish.qiangguoliao_content_map.put("蒜片", "5克");
-				dish.tiaoliao_content_map.put("鸡精", "2克");
-				dish.tiaoliao_content_map.put("盐", "2克");
-				dish.tiaoliao_content_map.put("孜然粉", "3克");
-				alldish_map.put(dish.dishid, dish);
-			}
 			
 			{
 				Dish dish = new Dish(R.drawable.moyushaoya, "魔芋烧鸭");
@@ -795,7 +703,7 @@ public class Dish implements Cloneable {
 				dish.oil = 35;
 				dish.qiangguoliao = 1;
 				dish.name_english = "konjac duck";
-				dish.dishid = 19;
+				dish.dishid = 16;
 				dish.intro = "魔芋烧鸭是四川传统名菜。色泽红亮，魔芋酥软细腻，鸭肉肥酥，滋味咸中带鲜，辣而有香。";
 				
 				dish.zhuliao_content_map.put("鸭块", "150克");
@@ -826,7 +734,7 @@ public class Dish implements Cloneable {
 				dish.oil = 30;
 				dish.qiangguoliao = 1;
 				dish.name_english = "celery sausage";
-				dish.dishid = 20;
+				dish.dishid = 17;
 				dish.intro = "非常美味的家常小炒。芹菜是属于高纤维食物，经肠内消化作用能产生抗氧化剂，常吃芹菜，可以有效的帮助皮肤抗衰老。";
 				
 				dish.zhuliao_content_map.put("腊肠", "150克");
@@ -855,7 +763,7 @@ public class Dish implements Cloneable {
 				dish.oil = 30;
 				dish.qiangguoliao = 0;
 				dish.name_english = "corn ham";
-				dish.dishid = 21;
+				dish.dishid = 18;
 				dish.intro = "美味的家常菜。玉米中含有大量的营养保健物质，经常食用玉米皮和玉米油对降低人体胆固醇十分有益。";
 				
 				dish.zhuliao_content_map.put("玉米粒", "100克");
@@ -881,7 +789,7 @@ public class Dish implements Cloneable {
 				dish.oil = 30;
 				dish.qiangguoliao = 1;
 				dish.name_english = "Pleurotus";
-				dish.dishid = 22;
+				dish.dishid = 19;
 				dish.intro = "杏鲍菇素有＂素肉＂之称，营养丰富，富含蛋白质、碳水化合物、维生素及钙、镁等矿物质，可以提高人体免疫功能，对人体具有抗癌、降血脂、润肠胃以及美容等作用。";
 				
 				dish.zhuliao_content_map.put("杏鲍菇", "300克");
@@ -911,7 +819,7 @@ public class Dish implements Cloneable {
 				dish.oil = 35;
 				dish.qiangguoliao = 1;
 				dish.name_english = "chicken lump";
-				dish.dishid = 23;
+				dish.dishid = 20;
 				dish.intro = "本菜含有丰富的蛋白质、氨基酸、维生素以及微量元素，具有开胃、益气、润肺的功效，尤其适合老年人及身体虚弱人士食用。";
 				
 				dish.zhuliao_content_map.put("鸡块", "150克");
@@ -941,7 +849,7 @@ public class Dish implements Cloneable {
 				dish.oil = 40;
 				dish.qiangguoliao = 1;
 				dish.name_english = "balsam pear";
-				dish.dishid = 24;
+				dish.dishid = 21;
 				dish.intro = "味道鲜美、口感丰富、清凉去火、养颜美容。经常食用苦瓜可以消炎退热、降低血压、血脂、血糖、促进新陈代谢。";
 				
 				dish.zhuliao_content_map.put("瘦肉片", "100克");
@@ -955,6 +863,102 @@ public class Dish implements Cloneable {
 				dish.tiaoliao_content_map.put("盐", "2克");
 				alldish_map.put(dish.dishid, dish);
 			}
+			
+			{
+				Dish dish = new Dish(R.drawable.ziranyangrou, "孜然羊肉");
+				dish.img_tiny = R.drawable.ziranyangrou_tiny;
+				dish.zhuliao_temp = (byte) 180;
+				dish.fuliao_temp = (byte) 180;
+				dish.zhuliao_time = (short) 60;
+				dish.fuliao_time = (short) 200;
+				dish.zhuliao_jiaoban_speed = 8;
+				dish.fuliao_jiaoban_speed = 5;
+				dish.water = 2;
+				dish.water_weight = 20;
+				dish.oil = 40;
+				dish.qiangguoliao = 1;
+				dish.name_english = "lamp";
+				dish.dishid = 22;
+				dish.intro = "质地软嫩，鲜辣咸香，营养丰富。此菜品较适合在秋冬季节食用";
+				
+				dish.zhuliao_content_map.put("羊肉片", "150克");
+				dish.fuliao_content_map.put("青椒",  "30克");
+				dish.fuliao_content_map.put("洋葱",  "100克");
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.qiangguoliao, "炝锅料"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.congbaoyangrou_1, "羊肉片"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.ziranyangrou_2, "青椒，洋葱"));
+				dish.qiangguoliao_content_map.put("姜丝", "5克");
+				dish.qiangguoliao_content_map.put("蒜片", "5克");
+				dish.tiaoliao_content_map.put("鸡精", "2克");
+				dish.tiaoliao_content_map.put("盐", "2克");
+				dish.tiaoliao_content_map.put("孜然粉", "3克");
+				alldish_map.put(dish.dishid, dish);
+			}
+			
+			{
+				Dish dish = new Dish(R.drawable.qingjiaochaorou, "青椒炒肉");
+				dish.img_tiny = R.drawable.qingjiaochaorou_tiny;
+				dish.zhuliao_temp = (byte) 180;
+				dish.fuliao_temp = (byte) 180;
+				dish.zhuliao_time = (short) 60;
+				dish.fuliao_time = (short) 190;
+				dish.zhuliao_jiaoban_speed = 8;
+				dish.fuliao_jiaoban_speed = 6;
+				dish.water = 2;
+				dish.water_weight = 15;
+				dish.oil = 30;
+				dish.qiangguoliao = 1;
+				dish.name_english = "squid";
+				dish.dishid = 23;
+				dish.intro = "荤素搭配，清新爽脆。想要漂亮的ＭＭ们更是要多吃此菜，青椒、红椒中所包含的维生素Ｃ可以让爱美的你更漂亮哦。";
+				
+				dish.zhuliao_content_map.put("瘦肉片", "100克");
+				dish.fuliao_content_map.put("青椒片",  "120克");
+				dish.fuliao_content_map.put("红椒",  "50克");
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.qiangguoliao, "炝锅料"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.xiangganroupian_1, "加入1克生粉和5克生抽腌制10分钟"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.qingjiaochaorou_2, "青椒丝，红椒"));
+				dish.qiangguoliao_content_map.put("姜丝", "5克");
+				dish.qiangguoliao_content_map.put("蒜片", "5克");
+				dish.tiaoliao_content_map.put("鸡精", "2克");
+				dish.tiaoliao_content_map.put("盐", "2克");
+				dish.tiaoliao_content_map.put("生抽", "5克");
+				alldish_map.put(dish.dishid, dish);
+			}
+			
+			{
+				//Dish dish = new Dish(R.drawable.qingchaoyouyu, "清炒鱿鱼");
+				Dish dish = new Dish(R.drawable.qingchaoyouyu, "菠萝炒肉");
+				dish.img_tiny = R.drawable.qingchaoyouyu_tiny;
+				dish.zhuliao_temp = (byte) 185;
+				dish.fuliao_temp = (byte) 185;
+				dish.zhuliao_time = (short) 60;
+				dish.fuliao_time = (short) 180;
+				dish.zhuliao_jiaoban_speed = 4;
+				dish.fuliao_jiaoban_speed = 4;
+				dish.water = 0;
+				dish.water_weight = 0;
+				dish.oil = 30;
+				dish.qiangguoliao = 1;
+				//dish.name_english = "squid";
+				dish.name_english = "pineapple meet";
+				dish.dishid = 24;
+				dish.intro = "色艳味香、质嫩有咬劲，越嚼越鲜。鱿鱼的营养价值非常高，富含多种人体所需的营养成分。但鱿鱼性质寒凉，脾胃虚寒的人也应少吃。高血脂、高胆固醇、应慎食。";
+				
+				dish.zhuliao_content_map.put("生鱿鱼", "300克");
+				dish.fuliao_content_map.put("青椒片",  "50克");
+				dish.fuliao_content_map.put("红萝卜片",  "50克");
+				dish.fuliao_content_map.put("木耳",  "20克");
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.qiangguoliao, "炝锅料"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.yangcongniurou_1, "生鱿鱼片"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.yangcongniurou_2, "青椒片，红萝卜片，木耳"));
+				dish.qiangguoliao_content_map.put("姜丝", "5克");
+				dish.qiangguoliao_content_map.put("蒜片", "5克");
+				dish.tiaoliao_content_map.put("鸡精", "2克");
+				dish.tiaoliao_content_map.put("盐", "2克");
+				alldish_map.put(dish.dishid, dish);
+			}
+			
 		}
 		
 		return alldish_map;

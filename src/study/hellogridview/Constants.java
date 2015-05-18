@@ -5,11 +5,18 @@ public final class Constants {
 	public static final String AP_IP = "192.168.1.50";
 	public static final short AP_STA_PORT = 5000;
 	public static final int BBXC_SOCKET_TIMEOUT = 5000;
+	public static final String BUILTIN_CNAME = "机内菜谱";
+	public static final String SYSTEM_CNAME = "平台菜谱";
 	
 	// connect related
 	public static final int CONNECTING   = 0;
 	public static final int CONNECTED    = 1;
 	public static final int DISCONNECTED = -1;
+	
+	public static final int RECONNECTING = 2;
+	public static final int WAIT_WIFI_CONNECTED = 3;
+	public static final int RECONNECTING_WAIT = 4;
+	
 	public static final int CONNECT_TIMEOUT = 10000;//  milliseconds
 	public static final int CONNECTED_RESP_TIMEOUT = 5000; // 连接机器成功后，如果超过5秒没收到机器数据，则认为断开
 	
@@ -21,6 +28,12 @@ public final class Constants {
 	public static final byte MACHINE_LOCK_MACHINE       = 0x04; // 解锁
 	
 	// machine cooking stage
+	public static final int STATE_HEATING = 0;
+	public static final int STATE_ADD_OIL = 1;
+	public static final int STATE_ZHULIAO = 2;
+	public static final int STATE_ZHULIAO_TISHI_DONE = 3;
+	public static final int STATE_FULIAO = 4;
+	public static final int STATE_FULIAO_DONE = 5;
 	
 	// UI related
 	public static final int UI_WIDTH    = 480;

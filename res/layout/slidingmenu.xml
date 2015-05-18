@@ -178,7 +178,7 @@
 		        android:layout_width="wrap_content"
 		        android:layout_height="wrap_content"
 		        android:layout_marginLeft="70dp"
-		        android:src="@drawable/share_72" />
+		        android:src="@drawable/users_72" />
 		
 		       <study.hellogridview.CustomFontTextView
 		           android:id="@+id/share_tv"
