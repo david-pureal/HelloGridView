@@ -47,23 +47,7 @@
         android:textSize="35sp"
         android:visibility="gone" />
 
-    <TextView
-        android:id="@+id/textView1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/splash_text"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="60dp"
-        android:layout_weight="1"
-        android:ems="1"
-        android:gravity="center_vertical"
-        android:maxLines="8"
-        android:text="家\n乡\n的\n味\n道"
-        android:textColor="#666666"
-        android:textSize="36sp"
-        android:typeface="monospace" />
-
-    <TextView
+    <!--  TextView
         android:id="@+id/splash_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -74,7 +58,17 @@
         android:maxLines="8"
         android:text="爸爸小炒"
         android:textColor="#ff0000"
-        android:textSize="48sp" />
+        android:textSize="48sp" /-->
+        
+    <ImageView
+        android:id="@+id/splash_text"
+        android:layout_width="250dp"
+        android:layout_height="60dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="70dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/babaxiaochao_big" />
 
     <ImageView
         android:layout_width="370dp"
@@ -83,6 +77,15 @@
         android:layout_centerHorizontal="true"
         android:scaleType="fitXY"
         android:src="@drawable/home2" />
+
+    <ImageView
+        android:layout_width="50dp"
+        android:layout_height="229dp"
+        android:layout_below="@+id/splash_text"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="35dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/home_taste" />
 
     
 

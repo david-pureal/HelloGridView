@@ -18,7 +18,7 @@
         android:layout_marginLeft="0dp" 
         android:src="@drawable/standard_ui_icon" /> 
         
-    <TextView 
+    <!--  TextView 
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
@@ -26,15 +26,16 @@
         android:textSize="28sp"
         android:textStyle="normal"
         android:textColor="#ff0000"
-        android:id="@+id/title_name" />
+        android:id="@+id/title_name" /-->
         
-    <!-- ImageView
-        android:layout_width="120dp"
+    <ImageView
+        android:id="@+id/title_name"
+        android:layout_width="127dp"
         android:layout_height="30dp"
         android:layout_centerInParent="true"
         android:scaleType="fitXY"
         android:src="@drawable/babaxiaochao"
-         / -->
+         />
 
     <ImageButton
         android:id="@+id/right"
@@ -48,9 +49,9 @@
 
     <ProgressBar
         android:id="@+id/connecting_bar"
-        android:layout_marginRight="8dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginRight="8dp"
         android:layout_alignBottom="@+id/title_name"
         android:layout_alignParentRight="true"
         android:layout_alignTop="@+id/title_name" />

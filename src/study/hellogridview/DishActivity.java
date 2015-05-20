@@ -201,8 +201,8 @@ public class DishActivity extends Activity implements OnTouchListener, OnClickLi
             }  
         });
 		connect_bar = (ProgressBar) findViewById(R.id.connecting_bar);
-		TextView title_name = (TextView) findViewById (R.id.title_name);
-		title_name.setTypeface(MainActivity.typeFace);
+//		TextView title_name = (TextView) findViewById (R.id.title_name);
+//		title_name.setTypeface(Tool.typeFace);
         
 		startCook = (Button) findViewById(R.id.startcook);  
         startCook.setOnClickListener(new OnClickListener() {  

@@ -22,7 +22,7 @@ public class CustomFontTextView extends TextView {
 	}
 	
 	private void init(Context context) {
-		setTypeface(MainActivity.typeFace_fzzy);
+		//setTypeface(MainActivity.typeFace_fzzy);
 	}
 
 }

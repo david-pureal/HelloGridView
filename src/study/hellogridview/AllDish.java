@@ -146,8 +146,8 @@ public class AllDish extends SlidingFragmentActivity {
             }  
         });
 		connect_bar = (ProgressBar) findViewById(R.id.connecting_bar);
-		TextView title_name = (TextView) findViewById (R.id.title_name);
-		title_name.setTypeface(Tool.typeFace);
+//		TextView title_name = (TextView) findViewById (R.id.title_name);
+//		title_name.setTypeface(Tool.typeFace);
 		
 		findViewById(R.id.make_new_dish2).setVisibility(View.GONE);
 		

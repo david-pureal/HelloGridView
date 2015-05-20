@@ -655,8 +655,8 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 
         // jiaoban
         paint.setTextSize(90 * scale);
-        Typeface tf_default = paint.getTypeface();
-        paint.setTypeface(MainActivity.typeFace_fzzy);
+        //Typeface tf_default = paint.getTypeface();
+        //paint.setTypeface(MainActivity.typeFace_fzzy);
         //if (!(selected_param.getId() == R.id.jiaoban && is_setting_param && ++current_twinkle_times < twinkle_times /*&& current_twinkle_times%2 == 0*/)) {
         canvas.drawText(this.jiaoban_str.get(Math.max(0, ds.jiaoban_speed-1)), jiaoban_x, jiaoban_y, paint);
         //}
@@ -673,7 +673,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         
         paint.setColor(Color.rgb(166, 246, 9));
         canvas.drawText(dish.name_chinese, name_x, name_y, paint);
-        paint.setTypeface(tf_default);
+        //paint.setTypeface(tf_default);
         
         // zhuliao time
         paint.setColor(Color.rgb(115, 115, 115));

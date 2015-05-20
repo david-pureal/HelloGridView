@@ -133,8 +133,8 @@ public class BuiltinDishes extends SlidingFragmentActivity {
             }  
         });
 		connect_bar = (ProgressBar) findViewById(R.id.connecting_bar);
-		TextView title_name = (TextView) findViewById (R.id.title_name);
-		title_name.setTypeface(Tool.typeFace);
+//		TextView title_name = (TextView) findViewById (R.id.title_name);
+//		title_name.setTypeface(Tool.typeFace);
 		
 		gridView = (GridView)findViewById(R.id.gridview);  
 		tv = (TextView) findViewById(R.id.replace_builtin_tv); 
