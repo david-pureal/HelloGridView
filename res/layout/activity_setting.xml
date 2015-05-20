@@ -9,19 +9,6 @@
     android:orientation="vertical" >
     
     <Switch
-        android:id="@+id/switch_english"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:layout_marginTop="20dp"
-        android:text="语言选择"
-        android:textOn="英文"
-        android:textOff="中文"
-        android:textColor="#000000"
-        android:textSize="20sp"
-        android:scrollbarStyle="outsideOverlay"
-        />          
-    <Switch
         android:id="@+id/switch_sound"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -34,126 +21,215 @@
         android:textSize="20sp" 
         android:scrollbarStyle="insideOverlay"/>
     
-    <ImageView
-        android:layout_width="fill_parent"
-        android:layout_height="5dp"
-        android:layout_gravity="center_vertical"
-        android:layout_marginBottom="10dp"
-        android:layout_marginTop="15dp"
-        android:scaleType="fitXY"
-        android:src="@drawable/line" />
 
     <TextView
         android:id="@+id/smartlink_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="10dp"
+        android:visibility="gone"
         android:text="当前连接情况" />
+    
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        android:text="手机与机器连接设置" />
+    
+    <TextView
+        android:id="@+id/wifi_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:layout_marginTop="10dp"
+        android:text="方式一：通过路由器WiFi连接机器"
+        android:textColor="#000000" />
 
     <LinearLayout
+        android:id="@+id/wifi_step"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
-        android:orientation="horizontal" >
-
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="5dp"
+        android:orientation="vertical" >
+        
         <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="right"
-            android:text="热点  : " />
+	        android:id="@+id/wifi_step1_tv"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_marginTop="5dp"
+	        android:layout_gravity="left"
+	        android:text="1、 手机连接WiFi"
+	        android:textColor="#000000" />
 
         <TextView
             android:id="@+id/ssid"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="30dp"
-            android:layout_weight="3"
-            android:gravity="left" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:orientation="horizontal" >
+            android:layout_gravity="left"
+            android:layout_marginLeft="28dp"
+            android:layout_marginTop="5dp"
+            android:text="已连接至WiFi : "
+            android:textColor="#E34F1B" />
+        
+        <TextView
+	        android:id="@+id/wifi_step2_tv"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_gravity="left"
+	        android:layout_marginTop="5dp"
+	        android:text="2、 长按“+”键5秒，至WiFi图标闪烁"
+	        android:textColor="#000000" />
 
         <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="right"
-            android:text="密码  : " />
+	        android:id="@+id/wifi_step3_tv"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_gravity="left"
+	        android:layout_marginTop="5dp"
+	        android:text="3、 输入1中已连接WiFi密码，连接机器"
+	        android:textColor="#000000" />
 
         <EditText
             android:id="@+id/pswd"
-            android:layout_width="0dp"
+            android:layout_width="212dp"
             android:layout_height="wrap_content"
-            android:layout_marginRight="30dp"
-            android:layout_weight="3"
-            android:gravity="left" />
+            android:layout_marginLeft="28dp"
+            android:gravity="left"
+            android:hint="请输入密码"
+            android:maxLines="1"
+            android:textColorHint="#888888"
+            android:textSize="14sp" />
+
+        <Button
+            android:id="@+id/start_connect"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="28dp"
+            android:layout_marginTop="5dp"
+            android:gravity="center"
+            android:text="开始连接" />
 
     </LinearLayout>
-
-    <Button
-        android:id="@+id/startcook"
+    
+    <TextView
+        android:id="@+id/one2one_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="left"
         android:layout_marginTop="20dp"
-        android:paddingBottom="10dp"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp"
-        android:paddingTop="10dp"
-        android:text="开始连接" />
+        android:text="方式二：手机直接连接机器"
+        android:textColor="#000000" />
     
+    <LinearLayout
+        android:id="@+id/one2one_step"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="5dp"
+        android:orientation="vertical" >
+        
+        <TextView
+            android:id="@+id/ssidss"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="28dp"
+            android:text="注：使用此方式手机不能上网"
+            android:textSize="10sp"
+            android:textColor="#777777" />
+        
+        <TextView
+	        android:id="@+id/one2one_step1_tv"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_gravity="left"
+	        android:layout_marginTop="5dp"
+	        android:text="1、 长按“-”键5秒，至WiFi图标闪烁"
+	        android:textColor="#000000" />
+        <TextView
+	        android:id="@+id/one2one_step2_tv"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_marginTop="5dp"
+	        android:layout_gravity="left"
+	        android:text="2、 在手机设置界面中开启WiFi"
+	        android:textColor="#000000" />
+        <TextView
+	        android:id="@+id/one2one_step2_tv"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_marginTop="5dp"
+	        android:layout_gravity="left"
+	        android:text="3、 选择BaBaxxxx连接即可"
+	        android:textColor="#000000" />
+
+        <TextView
+            android:id="@+id/ssidss"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:layout_marginLeft="28dp"
+            android:layout_marginTop="5dp"
+            android:text="已连接至WiFi : "
+            android:visibility="gone"
+            android:textColor="#777777" />
+
+    </LinearLayout>
+    
+    <ImageView
+        android:layout_width="fill_parent"
+        android:layout_height="5dp"
+        android:layout_gravity="center_vertical"
+        android:layout_marginBottom="5dp"
+        android:layout_marginTop="20dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/line" />
+    
+    <Switch
+        android:id="@+id/switch_english"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="5dp"
+        android:text="语言选择"
+        android:textOn="英文"
+        android:textOff="中文"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        android:scrollbarStyle="outsideOverlay"
+        /> 
+
     <Button
         android:id="@+id/verify_dish"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="5dp"
         android:text="菜谱审核"
         android:textSize="20sp"
         android:layout_gravity="center"
         />
     
-    
-    
-<RelativeLayout 
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
-    <LinearLayout 
-        android:layout_height="wrap_content"
-        android:layout_width="fill_parent"
-        android:layout_alignParentBottom="true"
-        android:gravity="center"
-        android:orientation="vertical">
-        <!--  TextView 
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="SmartLink3.5.0"
-            /-->
-         <!--TextView 
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="All Right Reserved"
-            /-->
-          <TextView 
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="珠海福龙电器有限公司"
-            />
-    </LinearLayout>
-
-    <Button
-        android:id="@+id/button_http"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="26dp"
-        android:text="http请求" />
-
-</RelativeLayout>
+	<RelativeLayout 
+	    android:layout_width="fill_parent"
+	    android:layout_height="fill_parent">
+	    <LinearLayout 
+	        android:layout_height="wrap_content"
+	        android:layout_width="fill_parent"
+	        android:layout_alignParentBottom="true"
+	        android:gravity="center"
+	        android:orientation="vertical">
+	          <TextView 
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:text="珠海福龙电器有限公司"
+	            android:visibility="gone"
+	            />
+	    </LinearLayout>
+	</RelativeLayout>
 </LinearLayout>

@@ -25,6 +25,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Typeface;
 import android.graphics.BitmapFactory.Options;
 import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
@@ -51,6 +52,8 @@ public class Tool {
 	public DisplayMetrics dm;
 	//public String alldish_jsonstr = "";
 	public String downloading_dish_allfiles = "";
+	
+	public static Typeface typeFace;
 	
 	public static String [] material_index = {"¢Ù", "¢Ú", "¢Û", "¢Ü", "¢Ý", "¢Þ", "¢ß", "¢à", "¢á", "¢â"};
 
@@ -346,6 +349,9 @@ public class Tool {
 		for (int i = 0; i < dirs.length; ++i) { 
 			File dish_dir = dirs[i];
 			String dir_name = dish_dir.getName();
+			if (dir_name.equals("dish30126")){
+				Log.v("s","s");
+			}
 			if (dish_dir.isDirectory() && isDishDirName(dir_name)) {
 				try {
 					int dishid = Integer.parseInt(dir_name.substring(4));
@@ -468,14 +474,20 @@ public class Tool {
 				for (int i = 0; i < array_material.length(); ++i) {
 					JSONObject element = array_material.getJSONObject(i);
 					Material m = d.new Material();
-					m.description = element.getString("description");
-					m.path = element.getString("path");
+					
+					if (element.has("description") && element.has("path")) {
+						m.description = element.getString("description");
+						m.path = element.getString("path");
+						d.prepare_material_detail.add(m);
+					}
+					else {
+						Log.e("tool", "dish(" + d.dishid + ") material info error,");
+					}
 					
 					// done in MakeDishActivity::fill_material_table
 //					Bitmap bmp = BitmapFactory.decodeFile(m.path);
 //	        		bmp.setDensity(dm.densityDpi);
 //					m.img_drawable = new BitmapDrawable(bmp);
-					d.prepare_material_detail.add(m);
 				}
 			}
 			

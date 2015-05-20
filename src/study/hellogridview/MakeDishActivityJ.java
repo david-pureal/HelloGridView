@@ -34,9 +34,13 @@ import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
+import android.view.VelocityTracker;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.Window;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
 import android.webkit.WebView;
 import android.widget.Button;
@@ -54,7 +58,7 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MakeDishActivityJ extends Activity {
+public class MakeDishActivityJ extends Activity implements OnTouchListener {
 	
 	ImageView makedish_img;
 	TextView makedish_name;
@@ -132,6 +136,21 @@ public class MakeDishActivityJ extends Activity {
 	boolean is_starting_cook = false;
 	int image_package_count = Integer.MAX_VALUE;
 	
+	int dishid_old_cancel = 0;
+	
+	//手指向右滑动时的最小速度  
+    private static final int XSPEED_MIN = 150;  
+    //手指向右滑动时的最小距离  
+    private static final int XDISTANCE_MIN = 150;  
+    //记录手指按下时的横坐标。  
+    private float xDown;  
+    //记录手指移动时的横坐标。  
+    private float xMove;  
+    //用于计算手指滑动的速度。  
+    private VelocityTracker mVelocityTracker;
+    
+    ScrollView layout_makedish;
+	
 	@SuppressLint("HandlerLeak")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -140,7 +159,8 @@ public class MakeDishActivityJ extends Activity {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_make_dishj);
 		
-		ScrollView layout_makedish = (ScrollView) findViewById(R.id.layout_makedish);
+		layout_makedish = (ScrollView) findViewById(R.id.layout_makedish);
+		layout_makedish.setOnTouchListener(this);
 		layout_makedish.setBackground(new BitmapDrawable(this.getResources(), Tool.get_res_bitmap(R.drawable.bkg_darker)));
 		
 		inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE); 
@@ -168,7 +188,7 @@ public class MakeDishActivityJ extends Activity {
         tcpClient.set_makedishact(this);
 		
 		makedish_img = (ImageView) findViewById(R.id.makedish_img); 
-		makedish_img.setOnClickListener(new OnClickListener() {  
+		if (editable) makedish_img.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) {
                 MakeDishActivityJ.this.chooseDishImage(); 
@@ -176,9 +196,10 @@ public class MakeDishActivityJ extends Activity {
         });
 		
 		makedish_name = (TextView) findViewById(R.id.makedish_name);
-		makedish_name.setOnClickListener(new OnClickListener() {  
+		if (editable) makedish_name.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) {  
+            	if (!editable) return;
             	Intent intent = new Intent(MakeDishActivityJ.this, EditActivity.class);
             	intent.putExtra("edit_title", "菜谱名称");
             	intent.putExtra("edit_content_input", new_dish.name_chinese);
@@ -188,18 +209,20 @@ public class MakeDishActivityJ extends Activity {
 		
 		makedish_brief = (TextView) findViewById(R.id.makedish_brief); 
 		makedish_brief_add = (TextView) findViewById(R.id.makedish_brief_add);
-		makedish_brief.setOnClickListener(new OnClickListener() {  
+		if (editable) makedish_brief.setOnClickListener(new OnClickListener() {  
 			@Override  
 			public void onClick(View v) {  
+				if (!editable) return;
 				Intent intent = new Intent(MakeDishActivityJ.this, EditActivity.class);
 				intent.putExtra("edit_title", "菜谱简介");
             	intent.putExtra("edit_content_input", new_dish.intro);
             	startActivityForResult(intent, 17);
 			}  
 		});
-		makedish_brief_add.setOnClickListener(new OnClickListener() {  
+		if (editable) makedish_brief_add.setOnClickListener(new OnClickListener() {  
 			@Override  
 			public void onClick(View v) {  
+				if (!editable) return;
 				Intent intent = new Intent(MakeDishActivityJ.this, EditActivity.class);
 				intent.putExtra("edit_title", "菜谱简介");
             	intent.putExtra("edit_content_input", new_dish.intro);
@@ -208,7 +231,7 @@ public class MakeDishActivityJ extends Activity {
 		});
 		
 		add_qiangguoliao_tv = (TextView) findViewById(R.id.add_qiangguoliao_tv);
-		add_qiangguoliao_tv.setOnClickListener(new OnClickListener() {  
+		if (editable) add_qiangguoliao_tv.setOnClickListener(new OnClickListener() {  
 			@Override  
 			public void onClick(View v) {  
 				Intent intent = new Intent(MakeDishActivityJ.this, TableEditActivity.class);
@@ -219,9 +242,10 @@ public class MakeDishActivityJ extends Activity {
 		});
 		
 		table_qiangguoliao = (TableLayout) findViewById (R.id.table_qiangguoliao);
-		table_qiangguoliao.setOnClickListener(new OnClickListener() {  
+		if (editable) table_qiangguoliao.setOnClickListener(new OnClickListener() {  
 			@Override  
-			public void onClick(View v) {  
+			public void onClick(View v) {
+				if (!editable) return;
 				Intent intent = new Intent(MakeDishActivityJ.this, TableEditActivity.class);
 				intent.putExtra("edit_title", "炝锅料");
 				intent.putExtra("dish_id", new_dish.dishid);
@@ -230,7 +254,7 @@ public class MakeDishActivityJ extends Activity {
 		});
 		
 		add_tiaoliao_tv = (TextView) findViewById(R.id.add_tiaoliao_tv);
-		add_tiaoliao_tv.setOnClickListener(new OnClickListener() {  
+		if (editable) add_tiaoliao_tv.setOnClickListener(new OnClickListener() {  
 			@Override  
 			public void onClick(View v) {  
 				Intent intent = new Intent(MakeDishActivityJ.this, TableEditActivity.class);
@@ -240,9 +264,10 @@ public class MakeDishActivityJ extends Activity {
 			}  
 		});
 		table_tiaoliao = (TableLayout) findViewById (R.id.table_tiaoliao);
-		table_tiaoliao.setOnClickListener(new OnClickListener() {  
+		if (editable) table_tiaoliao.setOnClickListener(new OnClickListener() {  
 			@Override  
 			public void onClick(View v) {  
+				if (!editable) return;
 				Intent intent = new Intent(MakeDishActivityJ.this, TableEditActivity.class);
 				intent.putExtra("edit_title", "调料");
 				intent.putExtra("dish_id", new_dish.dishid);
@@ -299,7 +324,7 @@ public class MakeDishActivityJ extends Activity {
         }); 
 		
 		zhuliao_water_cb = (CheckBox) findViewById(R.id.makedish_zhuliao_water);
-		zhuliao_water_cb.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+		if (editable) zhuliao_water_cb.setOnCheckedChangeListener(new OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton arg0, boolean arg1) {
             	Log.v("MakeDishActivityJ", "checkbox = " + arg1 + " arg0 = " + arg0);
@@ -386,7 +411,7 @@ public class MakeDishActivityJ extends Activity {
                 else if (msg.what == Constants.MSG_ID_UPLOAD_RESULT) {
                 	String state = (String)msg.obj;
                 	if (state.equals("success")) {
-                		MakeDishActivityJ.this.makedish_upload.setEnabled(false);
+                		//MakeDishActivityJ.this.makedish_upload.setEnabled(false);
                 		makedish_delete.setVisibility(View.GONE);
                 		favorite.setVisibility(View.VISIBLE);
                 		favorite_tv.setVisibility(View.GONE);
@@ -394,6 +419,7 @@ public class MakeDishActivityJ extends Activity {
                 		// 变为不可编辑
                 		editable = false;
                 		init_param();
+                		
                 		Toast.makeText(MakeDishActivityJ.this, "上传完成", Toast.LENGTH_SHORT).show();
                 	}
                 	else if (state.equals("fail")) {
@@ -414,13 +440,28 @@ public class MakeDishActivityJ extends Activity {
                 	String text = Account.isFavorite(new_dish) ? "已收藏" : "取消收藏";
                 	Toast.makeText(MakeDishActivityJ.this, text, Toast.LENGTH_SHORT).show();
                 }
+                else if (msg.what == Constants.MSG_ID_DEL_In_Server) {
+                	Log.v("MakeDishActivityJ", "got deleteDishInServer done. ");
+                	if (new_dish.hasNotUploaded()/*Dish.alldish_map.containsKey(dishid_old_cancel)*/){
+                		Log.v("MakeDishActivityJ", "got deleteDishInServer done. could be deleted.");
+                		Toast.makeText(MakeDishActivityJ.this, "撤销上传成功", Toast.LENGTH_SHORT).show();
+                		
+                		editable = true;
+                		init_param();
+                	}
+                	else {
+                		Log.v("MakeDishActivityJ", "got deleteDishInServer done. cancel failed.");
+                		Toast.makeText(MakeDishActivityJ.this, "撤销上传失败", Toast.LENGTH_SHORT).show();
+                	}
+                }
             }  
         }; 
         
         makedish_oil_tv = (TextView) findViewById (R.id.makedish_oil);
-        makedish_oil_tv.setOnClickListener(new OnClickListener() {  
+        if (editable) makedish_oil_tv.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) {  
+            	if (!editable) return;
             	popupView = inflater.inflate(R.layout.wheel_view_1_column, null, false);
             	final PopupWindow popWindow = new PopupWindow(popupView, 600, 800, true);
             	
@@ -478,9 +519,10 @@ public class MakeDishActivityJ extends Activity {
 		
 		// 主料表格
 		tableLayout_zhuliao = (TableLayout) findViewById(R.id.table_zhuliao);
-		tableLayout_zhuliao.setOnClickListener(new OnClickListener() {  
+		if (editable) tableLayout_zhuliao.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) {  
+            	if (!editable) return;
             	Intent intent = new Intent(MakeDishActivityJ.this, TableEditActivity.class);
             	intent.putExtra("edit_title", "主料");
             	intent.putExtra("dish_id", new_dish.dishid);
@@ -489,9 +531,10 @@ public class MakeDishActivityJ extends Activity {
         });
 		
 		table_zhuliao_param = (TableLayout) findViewById(R.id.table_zhuliao_param);
-		table_zhuliao_param.setOnClickListener(new OnClickListener() {  
+		if (editable) table_zhuliao_param.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) {  
+            	if (!editable) return;
             	Intent intent = new Intent(MakeDishActivityJ.this, ParamEditActivity.class);
             	intent.putExtra("edit_title", "主料参数");
             	intent.putExtra("dish_id", new_dish.dishid);
@@ -503,6 +546,7 @@ public class MakeDishActivityJ extends Activity {
 		makedish_set_fuliao_param_tv.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) {  
+            	if (!editable) return;
             	Intent intent = new Intent(MakeDishActivityJ.this, ParamEditActivity.class);
             	intent.putExtra("edit_title", "辅料参数");
             	intent.putExtra("dish_id", new_dish.dishid);
@@ -512,9 +556,10 @@ public class MakeDishActivityJ extends Activity {
 		
 		// 辅料表格
 		tableLayout_fuliao = (TableLayout) findViewById(R.id.table_fuliao);
-		tableLayout_fuliao.setOnClickListener(new OnClickListener() {  
+		if (editable) tableLayout_fuliao.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) {  
+            	if (!editable) return;
             	Intent intent = new Intent(MakeDishActivityJ.this, TableEditActivity.class);
             	intent.putExtra("edit_title", "辅料");
             	intent.putExtra("dish_id", new_dish.dishid);
@@ -523,9 +568,10 @@ public class MakeDishActivityJ extends Activity {
         });
 		
 		table_fuliao_param = (TableLayout) findViewById(R.id.table_fuliao_param);
-		table_fuliao_param.setOnClickListener(new OnClickListener() {  
+		if (editable) table_fuliao_param.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) {  
+            	if (!editable) return;
             	Intent intent = new Intent(MakeDishActivityJ.this, ParamEditActivity.class);
             	intent.putExtra("edit_title", "辅料参数");
             	intent.putExtra("dish_id", new_dish.dishid);
@@ -536,7 +582,8 @@ public class MakeDishActivityJ extends Activity {
 		table_material_image_addrow = (TextView) findViewById(R.id.table_material_image_addrow);
 		table_material_image_addrow.setOnClickListener(new OnClickListener() {  
             @Override  
-            public void onClick(View v) {  
+            public void onClick(View v) {
+            	if (!editable) return;
             	Log.v("MakeDishActivityJ", "v.getId = " + v.getId());
             	if (new_dish.prepare_material_detail.size() == Tool.material_index.length) {
             		Toast.makeText(MakeDishActivityJ.this, "最多可添加10个备料图文", Toast.LENGTH_SHORT).show();
@@ -570,7 +617,7 @@ public class MakeDishActivityJ extends Activity {
             	}
             	for (int i = 0; i < dishids.length; ++i) {
     				dishids[i] = 0xffff & DeviceState.getInstance().builtin_dishids[i];
-    				dish_names[i] = Dish.getDishNameById(DeviceState.getInstance().builtin_dishids[i]);
+    				dish_names[i] = Dish.getDishNameById(dishids[i]);
     			}
             	
             	int id = new_dish.dishid;
@@ -611,6 +658,8 @@ public class MakeDishActivityJ extends Activity {
                         popWindow.dismiss(); //Close the Pop Window
                     }
                 });
+            	popWindow.setOutsideTouchable(true);
+            	popWindow.setBackgroundDrawable(new BitmapDrawable());
             	popWindow.showAtLocation(self_content_view, Gravity.CENTER, 0, 0);
             }  
         });
@@ -635,14 +684,17 @@ public class MakeDishActivityJ extends Activity {
                 	intent.putExtra("header", "登录后才能上传哦～");
                 	startActivityForResult(intent, 8);
             	} else {
+            		new_dish.author_id = Account.userid;
+            		new_dish.author_name = Account.username;
+            		new_dish.saveDishParam();
             		HttpUtils.uploadDish(new_dish, MakeDishActivityJ.this);
             	}
             }  
         });
-		if (new_dish.isVerifying() || new_dish.isVerifyDone()) {
-			// 已经上传过的暂不能再更新
-			makedish_upload.setEnabled(false);
-		}
+//		if (new_dish.isVerifying() || new_dish.isVerifyDone()) {
+//			// 已经上传过的暂不能再更新
+//			makedish_upload.setEnabled(false);
+//		}
 		
 		makedish_verify = (Button) findViewById(R.id.makedish_verify);
 		makedish_verify.setOnClickListener(new OnClickListener() {  
@@ -728,8 +780,20 @@ public class MakeDishActivityJ extends Activity {
         makedish_delete.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) {
-            	Dish.remove_not_uploaded_dish(new_dish);
-            	finish();
+            	if (new_dish.hasNotUploaded()) {
+	            	Dish.remove_not_uploaded_dish(new_dish);
+	            	finish();
+            	}
+            	else {
+            		if (!Account.is_login) {
+                		Intent intent = new Intent(MakeDishActivityJ.this, LoginActivity.class);
+                    	intent.putExtra("header", "登录后才能撤销上传");
+                    	startActivityForResult(intent, 13);
+                	} else {
+                		dishid_old_cancel = new_dish.dishid;
+                		HttpUtils.deleteDishInServer(new_dish, MakeDishActivityJ.this.handler);
+                	}
+            	}
             }  
         });
         
@@ -750,6 +814,9 @@ public class MakeDishActivityJ extends Activity {
 	protected int resp_cmd108_count = 0; // 图片数据响应计数
 	TCPClient tcpClient;
 	public Handler handler;
+	private float yDown;
+	private float real_yDown;
+	private float yspeed = 0;
 	
 	public void init_param() {
 		try {
@@ -758,63 +825,59 @@ public class MakeDishActivityJ extends Activity {
 			
 			makedish_name.setText(new_dish.name_chinese);
 			if (!editable) {
-				makedish_name.setOnClickListener(null);
+				//makedish_name.setOnClickListener(null);
 				makedish_name.setCompoundDrawables(null, null, null, null);
 			}
 			
 			if (!editable) add_qiangguoliao_tv.setVisibility(View.GONE);
-			if (!editable) table_qiangguoliao.setOnClickListener(null);
+			//if (!editable) table_qiangguoliao.setOnClickListener(null);
 			fill_liao_table(table_qiangguoliao, new_dish.qiangguoliao_content_map);
 			
 			if (!editable) add_tiaoliao_tv.setVisibility(View.GONE);
-			if (!editable) table_tiaoliao.setOnClickListener(null);
+			//if (!editable) table_tiaoliao.setOnClickListener(null);
 			fill_liao_table(table_tiaoliao, new_dish.tiaoliao_content_map);
 			
-			if (!editable) {
-				zhuliao_water_cb.setOnCheckedChangeListener(null);
-				zhuliao_water_cb.setClickable(false);
-			}
+			//zhuliao_water_cb.setOnCheckedChangeListener(null);
+			zhuliao_water_cb.setClickable(editable);
 			
 			makedish_brief.setText("　　" + new_dish.intro + "\n  ");
 			makedish_brief.setVisibility(new_dish.intro.isEmpty() ? View.GONE : View.VISIBLE);
 			makedish_brief_add.setVisibility(editable && new_dish.intro.isEmpty() ? View.VISIBLE : View.GONE);
-			if (!editable) {
-				makedish_brief.setOnClickListener(null);
-				makedish_brief_add.setOnClickListener(null);
-			}
+//			if (!editable) {
+//				makedish_brief.setOnClickListener(null);
+//				makedish_brief_add.setOnClickListener(null);
+//			}
 			
 			makedish_oil_tv.setText("" + new_dish.oil + "克");
-			if (!editable) makedish_oil_tv.setOnClickListener(null);
+			//if (!editable) makedish_oil_tv.setOnClickListener(null);
 			
 			if (!editable) add_zhuliao.setVisibility(View.GONE);
 			if (!editable) add_fuliao.setVisibility(View.GONE);
 			
 			if (!editable) makedish_set_zhuliao_param_tv.setVisibility(View.GONE);
 			
-			if (!editable) tableLayout_zhuliao.setOnClickListener(null);
+			//if (!editable) tableLayout_zhuliao.setOnClickListener(null);
 			fill_table(tableLayout_zhuliao, new_dish.zhuliao_content_map);
 			Log.v("MakeDishActivityJ", "zhuliao_content_map.size() = " + new_dish.zhuliao_content_map.size());
 			Log.v("MakeDishActivityJ", "tableLayout_zhuliao.getChildCount() = " + tableLayout_zhuliao.getChildCount());
 			
-			if (!editable) table_zhuliao_param.setOnClickListener(null);
+			//if (!editable) table_zhuliao_param.setOnClickListener(null);
 			fill_param_table(table_zhuliao_param);
+			makedish_set_fuliao_param_tv.setVisibility(editable ? View.VISIBLE : View.GONE);
 			
-			if (!editable) makedish_set_fuliao_param_tv.setVisibility(View.GONE);
-			
-			if (!editable) tableLayout_fuliao.setOnClickListener(null);
+			//if (!editable) tableLayout_fuliao.setOnClickListener(null);
 			fill_table(tableLayout_fuliao, new_dish.fuliao_content_map);
 			
-			if (!editable) table_fuliao_param.setOnClickListener(null);
+			//if (!editable) table_fuliao_param.setOnClickListener(null);
 			fill_param_table(table_fuliao_param);
 			
-			if (!editable) {
-				table_material_image_addrow.setVisibility(View.GONE);
-				table_material_image_addrow.setOnClickListener(null);
-			}
+			
+			table_material_image_addrow.setVisibility(editable ? View.VISIBLE : View.GONE);
+				//table_material_image_addrow.setOnClickListener(null);
 			
 			fill_material_table(table_material, new_dish.prepare_material_detail);
 			
-			if (!editable) makedish_upload.setVisibility(View.GONE);
+			makedish_upload.setVisibility(editable ? View.VISIBLE : View.GONE);
 			
 			int favorite_resid = Account.isFavorite(new_dish) ? R.drawable.favorite_dish_72 : R.drawable.unfavorite_dish_72;
 	        favorite.setImageBitmap(Tool.get_res_bitmap(favorite_resid));
@@ -825,14 +888,27 @@ public class MakeDishActivityJ extends Activity {
 	    	}
 	        
 	        if (!editable) makedish_delete.setVisibility(View.GONE);
-	        if (!new_dish.isAppBuiltIn() && new_dish.hasNotUploaded()) {
+	        if (!new_dish.isAppBuiltIn()) {
 	    		Log.v("MakeDishActivityJ", "before-upload dish can't be favorited or used-as-replacement, so disable it");
-	    		makedish_replace.setVisibility(View.GONE);
+	    		makedish_replace.setVisibility((!new_dish.isAppBuiltIn() && new_dish.hasNotUploaded()) ? View.GONE : View.VISIBLE);
 	    	}
-	        if (editable && !new_dish.isAppBuiltIn() && new_dish.hasNotUploaded()){
-	        	// 只能删除未上传的
-	    		makedish_delete.setVisibility(View.VISIBLE);
+	        if (editable && !new_dish.isAppBuiltIn() && !new_dish.isVerifyDone()){
+	        	if (new_dish.hasNotUploaded()) {
+		        	// 未上传的直接在本地删除
+		        	makedish_delete.setText("删除");
+		    		makedish_delete.setVisibility(View.VISIBLE);
+	        	}
+	        	else {
+	        		// 已上传的，从服务端删除，并还原为未上传的自编菜谱
+	        		makedish_delete.setText("撤销上传");
+		    		makedish_delete.setVisibility(View.VISIBLE);
+	        	}
 	    	}
+	        
+	        if (!new_dish.isAppBuiltIn() && new_dish.isMine() && !new_dish.isVerifyDone() && !new_dish.hasNotUploaded()) {
+	        	makedish_delete.setText("撤销上传");
+        		makedish_delete.setVisibility(View.VISIBLE);
+	        }
 	        
 	        if(editable) explain.setVisibility(View.GONE);
 			
@@ -883,6 +959,13 @@ public class MakeDishActivityJ extends Activity {
 				((TextView)findViewById(R.id.makedish_tiaoliao_title)).setText(tiaoliao_i + ".调料");
 				((TextView)findViewById(R.id.makedish_water_title)).setText(water_i + ".加水");
 				((TextView)findViewById(R.id.makedish_material_title)).setText(material_i + ".备料图文");
+			}
+			else {
+				((TextView)findViewById(R.id.makedish_zhuliao_title)).setVisibility(View.VISIBLE);
+				((TextView)findViewById(R.id.makedish_fuliao_title)).setVisibility(View.VISIBLE);
+				((TextView)findViewById(R.id.makedish_tiaoliao_title)).setVisibility(View.VISIBLE);
+				((TextView)findViewById(R.id.makedish_water_title)).setVisibility(View.VISIBLE);
+				((TextView)findViewById(R.id.makedish_material_title)).setVisibility(View.VISIBLE);
 			}
 			
 		} 
@@ -976,6 +1059,8 @@ public class MakeDishActivityJ extends Activity {
 	     case 8: // 登录返回
 	    	 if (Account.is_login) {
 	    		 Log.v("MakeDishActivityJ", "login return success, do upload");
+	    		 new_dish.author_id = Account.userid;
+         		 new_dish.author_name = Account.username;
 	    		 new_dish.saveDishParam(); // 用户登录后要保存创建者信息
 	    		 HttpUtils.uploadDish(new_dish, MakeDishActivityJ.this);
 	    	 }
@@ -993,10 +1078,16 @@ public class MakeDishActivityJ extends Activity {
 	        	fill_param_table(table_fuliao_param);
 	            break;
 	     case 12:
-        	 if (data != null) {
-	        	 fill_liao_table(table_tiaoliao, new_dish.tiaoliao_content_map);
-        	 }
-             break; 
+	        	if (data != null) {
+		        	fill_liao_table(table_tiaoliao, new_dish.tiaoliao_content_map);
+	        	}
+	        	break;
+	     case 13:  
+	        	if (Account.is_login) {
+		    		 Log.v("DishActivity", "login return success, do cancel uploaded");
+		    		 HttpUtils.deleteDishInServer(new_dish, MakeDishActivityJ.this.handler);
+		    	}
+	            break;
 	     
 	     }
          
@@ -1138,7 +1229,7 @@ public class MakeDishActivityJ extends Activity {
          textView.setText(Tool.material_index[index]);
          textView.setTextSize(17);
          textView.setTextColor(Color.rgb(85, 85, 85));
-         textView.setOnClickListener(new OnClickListener() {  
+         if (editable) textView.setOnClickListener(new OnClickListener() {  
              @Override  
              public void onClick(View v) {  
              	Log.v("MakeDishActivityJ", "v.getId = " + v.getId());
@@ -1149,7 +1240,6 @@ public class MakeDishActivityJ extends Activity {
              	startActivityForResult(intent, 6);
              }  
          });
-         if (!editable) textView.setOnClickListener(null);
 
          TextView textView2 = new TextView(tableLayout.getContext());
          TableLayout.LayoutParams tlp2 = new TableLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
@@ -1200,5 +1290,77 @@ public class MakeDishActivityJ extends Activity {
 			TEST_IMAGE = null;
 		}
 	}
+	 
+	@Override  
+    public boolean onTouch(View v, MotionEvent event) {  
+        createVelocityTracker(event);  
+        switch (event.getAction()) {  
+        case MotionEvent.ACTION_DOWN:  
+        	xDown = event.getRawX();  
+            yDown = event.getRawY();
+            real_yDown = event.getRawY();  
+            break;  
+        case MotionEvent.ACTION_MOVE:  
+        	xMove = event.getRawX(); 
+            float yMove = event.getRawY();
+            //活动的距离  
+            int distanceX = (int) (xMove - xDown);  
+            int real_distanceY = (int) (yMove - real_yDown);
+            //获取顺时速度  
+            int xSpeed = getScrollVelocity();  
+            //当滑动的距离大于我们设定的最小距离且滑动的瞬间速度大于我们设定的速度时，返回到上一个activity  
+            if(distanceX > XDISTANCE_MIN && xSpeed > XSPEED_MIN && Math.abs(distanceX) > Math.abs(real_distanceY)) {  
+                finish();  
+            }  
+            else {
+//            	int distanceY = (int) (yDown - yMove);
+//            	layout_makedish.smoothScrollBy(0, distanceY);
+            	yDown = event.getRawY();
+            	layout_makedish.onTouchEvent(event);
+            }
+            break;  
+        case MotionEvent.ACTION_UP: 
+        	xSpeed = getScrollVelocity();
+        	layout_makedish.fling((int) -yspeed);
+            recycleVelocityTracker();  
+            break;  
+        default:  
+            break;  
+        }  
+        return true;  
+    }  
+      
+    /** 
+     * 创建VelocityTracker对象，并将触摸content界面的滑动事件加入到VelocityTracker当中。 
+     *  
+     * @param event 
+     *         
+     */  
+    private void createVelocityTracker(MotionEvent event) {  
+        if (mVelocityTracker == null) {  
+            mVelocityTracker = VelocityTracker.obtain();  
+        }  
+        mVelocityTracker.addMovement(event);  
+    }  
+      
+    /** 
+     * 回收VelocityTracker对象。 
+     */  
+    private void recycleVelocityTracker() {  
+        mVelocityTracker.recycle();  
+        mVelocityTracker = null;  
+    }  
+      
+    /** 
+     * 获取手指在content界面滑动的速度。 
+     *  
+     * @return 滑动速度，以每秒钟移动了多少像素值为单位。 
+     */  
+    private int getScrollVelocity() {  
+        mVelocityTracker.computeCurrentVelocity(1000);  
+        int velocity = (int) mVelocityTracker.getXVelocity();  
+        yspeed = mVelocityTracker.getYVelocity();
+        return Math.abs(velocity);  
+    } 
 }
 

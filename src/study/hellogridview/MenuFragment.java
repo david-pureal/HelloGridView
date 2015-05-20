@@ -151,11 +151,7 @@ public class MenuFragment extends Fragment {
             public void onClick(View v) {  
             	Intent intent = new Intent(getActivity(), AllDish.class);
             	intent.putExtra("title", String.valueOf(Constants.SYSTEM_CNAME)); 
-            	//if (getActivity().getClass() != AllDish.class)
-            		startActivity(intent); 
-            	//else 
-            		//sm.toggle(); 
-                //finish();//关闭当前Activity  
+            	startActivity(intent); 
             }  
         });
 		all_tv = (TextView) getView().findViewById(R.id.alldishes_tv);
@@ -165,11 +161,7 @@ public class MenuFragment extends Fragment {
             public void onClick(View v) {  
             	Intent intent = new Intent(getActivity(),AllDish.class);
             	intent.putExtra("title", String.valueOf(Constants.SYSTEM_CNAME)); 
-            	//if (getActivity().getClass() != AllDish.class)
-            		startActivity(intent); 
-            	//else 
-            		//sm.toggle(); 
-                //finish();//关闭当前Activity  
+            	startActivity(intent); 
             }  
         });
 		

@@ -186,10 +186,10 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
         });
 		connect_bar = (ProgressBar) findViewById(R.id.connecting_bar);
 		
-		typeFace = Typeface.createFromAsset(getAssets(), "fonts/hanyitaiji.ttf");
+		//typeFace = Typeface.createFromAsset(getAssets(), "fonts/hanyitaiji.ttf");
 		typeFace_fzzy = Typeface.createFromAsset(getAssets(), "fonts/fangzhengzhunyuan.ttf");
 		TextView title_name = (TextView) findViewById (R.id.title_name);
-		title_name.setTypeface(typeFace);
+		title_name.setTypeface(Tool.typeFace);
 		((TextView) findViewById(R.id.main_title_tv)).setTypeface(typeFace_fzzy);
 		
 		handler = new Handler() {    
@@ -391,23 +391,35 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
          
         index_id_list.clear();
          
-        ArrayList<HashMap<String,Object>> al=new ArrayList<HashMap<String,Object>>();
+        ArrayList<HashMap<String,Object>> al=new ArrayList<HashMap<String, Object>>();
+        int [] hotids = {25, 26, 24, 16};
+        for (int i = 0; i < hotids.length; ++i)
+        {
+        	HashMap<String, Object> map = new HashMap<String, Object>();
+        	Dish d = Dish.getDishById(hotids[i]);
+        	if (d.img_bmp == null) d.img_bmp = Tool.decode_res_bitmap(d.img, MainActivity.this, Constants.DECODE_DISH_IMG_SAMPLE);
+            if (d.isAppBuiltIn() /*|| d.isVerifyDone()*/) {
+              	 map.put("icon", d.img_bmp); //添加图像资源的ID 
+              	 map.put("name", d.name_chinese);//按序号做ItemText 
+                 al.add(map);
+                 index_id_list.add(d.dishid);
+                 if (index_id_list.size() == 12) break;
+            }
+        }
         for (Iterator<Integer> it = dishes.keySet().iterator();it.hasNext();)
         {
              int key = it.next();
              Dish d = dishes.get(key);
              HashMap<String, Object> map = new HashMap<String, Object>(); 
-              
+             
              if (d.img_bmp == null) d.img_bmp = Tool.decode_res_bitmap(d.img, MainActivity.this, Constants.DECODE_DISH_IMG_SAMPLE);
-             if (d.isAppBuiltIn() || d.isVerifyDone()) {
+             if (d.isAppBuiltIn() /*|| d.isVerifyDone()*/) {
                	 map.put("icon", d.img_bmp); //添加图像资源的ID 
+               	 map.put("name", d.name_chinese);//按序号做ItemText 
+                 al.add(map);
+                 index_id_list.add(d.dishid);
+                 if (index_id_list.size() == 16) break;
              }
-             else { continue;}
-              
-             map.put("name", d.name_chinese);//按序号做ItemText 
-             al.add(map);
-             index_id_list.add(d.dishid);
-             if (index_id_list.size() == 12) break;
          }
          
          SimpleAdapter sa= new SimpleAdapter(MainActivity.this, al, R.layout.image_text,new String[]{"icon","name"},new int[]{R.id.ItemImage,R.id.ItemText});

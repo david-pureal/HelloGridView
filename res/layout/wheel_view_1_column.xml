@@ -17,7 +17,7 @@
 
         <kankan.wheel.widget.WheelView
             android:id="@+id/column_1"
-            android:layout_width="140dp"
+            android:layout_width="160dp"
             android:layout_height="wrap_content" />
         <!--
              kankan.wheel.widget.WheelView android:id="@+id/mins"

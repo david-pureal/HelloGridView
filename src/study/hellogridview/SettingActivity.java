@@ -10,6 +10,7 @@ import android.os.Message;
 import android.provider.Settings;
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Paint;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MotionEvent;
@@ -38,6 +39,8 @@ public class SettingActivity extends Activity implements OnTouchListener {
 	boolean isconncting = false;
 	
 	TextView smartlink_tv;
+	TextView wifi_tv;
+	TextView one2one_tv;
 	
 	public Switch swt_english;
 	public Switch swt_sound;
@@ -54,6 +57,8 @@ public class SettingActivity extends Activity implements OnTouchListener {
 	ProgressBar connect_bar;
 	
 	TCPClient tcpclient;
+	LinearLayout wifi_step;
+	LinearLayout one2one_step;
 	
 	//手指向右滑动时的最小速度  
     private static final int XSPEED_MIN = 200;  
@@ -109,9 +114,36 @@ public class SettingActivity extends Activity implements OnTouchListener {
 		tcpclient = TCPClient.getInstance();
 		tcpclient.set_settingact(this);
 		
-		m_startBtn = (Button) findViewById(R.id.startcook);
+		wifi_step = (LinearLayout) findViewById(R.id.wifi_step);
+		one2one_step = (LinearLayout) findViewById(R.id.one2one_step);
+		//one2one_step.setVisibility(View.GONE);
+		
+		wifi_tv = (TextView) findViewById(R.id.wifi_tv);
+		wifi_tv.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG);
+		wifi_tv.getPaint().setAntiAlias(true);
+		wifi_tv.setOnClickListener(new OnClickListener() {  
+            @Override  
+            public void onClick(View v) { 
+            	return;
+            }  
+        });
+		one2one_tv = (TextView) findViewById(R.id.one2one_tv);
+		one2one_tv.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG);
+		one2one_tv.getPaint().setAntiAlias(true);
+		one2one_tv.setOnClickListener(new OnClickListener() {  
+            @Override  
+            public void onClick(View v) { 
+            	one2one_step.setVisibility(View.VISIBLE);
+            }  
+        });
+		
+		m_startBtn = (Button) findViewById(R.id.start_connect);
 		ssid = (TextView) findViewById(R.id.ssid);
-		ssid.setText(Tool.getInstance().getSSid(this));
+		ssid.setText("已连接到WiFi : " + Tool.getInstance().getSSid(this));
+		if (Tool.getInstance().getSSid(this).isEmpty()) {
+			ssid.setText("未连接到任何WiFi");
+		}
+			
 		pswd = (EditText) findViewById(R.id.pswd);
 		
 		swt_english = (Switch) findViewById(R.id.switch_english);
@@ -152,28 +184,6 @@ public class SettingActivity extends Activity implements OnTouchListener {
                 //finish();//关闭当前Activity  
             }  
         });
-		
-		button_http = (Button) findViewById(R.id.button_http);
-		button_http.setVisibility(View.GONE);
-		button_http.setText("WiFI设置");
-		button_http.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				//String url_upload = "http://182.92.231.24:8889/upload";
-				
-//				WifiManager wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-//				WifiInfo info = wifi.getConnectionInfo();
-//				NetworkInterface.getHardwareAddress();
-//				Toast.makeText(SmartLinkActivity.this, "MAC=" + info.getMacAddress(), Toast.LENGTH_SHORT).show();
-				
-	            //Toast.makeText(SmartLinkActivity.this, "deviceId=" + Account.device_id, Toast.LENGTH_SHORT).show();
-				
-				startActivityForResult(new Intent(Settings.ACTION_WIFI_SETTINGS), 1);
-				finish();
-			}
-		});
-		//获取实例
-//		sm = SmartLinkManipulator.getInstence(MainActivity.this);
 		
 		m_startBtn.setOnClickListener(new OnClickListener() {
 			
@@ -219,7 +229,7 @@ public class SettingActivity extends Activity implements OnTouchListener {
         });
 		connect_bar = (ProgressBar) findViewById(R.id.connecting_bar);
 		TextView title_name = (TextView) findViewById (R.id.title_name);
-		title_name.setTypeface(MainActivity.typeFace);
+		title_name.setTypeface(Tool.typeFace);
 		
 		smartlink_tv = (TextView) findViewById(R.id.smartlink_tv);
 		set_connect_state();
@@ -369,7 +379,10 @@ public class SettingActivity extends Activity implements OnTouchListener {
 	
 	public void set_connect_state() {
 		
-		ssid.setText(Tool.getInstance().getSSid(this));
+		ssid.setText("已连接到WiFi : " + Tool.getInstance().getSSid(this));
+		if (Tool.getInstance().getSSid(this).isEmpty()) {
+			ssid.setText("未连接到WiFi,请检查手机及路由器连接正常");
+		}
 		
     	if (tcpclient.connect_state == Constants.CONNECTED) {
     		connect_bar.setVisibility(View.GONE);
@@ -400,5 +413,12 @@ public class SettingActivity extends Activity implements OnTouchListener {
     		smartlink_tv.setText("尝试连接中...");
     	}
     }
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		Log.v("SettingActivity", "SettingActivity onResume");
+		set_connect_state();
+	}
 }
 

@@ -147,7 +147,7 @@ public class AllDish extends SlidingFragmentActivity {
         });
 		connect_bar = (ProgressBar) findViewById(R.id.connecting_bar);
 		TextView title_name = (TextView) findViewById (R.id.title_name);
-		title_name.setTypeface(MainActivity.typeFace);
+		title_name.setTypeface(Tool.typeFace);
 		
 		findViewById(R.id.make_new_dish2).setVisibility(View.GONE);
 		
@@ -183,7 +183,7 @@ public class AllDish extends SlidingFragmentActivity {
              HashMap<String, Object> map = new HashMap<String, Object>(); 
              
              if (d.img_bmp == null) d.img_bmp = Tool.decode_res_bitmap(d.img, this, Constants.DECODE_DISH_IMG_SAMPLE);
-             if (d.isAppBuiltIn() || d.isVerifyDone()) {
+             if (d.isAppBuiltIn()/* || d.isVerifyDone()*/) {
                	 map.put("icon", d.img_bmp); //添加图像资源的ID 
              }
              else { continue;}
@@ -250,9 +250,9 @@ public class AllDish extends SlidingFragmentActivity {
                          if (d.isAppBuiltIn()) {
                           	 map.put("icon", d.img); //添加图像资源的ID 
                          }
-                         else if (d.isVerifyDone()) {
-                         	 map.put("icon", d.img_bmp); //添加图像资源的ID
-                         }
+//                         else if (d.isVerifyDone()) {
+//                         	 map.put("icon", d.img_bmp); //添加图像资源的ID
+//                         }
                          else { continue;}
                           
                          map.put("name", d.name_chinese);//按序号做ItemText 

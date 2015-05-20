@@ -262,10 +262,12 @@ public class HttpUtils {
     	});
 	}
 	
-	public static void register(final String id, final String name, final LoginActivity context) {
+	public static void register(final String id, final String name, final String phone, final String address, final LoginActivity context) {
 		RequestParams params = new RequestParams();
 		params.put("userId", id);
 		params.put("userName", name);
+		params.put("phone", phone);
+		params.put("address", address);
 		
 		String url = "http://182.92.231.24:8889/register";
 		
@@ -345,7 +347,7 @@ public class HttpUtils {
 				final boolean is_favorite_before = Account.isFavorite(dish);
 				final int index = Account.favorites.indexOf(dish.dishid);
 				
-				String url = "http://182.92.231.24:8889/favorite";
+				String url = "http://182.92.231.24:8889/delete";
 				
 				int retry_times = 0;
 				while (retry_times++ < 2) {
@@ -372,6 +374,53 @@ public class HttpUtils {
 				} //while
 				
 				handler.sendEmptyMessage(Constants.MSG_ID_FAVORITE_DONE);
+			}
+		}.start();
+    }
+	
+	public static void deleteDishInServer(final Dish dish, final Handler handler) {
+    	new Thread() {
+			@Override
+			public void run() {
+				RequestParams params = new RequestParams();
+				params.put("dishId", "" + dish.dishid);
+				params.put("userId", Account.userid);
+				
+				String url = "http://182.92.231.24:8889/delete";
+				
+				int retry_times = 0;
+				final int old_dishid = dish.dishid;
+				while (retry_times++ < 2) {
+					Log.v("HttpUtil", "retry_times = " + retry_times);
+			    	HttpUtils.getSync(url, params, new AsyncHttpResponseHandler() {
+						@Override
+						public void onFailure(int arg0, Header[] arg1, byte[] arg2, Throwable arg3) {
+							arg3.printStackTrace();
+							Log.v("HttpUtil", "deleteDishInServer onFailure");
+						}
+						@Override
+						public void onSuccess(int arg0, Header[] arg1, byte[] arg2) {
+							String res = new String(arg2);
+							Log.v("HttpUtil", "deleteDishInServer done. res=" + res + ", dishid=" + dish.dishid);
+							if (res.equals("ok")) {
+								int new_dishid = ++ Dish.current_makedish_dishid;
+								Tool.getInstance().rename(dish.dishid, new_dishid);
+								Dish newdish = Dish.getDishById(dish.dishid);
+								Dish.removeDish(dish);
+								newdish.dishid = new_dishid;
+								newdish.type = Constants.DISH_MADE_BY_USER | Constants.DISH_UPLOAD_CANCELED;
+								newdish.saveDishParam();
+								Dish.putDish(newdish);
+								
+								Log.v("HttpUtil", "deleteDishInServer rename done. fromid=" + old_dishid + ",toid=" + new_dishid);
+							}
+						}
+			    	});
+			    	
+			    	if (!Dish.alldish_map.containsKey(dish.dishid)) break;
+				} //while
+				
+				handler.sendEmptyMessage(Constants.MSG_ID_DEL_In_Server);
 			}
 		}.start();
     }

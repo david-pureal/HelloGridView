@@ -92,18 +92,7 @@
                 android:textColor="@color/white"
                 android:textSize="18dp" />
 
-            <TextView
-                android:id="@+id/tvMsgRegister"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="15dp"
-                android:background="@drawable/msg_login"
-                android:gravity="center"
-                android:singleLine="true"
-                android:text="短信验证登录"
-                android:textColor="@color/white"
-                android:textSize="18dp" />
+
         </LinearLayout>
         
     </LinearLayout>

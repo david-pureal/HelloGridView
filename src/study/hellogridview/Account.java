@@ -27,8 +27,8 @@ public class Account {
 	// let server side remember this user's info
 	// note: do twice because the first http fails sometime, reason unknown!!
 	public static void register(final LoginActivity context) {
-		HttpUtils.register(userid, username, context);
-		HttpUtils.register(userid, username, context);
+		HttpUtils.register(userid, username, "", "", context);
+		HttpUtils.register(userid, username, "", "", context);
 	}
 
 	public static void setUserIcon(final String userIconUrl, final LoginActivity context) {

@@ -4,6 +4,7 @@ import java.util.LinkedHashMap;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -45,9 +46,14 @@ public class SplashActivity extends Activity {
                 }  
             }  
         };
+        
+        Tool.typeFace = Typeface.createFromAsset(getAssets(), "fonts/hanyitaiji.ttf");
+        Typeface tf = Typeface.createFromAsset(getAssets(), "fonts/minijianguli.ttf");
+        ((TextView) findViewById(R.id.textView1)).setTypeface(tf);
 
         splash_img = (ImageView) findViewById(R.id.splash_img); 
         splash_text = (TextView) findViewById(R.id.splash_text);
+        splash_text.setTypeface(Tool.typeFace);
         
         skip = (TextView) findViewById(R.id.skip);
         skip.setOnClickListener(new OnClickListener() {  
@@ -64,15 +70,20 @@ public class SplashActivity extends Activity {
                 int result;
                 long startTime = System.currentTimeMillis();
                 
+                splash_text.setTypeface(Tool.typeFace);
+                
                 Tool.getDeviceId(SplashActivity.this);
                 result = getWebDish();
                 
+                result = loadLocalDish();
+                Tool.preload_common_res(SplashActivity.this);
+                
                 long loadingTime = System.currentTimeMillis() - startTime;
-                if (loadingTime < 2000) {
+                if (loadingTime < 3000) {
                     try {
                     	Log.v("SplashActivity", "loadingTime = " +  loadingTime);
                     	
-                    	long total = 2000 - loadingTime;
+                    	long total = 3000 - loadingTime;
                     	long cur = 0;
                     	while(!need_skip && cur < total) {
                     		Thread.sleep(300);
@@ -83,25 +94,25 @@ public class SplashActivity extends Activity {
                     }
                 }
 
-                // ¸ü»»Í¼Æ¬
-                handler.sendEmptyMessage(0x789);
-                
-                startTime = System.currentTimeMillis();
-                result = loadLocalDish();
-                Tool.preload_common_res(SplashActivity.this);
-                loadingTime = System.currentTimeMillis() - startTime;
-                if (loadingTime < 2000) {
-                    try {
-                    	long total = 2000 - loadingTime;
-                    	long cur = 0;
-                    	while(!need_skip && cur < total) {
-                    		Thread.sleep(300);
-                    		cur += 300;
-                    	}
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
+//                // ¸ü»»Í¼Æ¬
+//                handler.sendEmptyMessage(0x789);
+//                
+//                startTime = System.currentTimeMillis();
+//                result = loadLocalDish();
+//                Tool.preload_common_res(SplashActivity.this);
+//                loadingTime = System.currentTimeMillis() - startTime;
+//                if (loadingTime < 2000) {
+//                    try {
+//                    	long total = 2000 - loadingTime;
+//                    	long cur = 0;
+//                    	while(!need_skip && cur < total) {
+//                    		Thread.sleep(300);
+//                    		cur += 300;
+//                    	}
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
                 return result;
             }
  
@@ -118,6 +129,7 @@ public class SplashActivity extends Activity {
 		Tool.getInstance().dm = this.getResources().getDisplayMetrics();
 		Tool.getInstance().loadLocalDish();
 		Tool.getInstance().loadLocalUserData();
+		
         return 0;
     }
 	

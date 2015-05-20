@@ -54,6 +54,7 @@ public class Dish implements Cloneable {
 	public String author_name;
 	public String device_id;
 	public String intro = "";
+	public boolean is_cancel_upload = false;
 	
 	// 材料是有序的
 	public LinkedHashMap<String, String> qiangguoliao_content_map = new LinkedHashMap<String, String>();
@@ -76,6 +77,7 @@ public class Dish implements Cloneable {
 	public ArrayList<Material> prepare_material_detail = new ArrayList<Material>(); 
 	
 	public static LinkedHashMap<Integer, Dish> alldish_map;
+	public static LinkedHashMap<Integer, Dish> canceled_map;
 	
 	public Dish(Integer img, String name) {
 		this.img = img;
@@ -252,6 +254,7 @@ public class Dish implements Cloneable {
 	public static LinkedHashMap<Integer, Dish> getAllDish() {
 		if (alldish_map == null) {
 			alldish_map = new LinkedHashMap<Integer, Dish>();
+			canceled_map = new LinkedHashMap<Integer, Dish>();
 			
 			{
 				Dish dish = new Dish(R.drawable.tudousi, "炒土豆丝");
@@ -698,8 +701,8 @@ public class Dish implements Cloneable {
 				dish.fuliao_time = (short) 210;
 				dish.zhuliao_jiaoban_speed = 6;
 				dish.fuliao_jiaoban_speed = 4;
-				dish.water = 2;
-				dish.water_weight = 20;
+				dish.water = 0;
+				dish.water_weight = 0;
 				dish.oil = 35;
 				dish.qiangguoliao = 1;
 				dish.name_english = "konjac duck";
@@ -710,11 +713,16 @@ public class Dish implements Cloneable {
 				dish.fuliao_content_map.put("魔芋",  "100克");
 				dish.fuliao_content_map.put("青椒",  "20克");
 				dish.fuliao_content_map.put("红椒",  "20克");
-				dish.prepare_material_detail.add(dish.new Material(R.drawable.qiangguoliao, "炝锅料"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.moyushaoya_0, "炝锅料"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.yuxiangrousi_2, "豆瓣酱"));
 				dish.prepare_material_detail.add(dish.new Material(R.drawable.moyushaoya_1, "鸭块"));
-				dish.prepare_material_detail.add(dish.new Material(R.drawable.moyushaoya_2, "魔芋，青椒，红椒"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.moyushaoya_2, "魔芋"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.moyushaoya_3, "青椒、红椒"));
 				dish.qiangguoliao_content_map.put("姜丝", "5克");
 				dish.qiangguoliao_content_map.put("蒜片", "5克");
+				dish.qiangguoliao_content_map.put("干辣椒", "8个");
+				dish.qiangguoliao_content_map.put("花椒", "1克");
+				dish.qiangguoliao_content_map.put("豆瓣酱", "一勺");
 				dish.tiaoliao_content_map.put("鸡精", "2克");
 				dish.tiaoliao_content_map.put("盐", "2克");
 				alldish_map.put(dish.dishid, dish);
@@ -927,9 +935,8 @@ public class Dish implements Cloneable {
 			}
 			
 			{
-				//Dish dish = new Dish(R.drawable.qingchaoyouyu, "清炒鱿鱼");
-				Dish dish = new Dish(R.drawable.qingchaoyouyu, "菠萝炒肉");
-				dish.img_tiny = R.drawable.qingchaoyouyu_tiny;
+				Dish dish = new Dish(R.drawable.boluochaorou, "菠萝炒肉");
+				dish.img_tiny = R.drawable.boluochaorou_tiny;
 				dish.zhuliao_temp = (byte) 185;
 				dish.fuliao_temp = (byte) 185;
 				dish.zhuliao_time = (short) 60;
@@ -943,19 +950,170 @@ public class Dish implements Cloneable {
 				//dish.name_english = "squid";
 				dish.name_english = "pineapple meet";
 				dish.dishid = 24;
-				dish.intro = "色艳味香、质嫩有咬劲，越嚼越鲜。鱿鱼的营养价值非常高，富含多种人体所需的营养成分。但鱿鱼性质寒凉，脾胃虚寒的人也应少吃。高血脂、高胆固醇、应慎食。";
+				dish.intro = "菠萝果实品质优良，营养丰富，有清热解暑、消化不良、头昏眼花等症。而且在果汁中，还含有一种跟胃液相类似的酵素，可以分解蛋白，帮助消化。不仅可以减肥，而且对身体健康有着不同的功效。";
 				
-				dish.zhuliao_content_map.put("生鱿鱼", "300克");
-				dish.fuliao_content_map.put("青椒片",  "50克");
-				dish.fuliao_content_map.put("红萝卜片",  "50克");
-				dish.fuliao_content_map.put("木耳",  "20克");
+				dish.zhuliao_content_map.put("肉", "50克");
+				dish.fuliao_content_map.put("菠萝",  "150克");
+				dish.fuliao_content_map.put("黄瓜",  "20克");
+				dish.fuliao_content_map.put("胡萝卜",  "20克");
+				dish.fuliao_content_map.put("芋头",  "20克");
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.boluochaorou_1, "炝锅料"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.boluochaorou_2, "肉"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.boluochaorou_3, "菠萝"));
+				dish.qiangguoliao_content_map.put("蒜丁", "5克");
+				dish.tiaoliao_content_map.put("鸡精", "2克");
+				dish.tiaoliao_content_map.put("盐", "2克");
+				alldish_map.put(dish.dishid, dish);
+			}
+			
+			{
+				Dish dish = new Dish(R.drawable.gongbaojiding, "宫保鸡丁");
+				dish.img_tiny = R.drawable.gongbaojiding_tiny;
+				dish.zhuliao_temp = (byte) 190;
+				dish.fuliao_temp = (byte) 180;
+				dish.zhuliao_time = (short) 120;
+				dish.fuliao_time = (short) 240;
+				dish.zhuliao_jiaoban_speed = 6;
+				dish.fuliao_jiaoban_speed = 6;
+				dish.water = 0;
+				dish.water_weight = 0;
+				dish.oil = 30;
+				dish.qiangguoliao = 1;
+				dish.name_english = "KungPaoChicken";
+				dish.dishid = 25;
+				dish.intro = "辣中有点甜，甜中有点辣，是宫保鸡丁的特色，是餐馆中上桌率极高的一道菜，尤其是在国外的餐馆中，外国人说起中国菜，就是宫保鸡丁了，这更是外国人吃中餐时，最常点的一道菜";
+				
+				dish.zhuliao_content_map.put("鸡脯肉", "150克");
+				dish.zhuliao_content_map.put("胡萝卜", "50克");
+				dish.fuliao_content_map.put("黄瓜",  "150克");
+				dish.fuliao_content_map.put("油炸花生米(熟)",  "50克");
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.gongbaojiding_1, "炝锅料"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.gongbaojiding_2, "鸡肉脯切丁，用料酒、生抽、盐、白胡椒、油、生粉腌制10分钟"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.gongbaojiding_3, "红萝卜切丁"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.gongbaojiding_4, "黄瓜切丁"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.gongbaojiding_5, "熟的油炸花生米"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.gongbaojiding_6, "配置好的调料"));
+				dish.qiangguoliao_content_map.put("姜片", "5克");
+				dish.qiangguoliao_content_map.put("蒜片", "5克");
+				dish.qiangguoliao_content_map.put("葱", "15克");
+				dish.qiangguoliao_content_map.put("干辣椒段", "5克");
+				dish.qiangguoliao_content_map.put("花椒", "1克");
+				dish.tiaoliao_content_map.put("醋", "2.5克");
+				dish.tiaoliao_content_map.put("酱油", "5克");
+				dish.tiaoliao_content_map.put("糖", "4克");
+				dish.tiaoliao_content_map.put("料酒", "2.5克");
+				dish.tiaoliao_content_map.put("盐", "2克");
+				alldish_map.put(dish.dishid, dish);
+			}
+			
+			{
+				Dish dish = new Dish(R.drawable.yuxiangrousi, "鱼香肉丝");
+				dish.img_tiny = R.drawable.yuxiangrousi_tiny;
+				dish.zhuliao_temp = (byte) 190;
+				dish.fuliao_temp = (byte) 180;
+				dish.zhuliao_time = (short) 120;
+				dish.fuliao_time = (short) 240;
+				dish.zhuliao_jiaoban_speed = 6;
+				dish.fuliao_jiaoban_speed = 6;
+				dish.water = 0;
+				dish.water_weight = 0;
+				dish.oil = 30;
+				dish.qiangguoliao = 1;
+				dish.name_english = "fish-flavored pork";
+				dish.dishid = 26;
+				dish.intro = "鱼香肉丝是一道常见川菜。鱼香，是四川菜肴主要传统味型之一。因为菜品具有鱼香味，其味是调味品调制而成。此法源出于四川民间独具特色的烹鱼调味方法，而今已广泛用于川味的熟菜中。";
+				
+				dish.zhuliao_content_map.put("猪肉", "200克");
+				dish.fuliao_content_map.put("青笋丝", "150克");
+				dish.fuliao_content_map.put("胡萝卜丝",  "150克");
+				dish.fuliao_content_map.put("木耳",  "50克");
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.yuxiangrousi_1, "炝锅料"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.yuxiangrousi_2, "豆瓣酱一勺"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.yuxiangrousi_3, "猪肉用料酒、生抽、盐、白胡椒、油、生粉腌制10分钟"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.yuxiangrousi_4, "青笋、胡萝卜、木耳"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.yuxiangrousi_5, "配置好的调料"));
+				dish.qiangguoliao_content_map.put("姜片", "5克");
+				dish.qiangguoliao_content_map.put("蒜片", "5克");
+				dish.qiangguoliao_content_map.put("豆瓣酱", "15克");
+				dish.tiaoliao_content_map.put("醋", "2.5克");
+				dish.tiaoliao_content_map.put("酱油", "5克");
+				dish.tiaoliao_content_map.put("糖", "4克");
+				dish.tiaoliao_content_map.put("料酒", "2.5克");
+				dish.tiaoliao_content_map.put("盐", "2克");
+				alldish_map.put(dish.dishid, dish);
+			}
+			
+			{
+				Dish dish = new Dish(R.drawable.nanguachaorou, "南瓜炒肉");
+				dish.img_tiny = R.drawable.nanguachaorou_tiny;
+				dish.zhuliao_temp = (byte) 180;
+				dish.fuliao_temp = (byte) 180;
+				dish.zhuliao_time = (short) 60;
+				dish.fuliao_time = (short) 180;
+				dish.zhuliao_jiaoban_speed = 6;
+				dish.fuliao_jiaoban_speed = 6;
+				dish.water = 0;
+				dish.water_weight = 0;
+				dish.oil = 30;
+				dish.qiangguoliao = 1;
+				dish.name_english = "pumpkin pork";
+				dish.dishid = 27;
+				dish.intro = "选择新上市的嫩南瓜加爆炒肉片烹饪而成，荤素搭配，小南瓜嫩、粉，肉鲜嫩不夹牙，非常适合老人和小孩吃。据说南瓜有很高的食疗作用，可促进胰岛素分泌，降低血糖水平，可以预防糖尿病，不过有脚气的人不宜多吃……";
+				
+				dish.zhuliao_content_map.put("猪肉", "50克");
+				dish.zhuliao_content_map.put("胡萝卜丝",  "30克");
+				dish.fuliao_content_map.put("南瓜", "120克");
+				dish.fuliao_content_map.put("青椒", "30克");
+				dish.fuliao_content_map.put("木耳",  "30克");
 				dish.prepare_material_detail.add(dish.new Material(R.drawable.qiangguoliao, "炝锅料"));
-				dish.prepare_material_detail.add(dish.new Material(R.drawable.yangcongniurou_1, "生鱿鱼片"));
-				dish.prepare_material_detail.add(dish.new Material(R.drawable.yangcongniurou_2, "青椒片，红萝卜片，木耳"));
-				dish.qiangguoliao_content_map.put("姜丝", "5克");
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.xiangganroupian_1, "猪肉用料酒、生抽、盐、白胡椒、油、生粉腌制10分钟"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.nanguachaorou_3, "南瓜、青椒、木耳"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.nanguachaorou_4, "胡萝卜丝"));
+				dish.qiangguoliao_content_map.put("姜片", "5克");
 				dish.qiangguoliao_content_map.put("蒜片", "5克");
 				dish.tiaoliao_content_map.put("鸡精", "2克");
 				dish.tiaoliao_content_map.put("盐", "2克");
+				alldish_map.put(dish.dishid, dish);
+			}
+			
+			{
+				Dish dish = new Dish(R.drawable.yuxiangqiezi, "鱼香茄子");
+				dish.img_tiny = R.drawable.yuxiangqiezi_tiny;
+				dish.zhuliao_temp = (byte) 180;
+				dish.fuliao_temp = (byte) 180;
+				dish.zhuliao_time = (short) 60;
+				dish.fuliao_time = (short) 210;
+				dish.zhuliao_jiaoban_speed = 6;
+				dish.fuliao_jiaoban_speed = 6;
+				dish.water = 0;
+				dish.water_weight = 0;
+				dish.oil = 30;
+				dish.qiangguoliao = 1;
+				dish.name_english = "pumpkin pork";
+				dish.dishid = 28;
+				dish.intro = "鱼香茄子是汉族特色名菜，属中国八大菜系的，主料为茄子，配以多种辅料加工烧制而成。有多种不同制法，其味道鲜美，营养丰富。";
+				
+				dish.zhuliao_content_map.put("猪肉", "50克");
+				dish.fuliao_content_map.put("茄子", "350克");
+				dish.fuliao_content_map.put("胡萝卜丝",  "30克");
+				dish.fuliao_content_map.put("木耳",  "30克");
+				dish.fuliao_content_map.put("青椒",  "30克");
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.qiangguoliao, "炝锅料"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.yuxiangrousi_2, "豆瓣酱一勺"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.xiangganroupian_1, "猪肉用料酒、生抽、盐、白胡椒、油、生粉腌制10分钟"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.yuxiangqiezi_3, "茄子用盐腌制30分钟，然后去水、青椒、胡萝卜、木耳"));
+				dish.prepare_material_detail.add(dish.new Material(R.drawable.yuxiangqiezi_4, "调料"));
+				dish.qiangguoliao_content_map.put("姜片", "5克");
+				dish.qiangguoliao_content_map.put("蒜片", "5克");
+				dish.qiangguoliao_content_map.put("豆瓣酱", "15克");
+				dish.tiaoliao_content_map.put("醋", "10克");
+				dish.tiaoliao_content_map.put("生抽", "6克");
+				dish.tiaoliao_content_map.put("糖", "12克");
+				dish.tiaoliao_content_map.put("料酒", "3克");
+				dish.tiaoliao_content_map.put("淀粉", "3克");
+				dish.tiaoliao_content_map.put("鸡精", "2克");
+				dish.tiaoliao_content_map.put("盐", "2克");
+				dish.tiaoliao_content_map.put("水", "18克");
 				alldish_map.put(dish.dishid, dish);
 			}
 			

@@ -433,14 +433,6 @@
             android:layout_marginBottom="20dp"
             android:gravity="right" >
 
-	        <Button
-	            android:id="@+id/makedish_verify"
-	            android:layout_width="115dp"
-	            android:layout_height="wrap_content"
-	            android:layout_gravity="center_horizontal"
-	            android:layout_marginLeft="10dp"
-	            android:text="审核通过" />
-	        
 	        <ImageView
                 android:id="@+id/favorite"
                 android:layout_width="35dp"
@@ -474,6 +466,14 @@
              />
 
 	    </RelativeLayout>
+	    
+        <Button
+	            android:id="@+id/makedish_verify"
+	            android:layout_width="115dp"
+	            android:layout_height="wrap_content"
+	            android:layout_gravity="center_horizontal"
+	            android:layout_marginLeft="10dp"
+	            android:text="审核通过" />
 	    
 	    
 	    <!-- android:src="@drawable/shareto" -->

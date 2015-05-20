@@ -134,7 +134,7 @@ public class BuiltinDishes extends SlidingFragmentActivity {
         });
 		connect_bar = (ProgressBar) findViewById(R.id.connecting_bar);
 		TextView title_name = (TextView) findViewById (R.id.title_name);
-		title_name.setTypeface(MainActivity.typeFace);
+		title_name.setTypeface(Tool.typeFace);
 		
 		gridView = (GridView)findViewById(R.id.gridview);  
 		tv = (TextView) findViewById(R.id.replace_builtin_tv); 
@@ -200,14 +200,14 @@ public class BuiltinDishes extends SlidingFragmentActivity {
 		tcpclient.set_builtinact(this);
         set_connect_state();
         
-		LinkedHashMap<Integer, Dish> dishes = Dish.getAllDish();
-        Log.v("BuiltinDishes", "length = " + dishes.size());
-        
         DeviceState ds = DeviceState.getInstance();
         String title = tv.getText().toString();
         index_id_list.clear();
         
-        ArrayList<HashMap<String,Object>> al=new ArrayList<HashMap<String,Object>>();
+		LinkedHashMap<Integer, Dish> dishes = Dish.getAllDish();
+        Log.v("BuiltinDishes", "alldish length = " + dishes.size());
+        
+        ArrayList<HashMap<String, Object>> al=new ArrayList<HashMap<String, Object>>();
         for (Iterator<Integer> it = dishes.keySet().iterator();it.hasNext();)
         {
              int key = it.next();
@@ -242,6 +242,9 @@ public class BuiltinDishes extends SlidingFragmentActivity {
              if (d.img_bmp == null) d.img_bmp = Tool.decode_res_bitmap(d.img, this, Constants.DECODE_DISH_IMG_SAMPLE);
              map.put("icon", d.img_bmp); //添加图像资源的ID 
              map.put("name", d.name_chinese);//按序号做ItemText 
+             if ((title.equals("所有用户分享的菜谱") || title.equals("自编菜谱")) && d.isVerifyDone()) {
+            	 map.put("name", "√ " + d.name_chinese);
+             }
              
              index_id_list.add(d.dishid);
              
@@ -282,7 +285,7 @@ public class BuiltinDishes extends SlidingFragmentActivity {
 	        	intent.putExtra("dish_id", dish.dishid); 
 	        	intent.putExtra("title", tv.getText().toString()); 
 	        	
-	        	intent.putExtra("editable", tv.getText().toString().equals("自编菜谱"));
+	        	intent.putExtra("editable", tv.getText().toString().equals("自编菜谱") && !dish.isVerifyDone());
 	        	startActivity(intent);
 	        }  
 	     });

@@ -15,6 +15,7 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import android.annotation.SuppressLint;
@@ -384,8 +385,6 @@ public class TCPClient {
 								notify_connect_state(Constants.DISCONNECTED);
 							}
 							
-//							Thread.sleep(3000);
-//							continue;
 							synchronized (ClientThread.this) {
 								Log.v("tcpclient", "before wait wifi connected.");
 								connect_state_reason = Constants.WAIT_WIFI_CONNECTED;
@@ -494,7 +493,8 @@ public class TCPClient {
 								byte[] bs = bst.toByteArray();
 								os.write(bs);
 								os.flush();
-								/*if (bs.length > 1000) */Thread.sleep(500);
+								if (bs.length > 100)Thread.sleep(500);
+								else Thread.sleep(200);
 							} catch (SocketException e) {
 								Log.v("tcpclient", "sendMsg SocketException, try to reconnect");
 								e.printStackTrace();
@@ -797,6 +797,7 @@ public class TCPClient {
 			for (int i = 0; i < ds.builtin_dishids.length; ++i) {
 				builtin_dishid += ds.builtin_dishids[i] + ", ";
 			}
+			Arrays.sort(ds.builtin_dishids);
 			ds.got_builtin = true;
 			Log.v("tcpclient", "builtin_dishid : " + builtin_dishid);
 			

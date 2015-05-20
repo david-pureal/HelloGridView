@@ -1,9 +1,11 @@
 package study.hellogridview;
 
+import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import study.hellogridview.TCPClient.ClientThread.ReceiveThread;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -135,9 +137,11 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
     	
     	time_x = (int) (376.0/Constants.UI_WIDTH * width);
     	time_y = (int) (118.0/Constants.UI_HEIGHT * height);
+    	fuliao_x = (int) (389.0/Constants.UI_WIDTH * width);
+    	fuliao_y = (int) (143.0/Constants.UI_WIDTH * width);
     	zhuliao_time_x = (int) (296.0/Constants.UI_WIDTH * width);
     	zhuliao_time_y = (int) (144.0/Constants.UI_HEIGHT * height);
-    	fuliao_time_x = (int) (426.0/Constants.UI_WIDTH * width);
+    	fuliao_time_x = (int) (424.0/Constants.UI_WIDTH * width);
     	fuliao_time_y = (int) (144.0/Constants.UI_HEIGHT * height);
     	
     	jiaoban_x = (int) (21.0/Constants.UI_WIDTH * width);
@@ -292,7 +296,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 		            	
 		            	if (selected_param.getId() == R.id.temp) {
 		            		CurStateActivity.this.modify_state = (byte)0x40;
-		            		int t = (CurStateActivity.this.temp & 0x00ff)+ i*2;
+		            		int t = ds.temp_set + i*2;
 		            		t = Math.min(200, t);
 		            		CurStateActivity.this.temp = (byte) Math.max(0, t);
 		        		} else if (selected_param.getId() == R.id.jiaoban) {
@@ -312,6 +316,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 		            	CurStateActivity.this.onStopTrackingTouch(CurStateActivity.this.bar);
 		            	
 		            	selected_param.setTextColor(Color.YELLOW);
+		            	is_setting_param = true;
 		            	current_twinkle_times = 0;
 		            	
 		                break;
@@ -433,7 +438,13 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 		dish_id = Math.max(1, dish_id);
 		dish = Dish.getDishById(dish_id);
 		this.total_time = dish.zhuliao_time + dish.fuliao_time;
+		
+		zhuliao_temp_set = dish.zhuliao_temp & 0xff;
+		fuliao_temp_set = dish.fuliao_time == 0 ? zhuliao_temp_set : (dish.fuliao_temp & 0xff);
+		ds.temp_set = (dish.zhuliao_temp & 0xff);
         draw_temp_baselin(); 
+        
+		
 	} // oncreate
 	
 	public static int state = Constants.STATE_HEATING;
@@ -465,6 +476,8 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	int temperature_y = 0;
 	int time_x = 0;
 	int time_y = 0;
+	int fuliao_x  = 0; // “辅料”小字，有时候不需要显示
+	int fuliao_y  = 0;
 	int zhuliao_time_x = 0;
 	int zhuliao_time_y = 0;
 	int fuliao_time_x  = 0;
@@ -494,6 +507,31 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	final int twinkle_times = 5;
 	int current_twinkle_times = 0;
 	
+	static int zhuliao_temp_set = 0;
+	static int fuliao_temp_set = 0;
+	
+//	public RefreshUIThread refresh_ui_thread;
+//	
+//	// 调整参数时，要闪烁显示，此时要闪烁快一些
+//	class RefreshUIThread implements Runnable {
+//		public boolean stop = false;
+//		public Thread recv_thread;
+//		public RefreshUIThread() {
+//			recv_thread = new Thread(this);
+//		}
+//		@Override
+//		public void run() {
+//			while (!stop) {
+//				// 不断的读取Socket输入流的内容
+//				ByteArrayOutputStream bytestream = new ByteArrayOutputStream();
+//					TCPClient.getInstance().OnReceive(bytestream);
+//					bytestream.reset();
+//				}
+//				// read error
+//				Log.v("tcpclient", "read package error!");
+//		}
+//	} //RefreshUIThread
+	
 	// 画设定的温度线，用绿色线
 	private void draw_temp_baselin() {
 		if (dish == null) {
@@ -517,8 +555,16 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         paint.setStyle(Paint.Style.STROKE); 
         paint.setAntiAlias(false); //去锯齿 
         paint.setStrokeWidth(3);
+        
+        // 计算设定的温度
+        if (state < Constants.STATE_FULIAO) {
+        	zhuliao_temp_set = ds.temp_set;
+        }
+        else {
+        	fuliao_temp_set = ds.temp_set;
+        }
 
-        float scale = 0.7f;// (float) (480.0 / width * 0.55);
+        float scale = 0.7f ;//* (float) (480.0 / width * 0.55);
         Rect bkg_rect = new Rect(0, 0, width, height);
         if (!is_standard_ui) {
         	// draw simple background
@@ -571,13 +617,12 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         }
         final float y_per_temp = (float) ((float)(y_max - y_min) / 200.0);
         
-        int zhuliao_temp = dish.zhuliao_temp & 0x00ff;
-        int yend = (int) (y_min + y_per_temp*(200 - zhuliao_temp));
+        int yend = (int) (y_min + y_per_temp*(200 - zhuliao_temp_set));
         canvas.drawLine(x_start, y_max, x_start, yend, paint);
         canvas.drawLine(x_start, yend, x_middle, yend, paint);
         
-        int fuliao_temp = dish.fuliao_temp & 0x00ff;
-        if (dish.fuliao_time == 0) fuliao_temp = zhuliao_temp;
+        int fuliao_temp = fuliao_temp_set;
+        if (dish.fuliao_time == 0) fuliao_temp = zhuliao_temp_set;
         int yend2 = (int) (y_min + y_per_temp*(200 - fuliao_temp));
         canvas.drawLine(x_middle, yend, x_middle, yend2, paint);
         canvas.drawLine(x_middle, yend2, x_end, yend2, paint);
@@ -587,13 +632,16 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         paint.setColor(Color.rgb(246, 221, 53)); // 字的颜色
         paint.setTextSize(110 * scale);
         paint.setStyle(Paint.Style.FILL);
-        if (!(selected_param.getId() == R.id.temp && is_setting_param && ++current_twinkle_times < twinkle_times && current_twinkle_times%2 == 0)) {
-	        if (temp >= 100) {
-	        	canvas.drawText("" + temp, temperature_x, temperature_y, paint);
-	        }
-	        else {
-	        	canvas.drawText("" + temp, temperature_x_2, temperature_y, paint);
-	        }
+        if (is_setting_param && selected_param.getId() == R.id.temp) {
+        	if (++current_twinkle_times < twinkle_times /*&& current_twinkle_times%2 == 0*/) {
+	        	if (ds.temp_set >= 100) canvas.drawText("" + ds.temp_set, temperature_x, temperature_y, paint);
+		        else canvas.drawText("" + ds.temp_set, temperature_x_2, temperature_y, paint);
+        	}
+        }
+        else 
+        {
+        	if (temp >= 100) canvas.drawText("" + temp, temperature_x, temperature_y, paint);
+	        else canvas.drawText("" + temp, temperature_x_2, temperature_y, paint);
         }
         
         // total time
@@ -601,17 +649,17 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 		int seconds = ds.time - minites * 60;
 		String separator = seconds < 10 ? ":0" : ":";
 		String minites_prefix =  minites < 10 ? "0" : "";
-		if (!(selected_param.getId() == R.id.time && is_setting_param && ++current_twinkle_times < twinkle_times && current_twinkle_times%2 == 0)) {
-			canvas.drawText(minites_prefix + minites + separator + seconds, time_x, time_y, paint);
-		}
+		//if (!(selected_param.getId() == R.id.time && is_setting_param && ++current_twinkle_times < twinkle_times /*&& current_twinkle_times%2 == 0*/)) {
+		canvas.drawText(minites_prefix + minites + separator + seconds, time_x, time_y, paint);
+		//}
 
         // jiaoban
         paint.setTextSize(90 * scale);
         Typeface tf_default = paint.getTypeface();
         paint.setTypeface(MainActivity.typeFace_fzzy);
-        if (!(selected_param.getId() == R.id.jiaoban && is_setting_param && ++current_twinkle_times < twinkle_times && current_twinkle_times%2 == 0)) {
-        	canvas.drawText(this.jiaoban_str.get(Math.max(0, ds.jiaoban_speed-1)), jiaoban_x, jiaoban_y, paint);
-        }
+        //if (!(selected_param.getId() == R.id.jiaoban && is_setting_param && ++current_twinkle_times < twinkle_times /*&& current_twinkle_times%2 == 0*/)) {
+        canvas.drawText(this.jiaoban_str.get(Math.max(0, ds.jiaoban_speed-1)), jiaoban_x, jiaoban_y, paint);
+        //}
         
         if (is_setting_param && current_twinkle_times == twinkle_times) {
         	Log.v("CurStateActivity", "set param twinkle finished.");
@@ -637,11 +685,15 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         canvas.drawText(minites_prefix + minites + separator + seconds, zhuliao_time_x, zhuliao_time_y, paint);
         
         // fuliao time
-        minites = dish.fuliao_time / 60;
-        seconds = dish.fuliao_time - minites * 60;
-        separator = seconds < 10 ? ":0" : ":";
-        minites_prefix =  minites < 10 ? "0" : "";
-        canvas.drawText(minites_prefix + minites + separator + seconds, fuliao_time_x, fuliao_time_y, paint);
+        if (dish.fuliao_time != 0) {
+	        minites = dish.fuliao_time / 60;
+	        seconds = dish.fuliao_time - minites * 60;
+	        separator = seconds < 10 ? ":0" : ":";
+	        minites_prefix =  minites < 10 ? "0" : "";
+	        canvas.drawText(minites_prefix + minites + separator + seconds, fuliao_time_x, fuliao_time_y, paint);
+	        paint.setTextSize(43 * scale);
+	        canvas.drawText("辅料", fuliao_x, fuliao_y, paint);
+        }
         
 	    // dish tiny image
 	    if (dish.isAppBuiltIn() && dish.img_bmp == null) {
@@ -724,7 +776,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         	Rect img_rect = new Rect();
         	img_rect.left   = (int) (192.0/Constants.UI_WIDTH * width); 
         	img_rect.right  =  0;
-        	img_rect.top    = (int) ((166.0 + ((160 - zhuliao_temp) * img_y_per_temp))/Constants.UI_HEIGHT * height); 
+        	img_rect.top    = (int) ((166.0 + ((160 - zhuliao_temp_set) * img_y_per_temp))/Constants.UI_HEIGHT * height); 
 	        img_rect.bottom = (int) (245.0/Constants.UI_HEIGHT * height);
 	        
     		if ((dish.water == 0 || dish.water == 2) && dish.fuliao_time != 0) {
@@ -772,7 +824,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         	Rect img_rect = new Rect();
         	img_rect.left   = (int) (239.0/Constants.UI_WIDTH * width);
         	img_rect.right  = 0;
-        	img_rect.top    = (int) ((166.0 + ((160 - zhuliao_temp) * img_y_per_temp))/Constants.UI_HEIGHT * height);
+        	img_rect.top    = (int) ((166.0 + ((160 - zhuliao_temp_set) * img_y_per_temp))/Constants.UI_HEIGHT * height);
 	        img_rect.bottom = (int) (247.0/Constants.UI_HEIGHT * height);
 	        
 	        if (dish.water != 2) {
@@ -805,7 +857,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 			
 			zhuliao_index = data.size();
 			for(int i=0; i< data.size(); i++){ 
-				if (data.get(i) > zhuliao_temp) {
+				if (data.get(i) > zhuliao_temp_set) {
 					zhuliao_index = i;
 					break;
 				}

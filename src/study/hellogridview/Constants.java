@@ -47,11 +47,13 @@ public final class Constants {
 	public static final int MSG_ID_FAVORITE_DONE = 500;
 	public static final int MSG_ID_REGISTER_DONE = 600;
 	public static final int MSG_ID_CONNECT_STATE = 700;
+	public static final int MSG_ID_DEL_In_Server = 800;
 	
 	// dish related
 	public static final int DISH_APP_BUILTIN      = 0x01;   // APP内置菜谱
 	public static final int DISH_MADE_BY_USER     = 0x02;   // 用户自编菜谱，还未上传
 	public static final int DISH_UPLOAD_VERIFYING = 0x10;   // 用户自编菜谱，已上传，审核中。。。
+	public static final int DISH_UPLOAD_CANCELED  = 0x08;   // 用户自编菜谱，已上传，审核通过前，从服务端删除，取消上传
 	public static final int DISH_VERIFY_ACCEPT    = 0x20;   // 用户自编菜谱，已上传，审核通过
 	public static final int DISH_VERIFY_REJECT    = 0x40;   // 用户自编菜谱，已上传，审核未通过
 	public static final int DISH_DEVICE_BUILTIN   = 0x100;  // 机器内置菜谱
@@ -63,7 +65,7 @@ public final class Constants {
 	public static final String LOCAL_USER_DATA = "user.data"; //未登录时，收藏的菜谱
 	
 	// OOM decode image sample
-	public static final int DECODE_DISH_IMG_SAMPLE = 2;
+	public static final int DECODE_DISH_IMG_SAMPLE = 1;
 	public static final int DECODE_MATERIAL_SAMPLE = 4;
 	
 	// for SmartLink
