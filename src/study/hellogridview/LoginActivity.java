@@ -13,8 +13,11 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
+import android.view.Window;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -25,6 +28,9 @@ import cn.sharesdk.framework.Platform;
 import cn.sharesdk.framework.PlatformActionListener;
 import cn.sharesdk.framework.ShareSDK;
 import cn.sharesdk.wechat.friends.Wechat;
+import cn.smssdk.EventHandler;
+import cn.smssdk.SMSSDK;
+import cn.smssdk.gui.RegisterPage;
 
 public class LoginActivity extends Activity implements PlatformActionListener, OnTouchListener{
 	
@@ -32,12 +38,24 @@ public class LoginActivity extends Activity implements PlatformActionListener, O
 	ImageView login_usericon;
 	TextView login_username;
 	TextView login_header;
+
+	EditText info_name;
+	EditText info_nickname;
+	EditText info_address;
+	EditText info_phone;
+	TextView login_sms;
+	Button info_makesure;
+	TextView info_status;
 	
 	boolean start_by_upload = false; //是否是在上传是自动触发的，如果是，在登录成功后要自动结束并返回
 	boolean start_by_favorite = false;
 	
 	//static Handler handler;
 	public Handler handler;
+	
+	private static String APPKEY = "7935d9c84c08";
+	private static String APPSECRET = "7ba954bf0bc2d9cf63b6af111937ebad";
+
 	
 	//手指向右滑动时的最小速度  
     private static final int XSPEED_MIN = 200;  
@@ -53,6 +71,8 @@ public class LoginActivity extends Activity implements PlatformActionListener, O
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		requestWindowFeature(Window.FEATURE_NO_TITLE); 
 		setContentView(R.layout.activity_login);
 		
 		Log.v("LoginActivity", "onCreate(), tid=" + Thread.currentThread().getId());
@@ -119,7 +139,94 @@ public class LoginActivity extends Activity implements PlatformActionListener, O
 	    	login_header.setText(intent.getStringExtra("header"));
 	    	start_by_upload = true;
 	    }
-	}
+	    
+	 
+		info_name = (EditText) findViewById(R.id.info_name);
+		info_nickname = (EditText) findViewById(R.id.info_nickname);
+		info_address = (EditText) findViewById(R.id.info_address);
+		info_phone = (EditText) findViewById(R.id.info_phone);
+		info_status = (TextView) findViewById(R.id.info_status);
+		 
+		
+		info_makesure = (Button) findViewById(R.id.info_makesure);
+		info_makesure.setOnClickListener(new OnClickListener() {  
+            @Override
+            public void onClick(View v) {
+            	if (info_makesure.getText().toString().equals("修改")) {
+            		info_name.setText(Account.info_name);
+            		info_nickname.setText(Account.info_nickname);
+            		info_address.setText(Account.info_address);
+            		info_phone.setText(Account.info_phone);
+            		info_makesure.setText("确认");
+            		
+            		boolean editable = !info_makesure.getText().toString().equals("修改");
+            		info_name.setEnabled(true);
+            		info_nickname.setEnabled(editable);
+            		info_address.setEnabled(editable);
+            		info_phone.setEnabled(editable);
+            		info_name.setFocusable(true);
+            		info_name.setFocusableInTouchMode(true);
+            		info_nickname.setFocusable(editable);
+            		info_nickname.setFocusableInTouchMode(true);
+            		info_address.setFocusable(editable);
+            		info_address.setFocusableInTouchMode(true);
+            		info_phone.setFocusable(editable);
+            		info_phone.setFocusableInTouchMode(true);
+            	}
+            	else {
+	            	String name = info_name.getText().toString();
+	            	if (name.isEmpty()) {info_status.setText("姓名不能为空");return;}
+	            	String nickname = info_nickname.getText().toString();
+	            	if (nickname.isEmpty()) {info_status.setText("昵称不能为空");return;}
+	            	String address = info_address.getText().toString();
+	            	if (address.isEmpty()) {info_status.setText("地址不能为空");return;}
+	            	String phone = info_phone.getText().toString();
+	            	if (phone.isEmpty() || phone.length() != 11) {info_status.setText("请输入11位手机号");return;}
+	            	
+	            	Account.set_info(name, nickname, address, phone);
+	            	init_param();
+            	}
+            }  
+        });
+		
+		// 短信验证
+		this.initSDK();
+		login_sms = (TextView) findViewById(R.id.login_sms);
+		login_sms.setOnClickListener(new OnClickListener() {  
+	         @Override  
+	         public void onClick(View v) {  
+	         	Log.v("LoginActivity", "login_sms onclick");
+	         	if (Account.is_login) {
+	         		Toast.makeText(LoginActivity.this, "已经登录了", Toast.LENGTH_SHORT).show();
+	         		return;
+	         	}
+	         	RegisterPage registerPage = new RegisterPage();
+	 			registerPage.setRegisterCallback(new EventHandler() {
+	 				public void afterEvent(int event, int result, Object data) {
+	 					// 解析注册结果
+	 					if (result == SMSSDK.RESULT_COMPLETE) {
+	 						@SuppressWarnings("unchecked")
+	 						HashMap<String,Object> phoneMap = (HashMap<String, Object>) data;
+	 						String country = (String) phoneMap.get("country");
+	 						String phone = (String) phoneMap.get("phone");
+	 						Log.v("LoginActivity", "phone=" + phone + ", country=" + country);
+	 						Account.is_login = true;
+	 						Account.phone = phone;
+	 						Account.register(LoginActivity.this);
+	 						
+	 						// 提交用户信息
+	 						//registerUser(country, phone);
+	 					}
+	 				}
+	 			});
+	 			
+	 			is_login_sms = true;
+	 			registerPage.show(LoginActivity.this); 
+	         }  
+	    });
+		
+		init_param();
+	} // OnCreate
 	
 	@Override
 	public void onCancel(Platform arg0, int arg1) {
@@ -234,9 +341,57 @@ public class LoginActivity extends Activity implements PlatformActionListener, O
         int velocity = (int) mVelocityTracker.getXVelocity();  
         return Math.abs(velocity);  
     } 
-	
-//	public static void SendMsg(Message m) {
-//		handler.sendMessage(m);
-//	}
+
+    public void init_param() {
+    	if (Account.info_name.isEmpty()) {
+    		info_status.setText("您未注册，可能会影响使用");
+    	}
+    	else {
+    		info_name.setText(Account.info_name.substring(0, 1) + "**");
+    		info_nickname.setText(Account.info_nickname);
+    		String address = Account.info_address;
+    		if (Account.info_address.length() > 10) address = Account.info_address.substring(0, 10) + "**";
+    		info_address.setText(address);
+    		info_phone.setText(Account.info_phone.substring(0, 7) + "****");
+    		info_status.setText("您已按上面信息注册，谢谢！");
+    		info_makesure.setText("修改");
+    		
+    		boolean editable = !info_makesure.getText().toString().equals("修改");
+    		info_name.setFocusable(editable);
+    		info_nickname.setFocusable(editable);
+    		info_address.setFocusable(editable);
+    		info_phone.setFocusable(editable);
+    		info_name.setEnabled(editable);
+    		info_nickname.setEnabled(editable);
+    		info_address.setEnabled(editable);
+    		info_phone.setEnabled(editable);
+    	}
+    }
+    
+    boolean is_login_sms = false;
+    
+    @Override
+	protected void onResume() {
+		super.onResume();
+		Log.v("LoginActivity", "LoginActivity onResume");
+		if (is_login_sms && !Account.phone.isEmpty()) {
+			is_login_sms = false;
+			login_username.setText(Account.phone);
+			
+		}
+		
+	}
+    
+	private void initSDK() {
+		// 初始化短信SDK
+		SMSSDK.initSDK(this, APPKEY, APPSECRET);
+		EventHandler eventHandler = new EventHandler() {
+			public void afterEvent(int event, int result, Object data) {
+				Log.v("LoginActivity", "afterEvent");
+			}
+		};
+		// 注册回调监听接口
+		SMSSDK.registerEventHandler(eventHandler);
+	}
 
 }

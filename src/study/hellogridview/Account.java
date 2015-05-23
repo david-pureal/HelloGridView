@@ -19,7 +19,13 @@ public class Account {
 	public static String user_icon_link = "";
 	public static Bitmap user_icon_img;
 	public static boolean is_login = false;
+	public static String phone = "";
 	public static String device_id = ""; // 标志一个手机设备，有可能会重复，在用户没有登录的情况下使用, SplashActivity 负责初始化
+	
+	public static String info_name;
+	public static String info_nickname;
+	public static String info_address;
+	public static String info_phone;
 	
 	public static ArrayList<Integer> favorites = new ArrayList<Integer>(); 
 	public static ArrayList<Integer> local_favorites = new ArrayList<Integer>();
@@ -27,6 +33,10 @@ public class Account {
 	// let server side remember this user's info
 	// note: do twice because the first http fails sometime, reason unknown!!
 	public static void register(final LoginActivity context) {
+		HttpUtils.register(userid, username, "", "", context);
+		HttpUtils.register(userid, username, "", "", context);
+	}
+	public static void register(final LoginActivity context, boolean is_phone_login) {
 		HttpUtils.register(userid, username, "", "", context);
 		HttpUtils.register(userid, username, "", "", context);
 	}
@@ -100,6 +110,15 @@ public class Account {
 		Tool.getInstance().writeFile(juserdata.toString().getBytes(), path);
 		
 		return !is_favorite;
+	}
+	
+	public static void set_info(String name, String nickname, String address, String phone) {
+		Account.info_name = name;
+		Account.info_nickname = nickname;
+		Account.info_address = address;
+		Account.info_phone = phone;
+		
+		MyPreference.set_info(TCPClient.getInstance().main_activity);
 	}
 
 }

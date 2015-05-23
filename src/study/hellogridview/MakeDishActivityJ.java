@@ -297,6 +297,7 @@ public class MakeDishActivityJ extends Activity implements OnTouchListener {
                     
                     is_starting_cook = true;
                 	image_package_count = data.get_img_pkg_count();
+                	progressBar1.setProgress(0);
                 	progressBar1.setMax(image_package_count - 1); //从0开始的
                 	progressBar1.setVisibility(View.VISIBLE);
                     resp_cmd108_count = 0;
@@ -388,13 +389,14 @@ public class MakeDishActivityJ extends Activity implements OnTouchListener {
                 		progressBar1.setProgress(resp_cmd108_count);
                 	}
                 	
-                	Log.v("MakeDishActivityJ", "current_cmd=" + current_cmd + ", resp_cmd108_count=" + resp_cmd108_count);
+                	Log.v("MakeDishActivityJ", "current_cmd=" + current_cmd + ", resp_cmd108_count=" + resp_cmd108_count
+                			+ ",image_package_count=" + image_package_count);
                 	if (resp_cmd108_count == image_package_count) { //目前图片都是分成5个帧传输的
                 		resp_cmd108_count = 0;
                 		is_starting_cook = false;
                 		image_package_count = Integer.MAX_VALUE;
+                		
             			progressBar1.setVisibility(View.GONE);
-            			progressBar1.setProgress(0);
             			
                 		if (current_cmd == 101) {
 	                		Log.v("MakeDishActivityJ", "start cook dish(" + new_dish.dishid + ") done, go to CurStateActivity");
@@ -641,7 +643,11 @@ public class MakeDishActivityJ extends Activity implements OnTouchListener {
 	                    msg.obj = data.getBytes();
 	                    TCPClient.getInstance().sendMsg(msg); 
 	                    
+	                    image_package_count = data.get_img_pkg_count();
+	                	progressBar1.setProgress(0);
+	                	progressBar1.setMax(image_package_count - 1); //从0开始的
 	                    MakeDishActivityJ.this.resp_cmd108_count = 0;
+	                    progressBar1.setProgress(0);
 	                    progressBar1.setVisibility(View.VISIBLE);
 	                    
 	                	ByteArrayOutputStream baos = new ByteArrayOutputStream();

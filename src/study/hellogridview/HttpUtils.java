@@ -347,7 +347,7 @@ public class HttpUtils {
 				final boolean is_favorite_before = Account.isFavorite(dish);
 				final int index = Account.favorites.indexOf(dish.dishid);
 				
-				String url = "http://182.92.231.24:8889/delete";
+				String url = "http://182.92.231.24:8889/favorite";
 				
 				int retry_times = 0;
 				while (retry_times++ < 2) {

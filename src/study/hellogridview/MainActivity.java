@@ -442,7 +442,7 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
  	        @Override  
  	        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {  
  	            //弹出单击的GridView元素的位置  
- 	            //Toast.makeText(MainActivity.this,mThumbIds[position], Toast.LENGTH_SHORT).show(); 
+ 	            //Toast.makeText(MainActivity.this, mThumbIds[position], Toast.LENGTH_SHORT).show(); 
  	        	Log.v("OnItemClickListener", "position = " + position + "id = " + id);
  	        	Dish dish = Dish.getDishById(index_id_list.get(position));
  	        	

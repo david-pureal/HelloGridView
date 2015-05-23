@@ -48,12 +48,7 @@ public class SplashActivity extends Activity {
         };
         
         Tool.typeFace = Typeface.DEFAULT;
-//        Typeface tf = Typeface.createFromAsset(getAssets(), "fonts/minijianguli.ttf");
-//        ((TextView) findViewById(R.id.textView1)).setTypeface(tf);
-
         splash_img = (ImageView) findViewById(R.id.splash_img); 
-        //splash_text = (TextView) findViewById(R.id.splash_text);
-        //splash_text.setTypeface(Tool.typeFace);
         
         skip = (TextView) findViewById(R.id.skip);
         skip.setOnClickListener(new OnClickListener() {  
@@ -70,13 +65,12 @@ public class SplashActivity extends Activity {
                 int result;
                 long startTime = System.currentTimeMillis();
                 
-                //splash_text.setTypeface(Tool.typeFace);
-                
                 Tool.getDeviceId(SplashActivity.this);
                 result = getWebDish();
                 
                 result = loadLocalDish();
-                Tool.preload_common_res(SplashActivity.this);
+                Tool.preload_common_res(SplashActivity.this); // 加载常用图片
+                MyPreference.get_info(SplashActivity.this);   // 读取用户信息
                 
                 long loadingTime = System.currentTimeMillis() - startTime;
                 if (loadingTime < 3000) {

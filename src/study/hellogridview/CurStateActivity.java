@@ -442,6 +442,9 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 		zhuliao_temp_set = dish.zhuliao_temp & 0xff;
 		fuliao_temp_set = dish.fuliao_time == 0 ? zhuliao_temp_set : (dish.fuliao_temp & 0xff);
 		ds.temp_set = (dish.zhuliao_temp & 0xff);
+		
+		ds.zhuliao_time_set = dish.zhuliao_time;
+		ds.fuliao_time_set = dish.fuliao_time;
         draw_temp_baselin(); 
         
 		
@@ -559,6 +562,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         // 计算设定的温度
         if (state < Constants.STATE_FULIAO) {
         	zhuliao_temp_set = ds.temp_set;
+        	fuliao_temp_set = dish.fuliao_time == 0 ? zhuliao_temp_set : (dish.zhuliao_temp & 0xff);
         }
         else {
         	fuliao_temp_set = ds.temp_set;
@@ -622,10 +626,12 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         canvas.drawLine(x_start, yend, x_middle, yend, paint);
         
         int fuliao_temp = fuliao_temp_set;
+        
         if (dish.fuliao_time == 0) fuliao_temp = zhuliao_temp_set;
         int yend2 = (int) (y_min + y_per_temp*(200 - fuliao_temp));
         canvas.drawLine(x_middle, yend, x_middle, yend2, paint);
         canvas.drawLine(x_middle, yend2, x_end, yend2, paint);
+        Log.v("curstate", "zhuliao_temp_set="+ zhuliao_temp_set + "， fuliao_temp" + fuliao_temp);
         
         //temperature
         int temp = ds.temp & 0xff;
@@ -678,16 +684,16 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         // zhuliao time
         paint.setColor(Color.rgb(115, 115, 115));
         paint.setTextSize(45 * scale);
-        minites = dish.zhuliao_time / 60;
-        seconds = dish.zhuliao_time - minites * 60;
+        minites = ds.zhuliao_time_set / 60;
+        seconds = ds.zhuliao_time_set - minites * 60;
         separator = seconds < 10 ? ":0" : ":";
         minites_prefix =  minites < 10 ? "0" : "";
         canvas.drawText(minites_prefix + minites + separator + seconds, zhuliao_time_x, zhuliao_time_y, paint);
         
         // fuliao time
         if (dish.fuliao_time != 0) {
-	        minites = dish.fuliao_time / 60;
-	        seconds = dish.fuliao_time - minites * 60;
+	        minites = ds.fuliao_time_set / 60;
+	        seconds = ds.fuliao_time_set - minites * 60;
 	        separator = seconds < 10 ? ":0" : ":";
 	        minites_prefix =  minites < 10 ? "0" : "";
 	        canvas.drawText(minites_prefix + minites + separator + seconds, fuliao_time_x, fuliao_time_y, paint);

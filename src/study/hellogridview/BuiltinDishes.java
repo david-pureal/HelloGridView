@@ -159,9 +159,9 @@ public class BuiltinDishes extends SlidingFragmentActivity {
 			 //make_new_dish.setVisibility(View.GONE);
 		}
 		else if (intent.getStringExtra("title").equals("用户菜谱")) {
-			LinearLayout.LayoutParams lp = (LayoutParams) tv.getLayoutParams();
-			lp.leftMargin = 230;
 			tv.setText("所有用户分享的菜谱");
+			TextView note  = (TextView) findViewById(R.id.verify_note);
+			note.setVisibility(View.VISIBLE);
 		}
 		
 	} // oncreate
@@ -175,7 +175,6 @@ public class BuiltinDishes extends SlidingFragmentActivity {
 		}
 		
 		handler.post(new Runnable() {
-			
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
@@ -242,8 +241,12 @@ public class BuiltinDishes extends SlidingFragmentActivity {
              if (d.img_bmp == null) d.img_bmp = Tool.decode_res_bitmap(d.img, this, Constants.DECODE_DISH_IMG_SAMPLE);
              map.put("icon", d.img_bmp); //添加图像资源的ID 
              map.put("name", d.name_chinese);//按序号做ItemText 
-             if ((title.equals("所有用户分享的菜谱") || title.equals("自编菜谱")) && d.isVerifyDone()) {
-            	 map.put("name", "√ " + d.name_chinese);
+             if (title.equals("所有用户分享的菜谱")) {
+            	 String prefix = d.isVerifyDone() ? "√ " : "X ";
+            	 map.put("name", prefix + d.name_chinese);
+            	 String author_name = "(我的)";
+            	 if (!d.author_name.isEmpty()) author_name = "(" + d.author_name.substring(0, 1) + "**)";
+            	 map.put("info", author_name);
              }
              
              index_id_list.add(d.dishid);
@@ -251,7 +254,12 @@ public class BuiltinDishes extends SlidingFragmentActivity {
              al.add(map);
         }
         
-        SimpleAdapter sa= new SimpleAdapter(BuiltinDishes.this,al,R.layout.image_text,new String[]{"icon","name"},new int[]{R.id.ItemImage,R.id.ItemText});
+        int layout_resid = R.layout.image_text;
+        SimpleAdapter sa= new SimpleAdapter(BuiltinDishes.this, al, layout_resid, new String[]{"icon","name"},new int[]{R.id.ItemImage,R.id.ItemText});
+        if (title.equals("所有用户分享的菜谱")) { 
+        	layout_resid = R.layout.image_text_text;
+        	sa=new SimpleAdapter(BuiltinDishes.this,al,layout_resid,new String[]{"icon","name","info"},new int[]{R.id.ItemImage,R.id.ItemText,R.id.ItemInfo});
+        }
         sa.setViewBinder(new ViewBinder(){  
             @Override  
             public boolean setViewValue(View view, Object data,  

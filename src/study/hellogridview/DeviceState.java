@@ -23,6 +23,8 @@ public class DeviceState {
 	public short dishid = 1;
 	public byte is_pot_in = 1; //锅是否在位
 	public byte is_unlock = 0; //是否解锁，1是0否
+	public short zhuliao_time_set = 0;
+	public short fuliao_time_set = 0;
 	
 	public int device_id = 0;  // 机器识别码
 	public boolean got_builtin = false;

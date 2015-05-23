@@ -41,6 +41,7 @@ public class SettingActivity extends Activity implements OnTouchListener {
 	TextView smartlink_tv;
 	TextView wifi_tv;
 	TextView one2one_tv;
+	TextView one2one_step2_tv;
 	
 	public Switch swt_english;
 	public Switch swt_sound;
@@ -75,10 +76,10 @@ public class SettingActivity extends Activity implements OnTouchListener {
 		public void handleMessage(android.os.Message msg) {
 			switch (msg.what) {
 			case 1:
-				m_startBtn.setText("停止链接");
+				m_startBtn.setText("连接中...");
 				break;
 			case 2:
-				m_startBtn.setText("开始链接");
+				m_startBtn.setText("开始连接");
 				break;
 			case 0x123:
 				{   
@@ -96,6 +97,8 @@ public class SettingActivity extends Activity implements OnTouchListener {
 			{
 				Log.v("SettingActivity", "got event MSG_ID_CONNECT_STATE = " + tcpclient.connect_state);
             	set_connect_state();
+            	m_startBtn.setText("连接成功");
+            	m_startBtn.setEnabled(false);
 			}
 			default:
 				break;
@@ -137,6 +140,9 @@ public class SettingActivity extends Activity implements OnTouchListener {
             }  
         });
 		
+		one2one_step2_tv = (TextView) findViewById(R.id.one2one_step2_tv);
+		one2one_step2_tv.setText("3、 选择" + Constants.AP_NAME_PREFIX + "xxxx连接即可");
+		
 		m_startBtn = (Button) findViewById(R.id.start_connect);
 		ssid = (TextView) findViewById(R.id.ssid);
 		ssid.setText("已连接到WiFi : " + Tool.getInstance().getSSid(this));
@@ -155,7 +161,8 @@ public class SettingActivity extends Activity implements OnTouchListener {
             	use_english = opr;
             	option_id = 2;
             	
-            	SettingActivity.this.do_send_msg();    
+            	//切换手机APP的中英文
+            	//SettingActivity.this.do_send_msg();    
             }  
         }); 
 		
@@ -420,5 +427,6 @@ public class SettingActivity extends Activity implements OnTouchListener {
 		Log.v("SettingActivity", "SettingActivity onResume");
 		set_connect_state();
 	}
+	
 }
 

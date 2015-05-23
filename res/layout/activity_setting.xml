@@ -80,7 +80,7 @@
 	        android:layout_height="wrap_content"
 	        android:layout_gravity="left"
 	        android:layout_marginTop="5dp"
-	        android:text="2、 长按“+”键5秒，至WiFi图标闪烁"
+	        android:text="2、 长按“搅拌”键5秒，至WiFi图标闪烁"
 	        android:textColor="#000000" />
 
         <TextView
@@ -148,10 +148,9 @@
 	        android:layout_height="wrap_content"
 	        android:layout_gravity="left"
 	        android:layout_marginTop="5dp"
-	        android:text="1、 长按“-”键5秒，至WiFi图标闪烁"
+	        android:text="1、 长按“手动”键5秒，至WiFi图标闪烁"
 	        android:textColor="#000000" />
         <TextView
-	        android:id="@+id/one2one_step2_tv"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:layout_marginTop="5dp"
@@ -168,7 +167,6 @@
 	        android:textColor="#000000" />
 
         <TextView
-            android:id="@+id/ssidss"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="left"

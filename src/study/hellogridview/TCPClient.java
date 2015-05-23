@@ -753,6 +753,9 @@ public class TCPClient {
 			ds.use_sound = bs[32];
 			ds.use_english = bs[33];
 			ds.temp_set = bs[34] & 0xff;
+			ds.zhuliao_time_set = this.gotShort(bs, 35);
+			ds.fuliao_time_set = this.gotShort(bs, 37);
+			Log.v("tcpclient", "zhuliao_time_set = " + ds.zhuliao_time_set + ", fuliao_time_set=" + ds.fuliao_time_set);
 			
 			RespPackage rp_ms = new RespPackage();
 			rp_ms.reqid_head = gotInt(bs, 10);
