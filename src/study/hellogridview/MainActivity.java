@@ -166,14 +166,6 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
             public void onClick(View v) {  
             	is_title_button_clicked = true;
             	startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
-//            	if (!Tool.getInstance().isWifiConnected(MainActivity.this)) {
-//            	//if (TCPClient.getInstance().connect_state == Constants.DISCONNECTED) {
-//            		startActivityForResult(new Intent(Settings.ACTION_WIFI_SETTINGS), 1);
-//            	}
-//            	else  {
-//            		startActivity(new Intent(MainActivity.this, SmartLinkActivity.class));  
-//            	}
-                //finish();//¹Ø±Õµ±Ç°Activity  
             }  
         });
 		m_stateBtn = (ImageButton) findViewById (R.id.left);
@@ -185,6 +177,13 @@ public class MainActivity /*extends Activity  */ extends SlidingFragmentActivity
             }  
         });
 		connect_bar = (ProgressBar) findViewById(R.id.connecting_bar);
+		connect_bar.setOnClickListener(new OnClickListener() {  
+            @Override  
+            public void onClick(View v) {  
+            	is_title_button_clicked = true;
+            	startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));  
+            }  
+        });
 		
 		//typeFace = Typeface.createFromAsset(getAssets(), "fonts/hanyitaiji.ttf");
 		//typeFace_fzzy = Typeface.createFromAsset(getAssets(), "fonts/fangzhengzhunyuan.ttf");

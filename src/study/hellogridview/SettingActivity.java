@@ -56,6 +56,7 @@ public class SettingActivity extends Activity implements OnTouchListener {
 	ImageButton m_deviceBtn;
 	ImageButton m_stateBtn;
 	ProgressBar connect_bar;
+	ProgressBar progressBar_smartlink;
 	
 	TCPClient tcpclient;
 	LinearLayout wifi_step;
@@ -97,8 +98,6 @@ public class SettingActivity extends Activity implements OnTouchListener {
 			{
 				Log.v("SettingActivity", "got event MSG_ID_CONNECT_STATE = " + tcpclient.connect_state);
             	set_connect_state();
-            	m_startBtn.setText("连接成功");
-            	m_startBtn.setEnabled(false);
 			}
 			default:
 				break;
@@ -210,6 +209,7 @@ public class SettingActivity extends Activity implements OnTouchListener {
 					sm.setConnection(ss, ps);
 					//开始 smartLink
 					sm.Startconnection(callback);
+					progressBar_smartlink.setVisibility(View.VISIBLE);
 				}else{
 					sm.StopConnection();
 					handler.sendEmptyMessage(2);
@@ -223,7 +223,6 @@ public class SettingActivity extends Activity implements OnTouchListener {
             @Override  
             public void onClick(View v) {  
             	startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));  
-                //finish();//关闭当前Activity  
             }  
         });
 		m_stateBtn = (ImageButton) findViewById(R.id.left);
@@ -231,12 +230,20 @@ public class SettingActivity extends Activity implements OnTouchListener {
             @Override  
             public void onClick(View v) {  
                 startActivity(new Intent(SettingActivity.this, CurStateActivity.class));  
-                //finish();//关闭当前Activity  
             }  
         });
 		connect_bar = (ProgressBar) findViewById(R.id.connecting_bar);
+		connect_bar.setOnClickListener(new OnClickListener() {  
+            @Override  
+            public void onClick(View v) {  
+            	startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));  
+            }  
+        });
 //		TextView title_name = (TextView) findViewById (R.id.title_name);
 //		title_name.setTypeface(Tool.typeFace);
+		
+		progressBar_smartlink = (ProgressBar) findViewById(R.id.progressBar_smartlink);
+		progressBar_smartlink.setVisibility(View.GONE);
 		
 		smartlink_tv = (TextView) findViewById(R.id.smartlink_tv);
 		set_connect_state();
@@ -396,6 +403,9 @@ public class SettingActivity extends Activity implements OnTouchListener {
     		//m_deviceBtn.setImageResource(R.drawable.connected_32);
     		m_deviceBtn.setImageResource(R.drawable.correct_32);
     		m_deviceBtn.setVisibility(View.VISIBLE);
+    		
+    		m_startBtn.setText("连接成功");
+    		progressBar_smartlink.setVisibility(View.GONE);
     		
     		String ssid = Tool.getInstance().getSSid(this);
 			if (ssid.startsWith(Constants.AP_NAME_PREFIX)) {

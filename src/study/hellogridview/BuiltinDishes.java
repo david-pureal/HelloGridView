@@ -18,22 +18,18 @@ import android.os.Message;
 import android.provider.Settings;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.LinearLayout;
-import android.widget.LinearLayout.LayoutParams;
 import android.widget.SimpleAdapter.ViewBinder;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.ScrollView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -129,10 +125,15 @@ public class BuiltinDishes extends SlidingFragmentActivity {
             @Override  
             public void onClick(View v) {  
                 startActivity(new Intent(BuiltinDishes.this, CurStateActivity.class));  
-                //finish();//关闭当前Activity  
             }  
         });
 		connect_bar = (ProgressBar) findViewById(R.id.connecting_bar);
+		connect_bar.setOnClickListener(new OnClickListener() {  
+            @Override  
+            public void onClick(View v) {  
+            	startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS)); 
+            }  
+        });
 //		TextView title_name = (TextView) findViewById (R.id.title_name);
 //		title_name.setTypeface(Tool.typeFace);
 		
@@ -177,7 +178,6 @@ public class BuiltinDishes extends SlidingFragmentActivity {
 		handler.post(new Runnable() {
 			@Override
 			public void run() {
-				// TODO Auto-generated method stub
 				Toast.makeText(BuiltinDishes.this, BuiltinDishes.this.all_dish_str, Toast.LENGTH_SHORT).show();
 			}
 		});
@@ -236,6 +236,9 @@ public class BuiltinDishes extends SlidingFragmentActivity {
              else if (title.equals("所有用户分享的菜谱")) {
             	 if (d.isAppBuiltIn()) continue;
             	 if (d.hasNotUploaded()) continue;
+             }
+             else if (title.equals(Constants.SYSTEM_CNAME)) {
+            	 if (!d.isAppBuiltIn()) continue;
              }
              
              if (d.img_bmp == null) d.img_bmp = Tool.decode_res_bitmap(d.img, this, Constants.DECODE_DISH_IMG_SAMPLE);

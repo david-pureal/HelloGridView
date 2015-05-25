@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="match_parent"
-    android:background="#555555"
+    android:background="@drawable/bkg_makesure_exit"
     android:gravity="center"
     android:orientation="vertical" >
 
@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="确认退出"
-        android:textColor="#ffffff"
+        android:textColor="#ff0000"
         android:textSize="40sp" />
 
 </LinearLayout>

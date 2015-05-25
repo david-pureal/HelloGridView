@@ -2,15 +2,12 @@ package study.hellogridview;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.content.Context;
 import android.graphics.Bitmap;
-import android.os.Message;
 import android.util.Log;
 
 public class Account {
@@ -33,12 +30,8 @@ public class Account {
 	// let server side remember this user's info
 	// note: do twice because the first http fails sometime, reason unknown!!
 	public static void register(final LoginActivity context) {
-		HttpUtils.register(userid, username, "", "", context);
-		HttpUtils.register(userid, username, "", "", context);
-	}
-	public static void register(final LoginActivity context, boolean is_phone_login) {
-		HttpUtils.register(userid, username, "", "", context);
-		HttpUtils.register(userid, username, "", "", context);
+		HttpUtils.register(userid, username, phone, "", context);
+		HttpUtils.register(userid, username, phone, "", context);
 	}
 
 	public static void setUserIcon(final String userIconUrl, final LoginActivity context) {

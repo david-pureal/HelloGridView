@@ -1,5 +1,6 @@
 package study.hellogridview;
 
+import java.io.File;
 import java.util.HashMap;
 
 import study.hellogridview.R;
@@ -212,7 +213,15 @@ public class LoginActivity extends Activity implements PlatformActionListener, O
 	 						Log.v("LoginActivity", "phone=" + phone + ", country=" + country);
 	 						Account.is_login = true;
 	 						Account.phone = phone;
-	 						Account.register(LoginActivity.this);
+	 						Account.username = phone;
+	 						Account.userid = phone;
+	 						
+	 						new Thread() {
+	 							@Override
+	 							public void run() {
+	 								Account.register(LoginActivity.this);
+	 							}
+	 						}.start();
 	 						
 	 						// 提交用户信息
 	 						//registerUser(country, phone);
@@ -284,7 +293,12 @@ public class LoginActivity extends Activity implements PlatformActionListener, O
         case MotionEvent.ACTION_UP:  
             recycleVelocityTracker();
             if (v.getId() == R.id.tvWeixin && is_touch_down_on_wechat_login) {
-            	do_wechat_authorize();
+            	if (Account.is_login) {
+	         		Toast.makeText(LoginActivity.this, "已经登录了", Toast.LENGTH_SHORT).show();
+	         	}
+            	else {
+            		do_wechat_authorize();
+            	}
             }
             break;  
         default:  

@@ -20,8 +20,8 @@ public class NetworkConnectChangedReceiver extends BroadcastReceiver {
             switch (wifiState) {  
             case WifiManager.WIFI_STATE_DISABLED:  
             	Log.v("NetworkChanged", "wifiState DISABLED " + wifiState);
-            	//TCPClient.getInstance().connect_state = Constants.DISCONNECTED;
-            	TCPClient.getInstance().notify_connect_state(Constants.DISCONNECTED);
+            	//TCPClient.getInstance().notify_connect_state(Constants.DISCONNECTED);
+            	TCPClient.getInstance().notify_connect_state(Constants.CONNECTING);
                 break;  
             case WifiManager.WIFI_STATE_ENABLED:
             	Log.v("NetworkChanged", "wifiState ENABLED " + wifiState);
@@ -42,7 +42,8 @@ public class NetworkConnectChangedReceiver extends BroadcastReceiver {
                 Log.v("NetworkChanged", "wifistate = " + wifistate);  
                 if (wifistate == State.DISCONNECTED) {    // wifi断开
                 	//TCPClient.getInstance().is_stop = true;
-                	TCPClient.getInstance().notify_connect_state(Constants.DISCONNECTED);
+                	//TCPClient.getInstance().notify_connect_state(Constants.DISCONNECTED);
+                	TCPClient.getInstance().notify_connect_state(Constants.CONNECTING);
                 } 
                 else if (wifistate == State.CONNECTED){   // wifi连上
                 	// 如果当前已经连接上机器了，就不要推送了，否则产生连上机器后，但是右上角连接状态是连接中

@@ -2,6 +2,7 @@ package study.hellogridview;
 
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
@@ -54,19 +55,12 @@ public class MenuFragment extends Fragment {
 		m_hot.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) {  
-            	
             	Intent intent = new Intent(getActivity(), MainActivity.class);
             	intent.putExtra("title", String.valueOf("ÈÈÃÅ²ËÆ×")); 
             	if (getActivity().getClass() == MainActivity.class) sm.toggle();
             	else {
             		startActivity(intent); 
-            		//sm.toggle();
-            		
-            		//getActivity().finish();
             	}
-            	//else 
-            	//	sm.toggle(); 
-            	 
             }
         });
 		hot_tv = (TextView) getView().findViewById(R.id.hot_dishes_tv);
@@ -79,12 +73,7 @@ public class MenuFragment extends Fragment {
             	if (getActivity().getClass() == MainActivity.class) sm.toggle();
             	else {
             		startActivity(intent); 
-            		//sm.toggle();
-            		//getActivity().finish();
             	}
-            	//else 
-            	//	sm.toggle(); 
-            	 
             }
         });
 		
@@ -94,7 +83,10 @@ public class MenuFragment extends Fragment {
             public void onClick(View v) {  
             	Intent intent = new Intent(getActivity(),BuiltinDishes.class);
             	intent.putExtra("title", Constants.BUILTIN_CNAME); 
-            	startActivity(intent); 
+            	 
+            	Activity act = getActivity();
+            	startActivity(intent);
+            	if (act.getClass() == BuiltinDishes.class) act.finish();
             	 
             }
         });	
@@ -105,7 +97,10 @@ public class MenuFragment extends Fragment {
             public void onClick(View v) {  
             	Intent intent = new Intent(getActivity(),BuiltinDishes.class);
             	intent.putExtra("title", Constants.BUILTIN_CNAME); 
+            	
+            	Activity act = getActivity();
             	startActivity(intent);
+            	if (act.getClass() == BuiltinDishes.class) act.finish();
             	 
             }
         });
@@ -114,34 +109,24 @@ public class MenuFragment extends Fragment {
 		m_favorite.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) {
-//            	if (!Account.is_login) {
-//            		Intent intent = new Intent(getActivity(), LoginActivity.class);
-//                	intent.putExtra("header", "ÇëÏÈµÇÂ¼");
-//                	startActivityForResult(intent, 10);
-//            	}
-//            	else 
-            	{
-	            	Intent intent = new Intent(getActivity(),BuiltinDishes.class);
-	            	intent.putExtra("title", String.valueOf("ÊÕ²Ø²ËÆ×")); 
-	            	startActivity(intent); 
-            	}
+            	Intent intent = new Intent(getActivity(),BuiltinDishes.class);
+            	intent.putExtra("title", String.valueOf("ÊÕ²Ø²ËÆ×")); 
+            	
+            	Activity act = getActivity();
+            	startActivity(intent);
+            	if (act.getClass() == BuiltinDishes.class) act.finish();
             }  
         });	
 		favorite_tv = (TextView) getView().findViewById(R.id.favorites_tv);
 		favorite_tv.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) {  
-//            	if (!Account.is_login) {
-//            		Intent intent = new Intent(getActivity(), LoginActivity.class);
-//                	intent.putExtra("header", "ÇëÏÈµÇÂ¼");
-//                	startActivityForResult(intent, 10);
-//            	}
-//            	else 
-            	{
-	            	Intent intent = new Intent(getActivity(),BuiltinDishes.class);
-	            	intent.putExtra("title", String.valueOf("ÊÕ²Ø²ËÆ×")); 
-	            	startActivity(intent); 
-            	}  
+            	Intent intent = new Intent(getActivity(),BuiltinDishes.class);
+            	intent.putExtra("title", String.valueOf("ÊÕ²Ø²ËÆ×")); 
+            	
+            	Activity act = getActivity();
+            	startActivity(intent);
+            	if (act.getClass() == BuiltinDishes.class) act.finish();
             }  
         });	
 		
@@ -149,9 +134,11 @@ public class MenuFragment extends Fragment {
 		m_alldishes.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) {  
-            	Intent intent = new Intent(getActivity(), AllDish.class);
+            	Intent intent = new Intent(getActivity(), BuiltinDishes.class);
             	intent.putExtra("title", String.valueOf(Constants.SYSTEM_CNAME)); 
-            	startActivity(intent); 
+            	Activity act = getActivity();
+            	startActivity(intent);
+            	if (act.getClass() == BuiltinDishes.class) act.finish();
             }  
         });
 		all_tv = (TextView) getView().findViewById(R.id.alldishes_tv);
@@ -159,9 +146,11 @@ public class MenuFragment extends Fragment {
 		all_tv.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) {  
-            	Intent intent = new Intent(getActivity(),AllDish.class);
+            	Intent intent = new Intent(getActivity(), BuiltinDishes.class);
             	intent.putExtra("title", String.valueOf(Constants.SYSTEM_CNAME)); 
-            	startActivity(intent); 
+            	Activity act = getActivity();
+            	startActivity(intent);
+            	if (act.getClass() == BuiltinDishes.class) act.finish();
             }  
         });
 		
@@ -172,7 +161,9 @@ public class MenuFragment extends Fragment {
             public void onClick(View v) {  
             	Intent intent = new Intent(getActivity(),BuiltinDishes.class);
             	intent.putExtra("title", String.valueOf("ÓÃ»§²ËÆ×")); 
-            	startActivity(intent);  
+            	Activity act = getActivity();
+            	startActivity(intent);
+            	if (act.getClass() == BuiltinDishes.class) act.finish(); 
             }  
         });
 		share_tv = (TextView) getView().findViewById(R.id.share_tv);
@@ -182,7 +173,9 @@ public class MenuFragment extends Fragment {
             public void onClick(View v) {  
             	Intent intent = new Intent(getActivity(),BuiltinDishes.class);
             	intent.putExtra("title", String.valueOf("ÓÃ»§²ËÆ×")); 
-            	startActivity(intent);   
+            	Activity act = getActivity();
+            	startActivity(intent);
+            	if (act.getClass() == BuiltinDishes.class) act.finish();   
             }  
         });
 		
@@ -201,12 +194,9 @@ public class MenuFragment extends Fragment {
             public void onClick(View v) { 
             	Intent intent = new Intent(getActivity(), BuiltinDishes.class);
             	intent.putExtra("title", String.valueOf("×Ô±à²ËÆ×")); 
-//            	if (getActivity().getClass() != AllDish.class)
-//            		startActivity(intent); 
-//            	else 
-//            		sm.toggle(); 
-                startActivity(intent);  
-                //finish();//¹Ø±Õµ±Ç°Activity  
+            	Activity act = getActivity();
+            	startActivity(intent);
+            	if (act.getClass() == BuiltinDishes.class) act.finish(); 
             }  
         });
 		makedish_tv = (TextView) getView().findViewById(R.id.makedish_tv);
@@ -215,12 +205,9 @@ public class MenuFragment extends Fragment {
             public void onClick(View v) { 
             	Intent intent = new Intent(getActivity(), BuiltinDishes.class);
             	intent.putExtra("title", String.valueOf("×Ô±à²ËÆ×")); 
-//            	if (getActivity().getClass() != AllDish.class)
-//            		startActivity(intent); 
-//            	else 
-//            		sm.toggle(); 
-                startActivity(intent);  
-                //finish();//¹Ø±Õµ±Ç°Activity  
+            	Activity act = getActivity();
+            	startActivity(intent);
+            	if (act.getClass() == BuiltinDishes.class) act.finish();
             }  
         });
 		

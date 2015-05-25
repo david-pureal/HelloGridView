@@ -128,7 +128,7 @@ public class TCPClient {
 								notify_connect_state(Constants.DISCONNECTED);
 								Log.v("tcpclient", "disconnected because check machine resp fail.");
 								
-								clientThread.recv_data.stop = true;
+								clientThread.recv_data.stop_recv = true;
 								Thread.sleep(3000);
 								
 								// TODO reconnect
@@ -136,23 +136,18 @@ public class TCPClient {
 								// AP 模式下，关闭机器并立即，此时并没有检测到wifi变化，但socket已经断开，需要重新连接到 AP的wifi
 								Log.v("tcpclient", "check machine resp cur_ip=" + clientThread.current_ip + "," + curr_ssid + ", con_ssid=" + connected_ssid);
 								if (clientThread.current_ip.equals(Constants.AP_IP) && curr_ssid.equals(connected_ssid)) {
-//									clientThread.recv_data.stop = true;
-//									Thread.sleep(1000);
 									
 									WifiManager mWifiManager = (WifiManager) main_activity.getSystemService(Context.WIFI_SERVICE); 
 							        // 取得WifiInfo对象  
 							        WifiInfo mWifiInfo = mWifiManager.getConnectionInfo(); 
 							        int id = mWifiInfo.getNetworkId();
 							        mWifiManager.disconnect();
-							        //Thread.sleep(1000);
 							        mWifiManager.enableNetwork(id, true);
 							        Log.v("tcpclient", "check machine resp reconnect to current AP wifi");
 							        
 							        clientThread.reconnect();
 								}
 								else {
-//									clientThread.recv_data.stop = true;
-//									Thread.sleep(3000);
 									clientThread.reconnect();
 								}
 							}
@@ -288,11 +283,6 @@ public class TCPClient {
 				alldish_activity.getHandler().sendEmptyMessage(Constants.MSG_ID_CONNECT_STATE);
 			}
 		
-//			long current = System.currentTimeMillis();
-//			if (connect_state != Constants.CONNECTED && current - start_connecting_timestamp > 10*Constants.CONNECT_TIMEOUT) {
-//				Log.w("tcpclient", "取消尝试重连， 200秒没有重连上了");
-//				is_stop = true;
-//			}
 		}
 	}
 	
@@ -400,7 +390,7 @@ public class TCPClient {
 							s.connect(new InetSocketAddress(ip_ap, port), Constants.BBXC_SOCKET_TIMEOUT);
 						}
 						else if (!ip_sta.isEmpty()) {
-							Log.e("tcpclient", "socket connect use ip_sta isEmpty= " + ip_sta.isEmpty());
+							Log.e("tcpclient", "socket trying connect to ip_sta = " + ip_sta);
 							current_ip = ip_sta;
 							s.connect(new InetSocketAddress(ip_sta, port), Constants.BBXC_SOCKET_TIMEOUT);
 							if (!s.isConnected()) {
@@ -430,22 +420,16 @@ public class TCPClient {
 							break;
 						} else {
 							Log.e("tcpclient", "socket not connected");
-							if (current_ip.equals(ip_sta)) {
-								Log.e("tcpclient", "socket connect to sta_ip fail");
-								ip_sta = "";
-								current_ip = "";
-							}
 							
 							long current = System.currentTimeMillis();
 							if (connect_state == Constants.CONNECTING && current - start_connecting_timestamp > Constants.CONNECT_TIMEOUT) {
-								//connect_state = Constants.DISCONNECTED;
 								notify_connect_state(Constants.DISCONNECTED);
 							}
 							Thread.sleep(10000);
 						}
 					} catch (Exception e) {
 						e.printStackTrace();
-						Log.v("tcpclient", "exception name = " + e.getCause().getClass()); //java.net.SocketException, fcntl failed EBADF (Bad file number)
+						Log.v("tcpclient", "exception name = " + e.getClass().toString()); //java.net.SocketException, fcntl failed EBADF (Bad file number)
 						Log.e("tcpclient", "socket connect to " + current_ip +":" + port + " failed! try reconnect...");
 						if (current_ip.equals(ip_sta)) {
 							Log.e("tcpclient", "socket connect to sta_ip fail");
@@ -533,14 +517,14 @@ public class TCPClient {
 		public ReceiveThread recv_data;
 		
 		class ReceiveThread implements Runnable {
-			public boolean stop = false;
+			public boolean stop_recv = false;
 			public Thread recv_thread;
 			public ReceiveThread() {
 				recv_thread = new Thread(this);
 			}
 			@Override
 			public void run() {
-				while (!stop) {
+				while (!stop_recv) {
 					// 不断的读取Socket输入流的内容
 					ByteArrayOutputStream bytestream = new ByteArrayOutputStream();
 					while (read_package(br, bytestream)) {
@@ -549,8 +533,14 @@ public class TCPClient {
 					}
 					
 					// read error
-					Log.v("tcpclient", "read package error!");
+					Log.v("tcpclient", "read package error! stop_recv = " + stop_recv);
 					notify_connect_state(Constants.CONNECTING);
+					try {
+						Thread.sleep(2000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 				Log.v("tcpclient", "ReceiveThread exit");
 			}
@@ -567,7 +557,7 @@ public class TCPClient {
 						continue;
 					}
 					
-					recv_data.stop = true;
+					recv_data.stop_recv = true;
 					Thread.sleep(1000);
 					if (s != null) {
 						s.close();

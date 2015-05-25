@@ -33,21 +33,11 @@
         android:textColor="#000000"
         android:textSize="20sp" /
     -->
+    <!-- android:drawableRight="@drawable/skip_32" -->
 
-    <TextView
-        android:id="@+id/skip"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="10dp"
-        android:drawablePadding="5dp"
-        android:drawableRight="@drawable/skip_32"
-        android:textColor="#555555"
-        android:textSize="35sp"
-        android:visibility="gone" />
 
-    <!--  TextView
+    <!--
+          TextView
         android:id="@+id/splash_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -58,8 +48,9 @@
         android:maxLines="8"
         android:text="爸爸小炒"
         android:textColor="#ff0000"
-        android:textSize="48sp" /-->
-        
+        android:textSize="48sp" 
+    -->
+
     <ImageView
         android:id="@+id/splash_text"
         android:layout_width="250dp"
@@ -79,6 +70,7 @@
         android:src="@drawable/home2" />
 
     <ImageView
+        android:id="@+id/imageView1"
         android:layout_width="50dp"
         android:layout_height="229dp"
         android:layout_below="@+id/splash_text"
@@ -86,6 +78,18 @@
         android:layout_marginTop="35dp"
         android:scaleType="fitXY"
         android:src="@drawable/home_taste" />
+
+    <TextView
+        android:id="@+id/skip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/imageView1"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="15dp"
+        android:text="跳过"
+        android:textColor="#999999"
+        android:textSize="18sp" />
 
     
 

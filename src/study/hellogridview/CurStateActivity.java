@@ -1,11 +1,9 @@
 package study.hellogridview;
 
-import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import study.hellogridview.TCPClient.ClientThread.ReceiveThread;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -16,7 +14,6 @@ import android.graphics.Bitmap.Config;
 import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.graphics.Typeface;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
@@ -69,8 +66,6 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	
 	DeviceState ds = DeviceState.getInstance();
 	
-	public static int t = 50;
-	
 	ImageView back;
 	
 	public TextView switch_ui_tv;
@@ -78,8 +73,6 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	
 	public boolean is_button_hide = false;
 	
-	//private long down_timestamp = 0;
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -177,13 +170,8 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
             public void handleMessage(Message msg) {  
                 // 如果消息来自子线程  
                 if (msg.what == 0x123) {  
-                    // 将读取的内容追加显示在文本框中  
-                    //show.append("\n" + msg.obj.toString());  
-                	
                 	Log.v("CurStateActivity", "got Machine state event time=" + ds.time + "temp=" + (ds.temp & 0x00ff) + "jiaoban=" + ds.jiaoban_speed);
                 	synchronized (this) {
-	                	//CurStateActivity.this.time = ds.time;
-	                	//CurStateActivity.this.temp = ds.temp;
 	                	CurStateActivity.this.jiaoban_speed = ds.jiaoban_speed;
 	                	dish_id = Math.max(1, ds.dishid & 0xffff);
 	                	
@@ -194,27 +182,31 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
                 	
                 	int MaxDataSize = 800;
                 	if(ds.working_state != Constants.MACHINE_WORK_STATE_STOP) {//待机中
-                		//stop_cook.setVisibility(View.VISIBLE);
                 		if (ds.working_state == Constants.MACHINE_WORK_STATE_PAUSE) {
-                			//CurStateActivity.this.jiaoban_speed = 1;
                 		}
                 		else if (data.size() < MaxDataSize){ 
                 			data.add(Math.min(200, (int)(ds.temp & 0x00ff)));
-                			//t += 5; data.add(Math.min(190, t));
                 		}
                 	} else {
-                		//stop_cook.setVisibility(View.GONE);
-                		//CurStateActivity.this.jiaoban_speed = 1;
-                		state = Constants.STATE_HEATING;
-                		t = 50;
+                		// reset all flags
                 		data.clear();
+                		state = Constants.STATE_HEATING;
+                		zhuliao_voice_done = false;
+                		jiaoban_goright = true;
+                		jiaoban_current_pos = 0;
+                		wait_count = 0;
+                		
+                		is_setting_param = false;
+                		current_twinkle_times = 0;
+                		
+                		got_fuliao_index = false;
+                		zhuliao_temp_set = 0;
+                		fuliao_temp_set = 0;
                 	}
                 	draw_temp_baselin();
                 	
                 } else if (msg.what == 0x234) {
-                	//main.invalidate();
                 	draw_temp_baselin();
-                	//draw_temp_curve();
                 }
                 
             }  
@@ -510,6 +502,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	final int twinkle_times = 5;
 	int current_twinkle_times = 0;
 	
+	boolean got_fuliao_index = false;
 	static int zhuliao_temp_set = 0;
 	static int fuliao_temp_set = 0;
 	
@@ -562,10 +555,16 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         // 计算设定的温度
         if (state < Constants.STATE_FULIAO) {
         	zhuliao_temp_set = ds.temp_set;
-        	fuliao_temp_set = dish.fuliao_time == 0 ? zhuliao_temp_set : (dish.zhuliao_temp & 0xff);
+        	fuliao_temp_set = dish.fuliao_time == 0 ? zhuliao_temp_set : (dish.fuliao_temp & 0xff);
         }
         else {
-        	fuliao_temp_set = ds.temp_set;
+        	if (ds.time < ds.fuliao_time_set) {
+        		fuliao_temp_set = ds.temp_set;
+        		if (!got_fuliao_index) {
+        			fuliao_index = data.size();
+        			got_fuliao_index = true;
+        		}
+        	}
         }
 
         float scale = 0.7f ;//* (float) (480.0 / width * 0.55);
@@ -614,11 +613,11 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         
         // 绿色的标准线段
         paint.setColor(Color.GREEN);
-        int zhuliao_time = dish.zhuliao_time & 0xffff;
-        float x_per_seconds_zhuliao = ((float)(x_middle - x_start)) / zhuliao_time;
+        float x_per_seconds_zhuliao = ((float)(x_middle - x_start)) / ds.zhuliao_time_set;
         if (dish.fuliao_time == 0) {
-        	x_per_seconds_zhuliao = ((float)(x_end - x_start)) / zhuliao_time;
+        	x_per_seconds_zhuliao = ((float)(x_end - x_start)) / ds.zhuliao_time_set;
         }
+        float x_per_seconds_fuliao = ((float)(x_end - x_middle)) / ds.fuliao_time_set;
         final float y_per_temp = (float) ((float)(y_max - y_min) / 200.0);
         
         int yend = (int) (y_min + y_per_temp*(200 - zhuliao_temp_set));
@@ -631,7 +630,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         int yend2 = (int) (y_min + y_per_temp*(200 - fuliao_temp));
         canvas.drawLine(x_middle, yend, x_middle, yend2, paint);
         canvas.drawLine(x_middle, yend2, x_end, yend2, paint);
-        Log.v("curstate", "zhuliao_temp_set="+ zhuliao_temp_set + "， fuliao_temp" + fuliao_temp);
+        Log.v("curstate", "zhuliao_temp_set=" + zhuliao_temp_set + "， fuliao_temp" + fuliao_temp);
         
         //temperature
         int temp = ds.temp & 0xff;
@@ -661,11 +660,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 
         // jiaoban
         paint.setTextSize(90 * scale);
-        //Typeface tf_default = paint.getTypeface();
-        //paint.setTypeface(MainActivity.typeFace_fzzy);
-        //if (!(selected_param.getId() == R.id.jiaoban && is_setting_param && ++current_twinkle_times < twinkle_times /*&& current_twinkle_times%2 == 0*/)) {
         canvas.drawText(this.jiaoban_str.get(Math.max(0, ds.jiaoban_speed-1)), jiaoban_x, jiaoban_y, paint);
-        //}
         
         if (is_setting_param && current_twinkle_times == twinkle_times) {
         	Log.v("CurStateActivity", "set param twinkle finished.");
@@ -719,34 +714,35 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         int cur_temp = ds.temp & 0xff;
         if (data.size() > 0) cur_temp = data.get(data.size() - 1);
         else cur_temp = 0;
-        int zhu_temp = dish.zhuliao_temp & 0x00ff;
         
         //Log.v("CurStateActivity", "cur_temp =" + cur_temp); 
-        if (state == Constants.STATE_HEATING && cur_temp > 90) {
+        if (state == Constants.STATE_HEATING && cur_temp >= 90) {
         	zhuliao_voice_done = false;
         	state = Constants.STATE_ADD_OIL;
-        } else if (state == Constants.STATE_ADD_OIL && cur_temp > zhu_temp - 10) {
-        	zhuliao_i = data.size();
-        	zhuliao_voice_done = false;
-        	state = Constants.STATE_ZHULIAO;
-        } else if (state == Constants.STATE_ZHULIAO && data.size() > zhuliao_i + 10) { // 5秒闪烁提示图片
+        } else if (state == Constants.STATE_ADD_OIL && cur_temp > zhuliao_temp_set - 10) {
+        	if (data.size() > Constants.EARLIEST_ADD_ZHULIAO_TIME) {
+	        	zhuliao_i = data.size();
+	        	zhuliao_voice_done = false;
+	        	state = Constants.STATE_ZHULIAO;
+        	}
+        } else if (state == Constants.STATE_ZHULIAO && data.size() > zhuliao_i + 5) { // 5秒闪烁提示图片
         	state = Constants.STATE_ZHULIAO_TISHI_DONE;
-        } else if (state == Constants.STATE_ZHULIAO_TISHI_DONE && dish.fuliao_time != 0 && data.size() > zhuliao_i + 20) { // 保证主料的语音已经播放完，20为10秒
+        } else if (state == Constants.STATE_ZHULIAO_TISHI_DONE && dish.fuliao_time != 0 /*&& data.size() > zhuliao_i + 10*/) { // 保证主料的语音已经播放完，10为10秒
         	Log.v("CurStateActivity", "ds.time = " + ds.time + "dish.fuliao_time = " + dish.fuliao_time);
         	int time_left = ds.time & 0xffff;
-        	if (time_left < (dish.fuliao_time & 0xffff) + 10) {// 在开始辅料时间10秒前
+        	if (time_left < (dish.fuliao_time & 0xffff) + 10) { // 在开始辅料时间10秒前
         		fuliao_i = data.size();
         		zhuliao_voice_done = false;
         		state = Constants.STATE_FULIAO;
         	}
-        } else if (state == Constants.STATE_FULIAO && data.size() > fuliao_i + 10) { // 5秒闪烁提示图片
-        	state = Constants.STATE_FULIAO_DONE;
+        } else if (state == Constants.STATE_FULIAO && data.size() > fuliao_i + 5) { // 5秒闪烁提示图片
+        	state = Constants.STATE_FULIAO_TISHI_DONE;
         }
         
         float img_y_per_temp = (float) ((166.0-159) / 20); // 159.0 ---- 180℃   166.0 ---- 160℃
         // 加油提示语和图片
-        if (state == Constants.STATE_ADD_OIL && ds.working_state != Constants.MACHINE_WORK_STATE_STOP 
-        		&& (!zhuliao_voice_done || cur_temp < 110 && data.size() % 2 == 0))
+        if (state == Constants.STATE_ADD_OIL && ds.working_state != Constants.MACHINE_WORK_STATE_STOP)
+        		//&& (!zhuliao_voice_done || cur_temp < 110 && data.size() % 2 == 0))
         {
         	if (!zhuliao_voice_done) {
         		zhuliao_voice_done = true;
@@ -757,25 +753,32 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	        	player_oil.start();
         	}
         	
-        	int img_resid = 0;
-        	Rect img_rect = new Rect();
-        	img_rect.left    = (int) (198.0/Constants.UI_WIDTH * width);
-        	img_rect.top    = (int) (200.0/Constants.UI_HEIGHT * height);
-	        img_rect.bottom  = (int) (265.0/Constants.UI_HEIGHT * height);
-        	if (dish.qiangguoliao == 0)  {
-        		img_resid = R.raw.add_oil_chn;
-		        img_rect.right   = (int) (320.0/Constants.UI_WIDTH * width);
+        	boolean need_draw_reminder = false;
+        	if (cur_temp <= 110 && data.size() % 2 == 0) need_draw_reminder = true;
+        	else if (cur_temp > 110) need_draw_reminder = true;
+        	
+        	if (need_draw_reminder) {
+	        	int img_resid = 0;
+	        	Rect img_rect = new Rect();
+	        	img_rect.left    = (int) (198.0/Constants.UI_WIDTH * width);
+	        	img_rect.top    = (int) (200.0/Constants.UI_HEIGHT * height);
+		        img_rect.bottom  = (int) (265.0/Constants.UI_HEIGHT * height);
+	        	if (dish.qiangguoliao == 0)  {
+	        		img_resid = R.raw.add_oil_chn;
+			        img_rect.right   = (int) (320.0/Constants.UI_WIDTH * width);
+	        	}
+		        else {
+			        img_rect.right   = (int) (430.0/Constants.UI_WIDTH * width);
+	        		img_resid = R.raw.add_oil_qgl_chn;
+	        	}
+		        canvas.drawBitmap(Tool.get_res_bitmap(img_resid), null, img_rect, null);
         	}
-	        else {
-		        img_rect.right   = (int) (430.0/Constants.UI_WIDTH * width);
-        		img_resid = R.raw.add_oil_qgl_chn;
-        	}
-	        canvas.drawBitmap(Tool.get_res_bitmap(img_resid), null, img_rect, null);
         }
         
         // 主料提示语和图片
-        if (state == Constants.STATE_ZHULIAO && ds.working_state != Constants.MACHINE_WORK_STATE_STOP
-        		&& (!zhuliao_voice_done || cur_temp < zhu_temp + 10 && data.size() % 2 == 0))
+        if ((state == Constants.STATE_ZHULIAO || state == Constants.STATE_ZHULIAO_TISHI_DONE)
+        		&& ds.working_state != Constants.MACHINE_WORK_STATE_STOP)
+        		//&& (!zhuliao_voice_done || cur_temp < zhu_temp + 10 && data.size() % 2 == 0))
         {
         	int voice_resid = 0;
         	int img_resid = 0;
@@ -817,13 +820,20 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         		//player.stop();
         		player_zhuliao.start();
         	}
+        	
+        	boolean need_draw_reminder = false;
+        	if (state == Constants.STATE_ZHULIAO && data.size() % 2 == 0) need_draw_reminder = true;
+        	else if (state == Constants.STATE_ZHULIAO_TISHI_DONE) need_draw_reminder = true;
         
-	        canvas.drawBitmap(Tool.get_res_bitmap(img_resid), null, img_rect, null);
+        	if (need_draw_reminder) {
+        		canvas.drawBitmap(Tool.get_res_bitmap(img_resid), null, img_rect, null);
+        	}
         }
         
         // 辅料提示语和图片
-        if (state == Constants.STATE_FULIAO && ds.working_state != Constants.MACHINE_WORK_STATE_STOP
-        		&& (!zhuliao_voice_done || data.size() % 2 == 0))
+        if ((state == Constants.STATE_FULIAO || state == Constants.STATE_FULIAO_TISHI_DONE)
+        		&& ds.working_state != Constants.MACHINE_WORK_STATE_STOP)
+        		//&& (!zhuliao_voice_done || data.size() % 2 == 0))
         {
         	int voice_resid = 0;
         	int img_resid = 0;
@@ -845,6 +855,9 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
     			img_rect.right  = (int) (441.0/Constants.UI_WIDTH * width);
 	        }
 
+	        boolean need_draw_reminder = false;
+        	if (state == Constants.STATE_FULIAO && data.size() % 2 == 0) need_draw_reminder = true;
+        	else if (state == Constants.STATE_FULIAO_TISHI_DONE) need_draw_reminder = true;
 	        
         	if (!zhuliao_voice_done) {
         		zhuliao_voice_done = true;
@@ -852,7 +865,9 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         		player_fuliao.start();
         	}
         	
-	        canvas.drawBitmap(Tool.get_res_bitmap(img_resid), null, img_rect, null);
+        	if (need_draw_reminder) {
+        		canvas.drawBitmap(Tool.get_res_bitmap(img_resid), null, img_rect, null);
+        	}
         }
 
         // temp curve
@@ -861,27 +876,45 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 			paint.setStrokeCap(Paint.Cap.ROUND);
 			paint.setStrokeWidth(15);
 			
-			zhuliao_index = data.size();
-			for(int i=0; i< data.size(); i++){ 
-				if (data.get(i) > zhuliao_temp_set) {
-					zhuliao_index = i;
-					break;
+			
+			if (!got_fuliao_index) fuliao_index = data.size();
+			
+			if (state <= Constants.STATE_ZHULIAO) {
+				zhuliao_index = data.size();
+				for(int i=0; i< data.size(); i++){ 
+					if (data.get(i) > zhuliao_temp_set) {
+						zhuliao_index = i;
+						break;
+					}
 				}
 			}
 			
+			if (zhuliao_index < Constants.EARLIEST_ADD_ZHULIAO_TIME) zhuliao_index = Constants.EARLIEST_ADD_ZHULIAO_TIME;
+			
+			// 补齐温度曲线
+			if (!data.isEmpty()){
+				int tempy = (int) (y_min + y_per_temp*(200 - data.get(0)));
+				canvas.drawLine(x_start, y_max, x_start, tempy, paint);
+			}
+			
+			Log.v("CurStateActivity", "zhuliao_index = " + zhuliao_index + ", fuliao_index = " + fuliao_index + ", state=" + state);
 	        for(int i=0; i< data.size(); i++){ 
 	        	int tempx = x_start;
 	        	int tempy = (int) (y_min + y_per_temp*(200 - data.get(i)));
-	        	//int tempy = ymax;
-	        	if (i < zhuliao_index) {
+	        	if (tempy < y_min) tempy = y_min;
+	        	
+	        	if (i <= zhuliao_index) {
 	        		tempx = x_start;
+	        	} else if (i < fuliao_index){
+	        		//Log.v("CurStateActivity", "zhuliao_index = " + zhuliao_index + ", i = " + i);
+	        		tempx = x_start + (int)((i - zhuliao_index) * x_per_seconds_zhuliao);
 	        	} else {
 	        		//Log.v("CurStateActivity", "zhuliao_index = " + zhuliao_index + ", i = " + i);
-	        		tempx = x_start + (int)((i - zhuliao_index) * x_per_seconds_zhuliao/2);
+	        		tempx = x_middle + (int)((i - fuliao_index) * x_per_seconds_fuliao);
 	        	}
 	        	
 	        	//Log.v("CurStateActivity", "tempx = " + tempx + ", tempy = " + tempy);
-	        	if (tempx < x_end && tempy > y_min) {
+	        	if (tempx < x_end) {
 	        		canvas.drawPoint(tempx, tempy, paint);
 	        	}
 	        } 
@@ -973,6 +1006,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	int count = 0;
 	int stopcount = 0;
 	int zhuliao_index = 0;
+	int fuliao_index = 0;
 	//int draw_index = 0;
 	
 	public int dip2px(float dipValue){   
@@ -1022,14 +1056,12 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         selected_param.setTextColor(Color.YELLOW);
         
         is_changing_seekbar = false;
-        zhuliao_index = 0;
         
         //this.handler.sendEmptyMessage(0x234);
     }
 
 	@Override
 	public void onProgressChanged(SeekBar seekBar, int progress, boolean arg2) {
-		// TODO Auto-generated method stub
 		Log.v("CurStateActivity", "onProgressChanged-->seekBar="+seekBar.getId() +"progress="+progress+"fromUser="+arg2);
 		//非用户操作，直接返回
 		if (!arg2) return;

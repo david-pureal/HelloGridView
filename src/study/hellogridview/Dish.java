@@ -158,6 +158,8 @@ public class Dish implements Cloneable {
 			this.author_name = Account.username;
 		}
 		
+		if (fuliao_content_map.isEmpty()) {fuliao_time = 0;fuliao_temp=0;fuliao_jiaoban_speed=0;}
+		
 		// 用于写入文件
 		JSONObject dishj = new JSONObject();
 		try {
@@ -969,12 +971,12 @@ public class Dish implements Cloneable {
 			{
 				Dish dish = new Dish(R.drawable.gongbaojiding, "宫保鸡丁");
 				dish.img_tiny = R.drawable.gongbaojiding_tiny;
-				dish.zhuliao_temp = (byte) 190;
-				dish.fuliao_temp = (byte) 180;
+				dish.zhuliao_temp = (byte) 180;
+				dish.fuliao_temp = (byte) 175;
 				dish.zhuliao_time = (short) 120;
-				dish.fuliao_time = (short) 240;
-				dish.zhuliao_jiaoban_speed = 6;
-				dish.fuliao_jiaoban_speed = 6;
+				dish.fuliao_time = (short) 180;
+				dish.zhuliao_jiaoban_speed = 5;
+				dish.fuliao_jiaoban_speed = 5;
 				dish.water = 0;
 				dish.water_weight = 0;
 				dish.oil = 30;
@@ -1009,12 +1011,12 @@ public class Dish implements Cloneable {
 			{
 				Dish dish = new Dish(R.drawable.yuxiangrousi, "鱼香肉丝");
 				dish.img_tiny = R.drawable.yuxiangrousi_tiny;
-				dish.zhuliao_temp = (byte) 190;
-				dish.fuliao_temp = (byte) 180;
-				dish.zhuliao_time = (short) 120;
-				dish.fuliao_time = (short) 240;
-				dish.zhuliao_jiaoban_speed = 6;
-				dish.fuliao_jiaoban_speed = 6;
+				dish.zhuliao_temp = (byte) 180;
+				dish.fuliao_temp = (byte) 175;
+				dish.zhuliao_time = (short) 60;
+				dish.fuliao_time = (short) 180;
+				dish.zhuliao_jiaoban_speed = 5;
+				dish.fuliao_jiaoban_speed = 5;
 				dish.water = 0;
 				dish.water_weight = 0;
 				dish.oil = 30;
