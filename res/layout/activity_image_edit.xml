@@ -47,6 +47,12 @@
             android:textColor="#E34F1B"
             android:textSize="20dp" />
     </LinearLayout>
+    
+    <Spinner android:id="@+id/type_spinner"
+           android:layout_width="fill_parent"
+           android:layout_height="wrap_content">
+        
+    </Spinner>
 
     <EditText
         android:id="@+id/edit_content"
@@ -67,8 +73,8 @@
     
     <ImageView
         android:id="@+id/add_material_img"
-        android:layout_width="368dp"
-        android:layout_height="250dp"
+        android:layout_width="match_parent"
+        android:layout_height="216dp"
         android:scaleType="fitXY" />
     
     <TextView

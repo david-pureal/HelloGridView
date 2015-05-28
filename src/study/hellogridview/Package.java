@@ -5,9 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
-import android.app.Activity;
 import android.content.res.AssetFileDescriptor;
-import android.content.res.Resources;
 import android.util.Log;
 
 //√¸¡Ó¿‡–Õ
@@ -369,7 +367,7 @@ public class Package {
 	
 	public void prepare_img_sounddata() {
 		AssetFileDescriptor fd = null;
-		AssetFileDescriptor fd_sound = null;
+		//AssetFileDescriptor fd_sound = null;
 		FileInputStream inStream = null;
 		if (this.cmdtype == Package.Send_Dish) {
 			if (dish.isAppBuiltIn()) {
@@ -445,18 +443,18 @@ public class Package {
 			}
 		}
 		
-		if (dish.sound != 0) {
-			try {
-				FileInputStream inStream_sound = fd_sound.createInputStream();
-				sound_data = new byte[inStream_sound.available()];
-				inStream.read(sound_data);
-				Log.i("Package", "sound size = " + sound_data.length);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				Log.e("Package", "prepare_img_sounddata exception");
-			}
-		}
+//		if (dish.sound != 0) {
+//			try {
+//				FileInputStream inStream_sound = fd_sound.createInputStream();
+//				sound_data = new byte[inStream_sound.available()];
+//				inStream.read(sound_data);
+//				Log.i("Package", "sound size = " + sound_data.length);
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//				Log.e("Package", "prepare_img_sounddata exception");
+//			}
+//		}
 	}
 	public ByteArrayOutputStream bytestream = new ByteArrayOutputStream();
 	

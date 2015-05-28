@@ -3,7 +3,6 @@ package study.hellogridview;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.NetworkInfo.State;
 import android.net.wifi.WifiManager;
@@ -82,29 +81,29 @@ public class NetworkConnectChangedReceiver extends BroadcastReceiver {
         // 这个监听网络连接的设置，包括wifi和移动数据的打开和关闭。.  
         // 最好用的还是这个监听。wifi如果打开，关闭，以及连接上可用的连接都会接到监听。见log  
         // 这个广播的最大弊端是比上边两个广播的反应要慢，如果只是要监听wifi，我觉得还是用上边两个配合比较合适  
-        if (ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())) {  
-        	ConnectivityManager manager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);  
-        	NetworkInfo gprs = manager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);  
-        	NetworkInfo wifi = manager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        	Log.i("NetworkChanged", "网络状态改变:" + wifi.isConnected() + " 3g:" + gprs.isConnected());
-        	
-        	NetworkInfo info = intent.getParcelableExtra(ConnectivityManager.EXTRA_NETWORK_INFO);  
-            if (info != null) {  
-                Log.e("NetworkChanged", "info.getTypeName()" + info.getTypeName());  
-                Log.e("NetworkChanged", "getSubtypeName()" + info.getSubtypeName());  
-                Log.e("NetworkChanged", "getState()" + info.getState());  
-                Log.e("NetworkChanged", "getDetailedState()" + info.getDetailedState().name());  
-                Log.e("NetworkChanged", "getDetailedState()" + info.getExtraInfo());  
-                Log.e("NetworkChanged", "getType()" + info.getType());  
-  
-                if (NetworkInfo.State.CONNECTED == info.getState()) {  
-                } else if (info.getType() == 1) {  
-                    if (NetworkInfo.State.DISCONNECTING == info.getState()) {  
-  
-                    }  
-                }  
-            }  
-        }  
+//        if (ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())) {  
+//        	ConnectivityManager manager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);  
+//        	NetworkInfo gprs = manager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);  
+//        	NetworkInfo wifi = manager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+//        	Log.i("NetworkChanged", "网络状态改变:" + wifi.isConnected() + " 3g:" + gprs.isConnected());
+//        	
+//        	NetworkInfo info = intent.getParcelableExtra(ConnectivityManager.EXTRA_NETWORK_INFO);  
+//            if (info != null) {  
+//                Log.e("NetworkChanged", "info.getTypeName()" + info.getTypeName());  
+//                Log.e("NetworkChanged", "getSubtypeName()" + info.getSubtypeName());  
+//                Log.e("NetworkChanged", "getState()" + info.getState());  
+//                Log.e("NetworkChanged", "getDetailedState()" + info.getDetailedState().name());  
+//                Log.e("NetworkChanged", "getDetailedState()" + info.getExtraInfo());  
+//                Log.e("NetworkChanged", "getType()" + info.getType());  
+//  
+//                if (NetworkInfo.State.CONNECTED == info.getState()) {  
+//                } else if (info.getType() == 1) {  
+//                    if (NetworkInfo.State.DISCONNECTING == info.getState()) {  
+//  
+//                    }  
+//                }  
+//            }  
+//        }  
 
 	}
 

@@ -2,23 +2,30 @@ package study.hellogridview;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
+import study.hellogridview.Dish.Material;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Bitmap.Config;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnLongClickListener;
@@ -26,25 +33,32 @@ import android.view.Window;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
 import android.widget.SeekBar;
+import android.widget.SimpleAdapter;
 import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.SimpleAdapter.ViewBinder;
 import android.widget.TextView;
 
-public class CurStateActivity extends Activity implements OnSeekBarChangeListener {
+import com.baidu.speechsynthesizer.SpeechSynthesizer;
+import com.baidu.speechsynthesizer.SpeechSynthesizerListener;
+import com.baidu.speechsynthesizer.publicutility.SpeechError;
+
+public class CurStateActivity extends Activity implements OnSeekBarChangeListener, SpeechSynthesizerListener {
 	public int total_time = 260;
 	public byte temp = (byte) 180;
 	public byte jiaoban_speed = 1;
 	public int dish_id = 1;
 	public Dish dish;
 	public byte modify_state = (byte) 0x0; //时间、温度、搅拌、控制。。。是否被用户改动过的标识位，最高字节为时间，以此类推
-	public byte control = 3;                // 0表示开始炒菜，1表示暂停，2表示取消，3表示解锁， 4表示上锁
+	public byte control = 3;               // 0表示开始炒菜，1表示暂停，2表示取消，3表示解锁， 4表示上锁
 	
 	public final String net_mode = "AP";    // wifi模块的工作模式：AP或者STA
 	public final int MAX_TIME = 3599;       // in seconds
 	
-	public List<String> jiaoban_str = new ArrayList<String>();
-
 	TextView selected_param;
 	TextView time_tv;
 	TextView temp_tv;
@@ -73,6 +87,13 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	
 	public boolean is_button_hide = false;
 	
+	public LayoutInflater inflater;
+	public View self_content_view;
+	public View popupView;
+	PopupWindow popWindow;
+	
+	int wait_sec_after_finish = 0;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -100,18 +121,8 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 		}
 		Log.v("CurStateActivity", "onCreate dish_id = " + dish_id + ", ds.dishid= " + ds.dishid);
 		
-		//data.clear();
-		
-		if (jiaoban_str.isEmpty()) {
-			jiaoban_str.add("1不搅拌");
-			jiaoban_str.add("2特慢速");
-			jiaoban_str.add("3较慢速");
-			jiaoban_str.add("4中慢速");
-			jiaoban_str.add("5中快速");
-			jiaoban_str.add("6较快速");
-			jiaoban_str.add("7特快速");
-			jiaoban_str.add("8连续搅");
-		}
+		inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE); 
+		self_content_view = inflater.inflate(R.layout.activity_cur_state, null, false);
 		
 		width = dip2px(Constants.UI_WIDTH);
         height = dip2px(Constants.UI_HEIGHT);
@@ -173,9 +184,26 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
                 	Log.v("CurStateActivity", "got Machine state event time=" + ds.time + "temp=" + (ds.temp & 0x00ff) + "jiaoban=" + ds.jiaoban_speed);
                 	synchronized (this) {
 	                	CurStateActivity.this.jiaoban_speed = ds.jiaoban_speed;
-	                	dish_id = Math.max(1, ds.dishid & 0xffff);
 	                	
-	                	if (dish != null && dish_id != dish.dishid) dish = Dish.getDishById(dish_id); 
+	                	// TODO revert
+	                	if (state != Constants.STATE_FINISH) {
+	                		dish_id = Math.max(1, ds.dishid & 0xffff);
+	                		if (dish != null && dish_id != dish.dishid) {
+	                			dish = Dish.getDishById(dish_id); 
+	                			
+	                			dish.get_pre_material("炝锅料", qiangguoliao_ids);
+	                			dish.get_pre_material("主料", zhuliao_ids);
+	                			dish.get_pre_material("辅料", fuliao_ids);
+	                			dish.get_pre_material("调料", tiaoliao_ids);
+	                			
+	                			// 调料要算到主料或者辅料里，而且最多有三张图片
+	                			if (dish.fuliao_temp == 0) {
+	                				zhuliao_ids.addAll(tiaoliao_ids);
+	                			}
+	                			else fuliao_ids.addAll(tiaoliao_ids);
+	                			
+	                		}
+	                	}
                 	}
                 	
                 	CurStateActivity.this.update_seekbar();
@@ -188,20 +216,33 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
                 			data.add(Math.min(200, (int)(ds.temp & 0x00ff)));
                 		}
                 	} else {
-                		// reset all flags
-                		data.clear();
-                		state = Constants.STATE_HEATING;
-                		zhuliao_voice_done = false;
-                		jiaoban_goright = true;
-                		jiaoban_current_pos = 0;
-                		wait_count = 0;
                 		
-                		is_setting_param = false;
-                		current_twinkle_times = 0;
+                		if (!data.isEmpty() && ++ wait_sec_after_finish < 10) {
                 		
-                		got_fuliao_index = false;
-                		zhuliao_temp_set = 0;
-                		fuliao_temp_set = 0;
+                		}
+                		else {
+	                		// reset all flags
+                			wait_sec_after_finish = 0;
+                			
+	                		data.clear();
+	                		state = Constants.STATE_HEATING;
+	                		zhuliao_voice_done = false;
+	                		jiaoban_goright = true;
+	                		jiaoban_current_pos = 0;
+	                		wait_count = 0;
+	                		zhuliao_i = 0;
+	                		fuliao_i = 0;
+	                		
+	                		is_setting_param = false;
+	                		current_twinkle_times = 0;
+	                		
+	                		got_fuliao_index = false;
+	                		zhuliao_temp_set = 0;
+	                		fuliao_temp_set = 0;
+	                		
+	                		is_showing_reminder = false;
+	                		has_show_reminder = false;
+                		}
                 	}
                 	draw_temp_baselin();
                 	
@@ -429,6 +470,19 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 		
 		dish_id = Math.max(1, dish_id);
 		dish = Dish.getDishById(dish_id);
+		{
+			dish.get_pre_material("炝锅料", qiangguoliao_ids);
+			dish.get_pre_material("主料", zhuliao_ids);
+			dish.get_pre_material("辅料", fuliao_ids);
+			dish.get_pre_material("调料", tiaoliao_ids);
+			
+			// 调料要算到主料或者辅料里，而且最多有三张图片
+			if (dish.fuliao_temp == 0) {
+				zhuliao_ids.addAll(tiaoliao_ids);
+			}
+			else fuliao_ids.addAll(tiaoliao_ids);
+		}
+		
 		this.total_time = dish.zhuliao_time + dish.fuliao_time;
 		
 		zhuliao_temp_set = dish.zhuliao_temp & 0xff;
@@ -437,8 +491,10 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 		
 		ds.zhuliao_time_set = dish.zhuliao_time;
 		ds.fuliao_time_set = dish.fuliao_time;
+		
+		init_tts();
+		
         draw_temp_baselin(); 
-        
 		
 	} // oncreate
 	
@@ -448,9 +504,11 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	MediaPlayer player_oil;
 	MediaPlayer player_zhuliao;
 	MediaPlayer player_fuliao;
-	MediaPlayer player_stop;
-	private int zhuliao_i;
-	private int fuliao_i;
+	MediaPlayer player_stop; // 手动结束
+	MediaPlayer player_cook_finish; // 倒计时结束，可以出锅了
+	private int zhuliao_i = 0;
+	private int fuliao_i = 0;
+	private int oil_i = 0;
 	
 	static Bitmap canvas_bmp = null;
 	static Bitmap simple_bkg_bmp = null;
@@ -503,8 +561,16 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	int current_twinkle_times = 0;
 	
 	boolean got_fuliao_index = false;
+	boolean is_showing_reminder = false;
+	boolean has_show_reminder = false;
 	static int zhuliao_temp_set = 0;
 	static int fuliao_temp_set = 0;
+	
+	int [] temp_ids = {2, 3, 25, 26};
+	ArrayList<Integer> qiangguoliao_ids = new ArrayList<Integer>();
+	ArrayList<Integer> zhuliao_ids = new ArrayList<Integer>();
+	ArrayList<Integer> fuliao_ids = new ArrayList<Integer>();
+	ArrayList<Integer> tiaoliao_ids = new ArrayList<Integer>();
 	
 //	public RefreshUIThread refresh_ui_thread;
 //	
@@ -654,13 +720,11 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 		int seconds = ds.time - minites * 60;
 		String separator = seconds < 10 ? ":0" : ":";
 		String minites_prefix =  minites < 10 ? "0" : "";
-		//if (!(selected_param.getId() == R.id.time && is_setting_param && ++current_twinkle_times < twinkle_times /*&& current_twinkle_times%2 == 0*/)) {
 		canvas.drawText(minites_prefix + minites + separator + seconds, time_x, time_y, paint);
-		//}
 
         // jiaoban
         paint.setTextSize(90 * scale);
-        canvas.drawText(this.jiaoban_str.get(Math.max(0, ds.jiaoban_speed-1)), jiaoban_x, jiaoban_y, paint);
+        canvas.drawText(Constants.jiaoban_str[Math.max(0, ds.jiaoban_speed-1)], jiaoban_x, jiaoban_y, paint);
         
         if (is_setting_param && current_twinkle_times == twinkle_times) {
         	Log.v("CurStateActivity", "set param twinkle finished.");
@@ -674,7 +738,6 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         
         paint.setColor(Color.rgb(166, 246, 9));
         canvas.drawText(dish.name_chinese, name_x, name_y, paint);
-        //paint.setTypeface(tf_default);
         
         // zhuliao time
         paint.setColor(Color.rgb(115, 115, 115));
@@ -718,31 +781,55 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         //Log.v("CurStateActivity", "cur_temp =" + cur_temp); 
         if (state == Constants.STATE_HEATING && cur_temp >= 90) {
         	zhuliao_voice_done = false;
+        	has_show_reminder = false;
         	state = Constants.STATE_ADD_OIL;
+        	oil_i = data.size();
         } else if (state == Constants.STATE_ADD_OIL && cur_temp > zhuliao_temp_set - 10) {
         	if (data.size() > Constants.EARLIEST_ADD_ZHULIAO_TIME) {
 	        	zhuliao_i = data.size();
 	        	zhuliao_voice_done = false;
+	        	has_show_reminder = false;
+	        	if (is_showing_reminder && popWindow != null) {
+	        		popWindow.dismiss();
+	        	}
 	        	state = Constants.STATE_ZHULIAO;
         	}
         } else if (state == Constants.STATE_ZHULIAO && data.size() > zhuliao_i + 5) { // 5秒闪烁提示图片
         	state = Constants.STATE_ZHULIAO_TISHI_DONE;
+        } else if (state == Constants.STATE_ZHULIAO_TISHI_DONE && dish.fuliao_time == 0) {
+        	if (data.size() > zhuliao_i + 30 && is_showing_reminder && popWindow != null) popWindow.dismiss();
+        	if (ds.time <= 1) {
+        		zhuliao_voice_done = false;
+        		state = Constants.STATE_FINISH;
+        	}
         } else if (state == Constants.STATE_ZHULIAO_TISHI_DONE && dish.fuliao_time != 0 /*&& data.size() > zhuliao_i + 10*/) { // 保证主料的语音已经播放完，10为10秒
         	Log.v("CurStateActivity", "ds.time = " + ds.time + "dish.fuliao_time = " + dish.fuliao_time);
+        	
+        	if (data.size() > zhuliao_i + 30 && is_showing_reminder && popWindow != null) popWindow.dismiss();
+        	
         	int time_left = ds.time & 0xffff;
         	if (time_left < (dish.fuliao_time & 0xffff) + 10) { // 在开始辅料时间10秒前
         		fuliao_i = data.size();
         		zhuliao_voice_done = false;
+        		has_show_reminder = false;
         		state = Constants.STATE_FULIAO;
         	}
         } else if (state == Constants.STATE_FULIAO && data.size() > fuliao_i + 5) { // 5秒闪烁提示图片
         	state = Constants.STATE_FULIAO_TISHI_DONE;
+        } 
+        else if (state == Constants.STATE_FULIAO_TISHI_DONE) { // 最后一秒钟
+        	if (data.size() > fuliao_i + 30 && is_showing_reminder && popWindow != null) {
+        		popWindow.dismiss();
+        	}
+        	if (ds.time <= 1) {
+        		zhuliao_voice_done = false;
+        		state = Constants.STATE_FINISH;
+        	}
         }
         
         float img_y_per_temp = (float) ((166.0-159) / 20); // 159.0 ---- 180℃   166.0 ---- 160℃
         // 加油提示语和图片
         if (state == Constants.STATE_ADD_OIL && ds.working_state != Constants.MACHINE_WORK_STATE_STOP)
-        		//&& (!zhuliao_voice_done || cur_temp < 110 && data.size() % 2 == 0))
         {
         	if (!zhuliao_voice_done) {
         		zhuliao_voice_done = true;
@@ -751,6 +838,10 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         		if (dish.qiangguoliao == 0) voice_resid = R.raw.voice_add_oil_chn;
 	        	player_oil = MediaPlayer.create(this, voice_resid);
 	        	player_oil.start();
+        		
+//        		int ret = speechSynthesizer.speak("请加油，姜，蒜和干辣椒");
+//                if (ret != 0) logDebug("开始合成器失败：" + errorCodeAndDescription(ret));
+//                else logDebug("开始工作，请等待数据...");
         	}
         	
         	boolean need_draw_reminder = false;
@@ -773,12 +864,80 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	        	}
 		        canvas.drawBitmap(Tool.get_res_bitmap(img_resid), null, img_rect, null);
         	}
+        	
+        	// 弹出炝锅料的图片
+        	if (!has_show_reminder && data.size() > oil_i + 1) {
+	        	popupView = inflater.inflate(R.layout.reminder, null, false);
+	        	int pop_window_width_temp = 600 * (qiangguoliao_ids.size() + 1);
+	        	popWindow = new PopupWindow(popupView, pop_window_width_temp, 500, true);
+	        	
+	        	GridView reminder_grid = (GridView) popupView.findViewById(R.id.reminder_grid);
+	        	ArrayList<HashMap<String,Object>> al=new ArrayList<HashMap<String, Object>>();
+	        	{
+		        	HashMap<String, Object> map = new HashMap<String, Object>();
+		        	Bitmap bmp = Tool.get_res_bitmap(R.drawable.material_oil);
+		        	map.put("icon", bmp);
+		        	map.put("name", "");
+		        	al.add(map);
+	        	}
+	        	for (int i = 0; i < qiangguoliao_ids.size(); ++i) {
+	        		HashMap<String, Object> map = new HashMap<String, Object>();
+		        	Material m = dish.prepare_material_detail.get(qiangguoliao_ids.get(i));
+		        	Bitmap bmp = null;
+		        	if (m.path != null && !m.path.isEmpty() && m.img_bmp == null) {
+		        		m.img_bmp = Tool.decode_path_bitmap(dish.getDishDirName() + m.path, Constants.DECODE_MATERIAL_SAMPLE);
+					}
+					else if (m.img_resid != 0 && m.img_bmp == null) {
+						m.img_bmp = Tool.decode_res_bitmap(m.img_resid, CurStateActivity.this, Constants.DECODE_MATERIAL_SAMPLE);
+					    Log.v("curstateactivity", "got material bmp = " + bmp);
+					}
+		        	map.put("icon", m.img_bmp);
+		        	map.put("name", "");
+		        	al.add(map);
+	        	}
+	        	
+	        	SimpleAdapter sa= new SimpleAdapter(CurStateActivity.this, al, R.layout.reminder_image_text, 
+	        			new String[]{"icon","name"}, new int[]{R.id.ItemImage,R.id.ItemText});
+	        	sa.setViewBinder(new ViewBinder(){  
+	                @Override  
+	                public boolean setViewValue(View view, Object data, String textRepresentation) {  
+	                    if( (view instanceof ImageView) && (data instanceof Bitmap ) ) {  
+	                        ImageView iv = (ImageView) view;  
+	                        iv.setImageBitmap((Bitmap) data);
+	                        return true;  
+	                    } 
+	                    else if (view instanceof TextView) {
+	                    	((TextView)view).setTextColor(Color.WHITE);
+	                    }
+	                    return false;  
+	                }  
+	            });
+	        	reminder_grid.setAdapter(sa);
+	        	reminder_grid.setOnItemClickListener(new GridView.OnItemClickListener() {
+	                @Override
+	                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+	                	popWindow.dismiss();
+	                }
+	            });
+	        	
+	        	popWindow.setOutsideTouchable(true);
+	        	popWindow.setBackgroundDrawable(new BitmapDrawable());
+	        	popWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+	        		public void onDismiss() {
+	        			is_showing_reminder = false;
+	        		}
+	        	});
+	        	
+	        	has_show_reminder = true;
+	        	is_showing_reminder = true;
+	        	int h = -1 * getWindowManager().getDefaultDisplay().getHeight();
+	        	popWindow.showAtLocation(self_content_view, Gravity.RIGHT, 0, h);
+        	}
         }
         
         // 主料提示语和图片
         if ((state == Constants.STATE_ZHULIAO || state == Constants.STATE_ZHULIAO_TISHI_DONE)
         		&& ds.working_state != Constants.MACHINE_WORK_STATE_STOP)
-        		//&& (!zhuliao_voice_done || cur_temp < zhu_temp + 10 && data.size() % 2 == 0))
         {
         	int voice_resid = 0;
         	int img_resid = 0;
@@ -828,6 +987,79 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         	if (need_draw_reminder) {
         		canvas.drawBitmap(Tool.get_res_bitmap(img_resid), null, img_rect, null);
         	}
+        	
+        	// 弹出主料的图片
+        	if (!zhuliao_ids.isEmpty() && !has_show_reminder && data.size() > zhuliao_i + 1) {
+	        	popupView = inflater.inflate(R.layout.reminder, null, false);
+	        	int pop_window_width = zhuliao_ids.size() * 600;
+	        	
+	        	GridView reminder_grid = (GridView) popupView.findViewById(R.id.reminder_grid);
+	        	ArrayList<HashMap<String,Object>> al=new ArrayList<HashMap<String, Object>>();
+	        	for (int i = 0; i < zhuliao_ids.size(); ++i) {
+	        		HashMap<String, Object> map = new HashMap<String, Object>();
+		        	Material m = dish.prepare_material_detail.get(zhuliao_ids.get(i));
+		        	Bitmap bmp = null;
+		        	if (m.path != null && !m.path.isEmpty() && m.img_bmp == null) {
+		        		m.img_bmp = Tool.decode_path_bitmap(dish.getDishDirName() + m.path, Constants.DECODE_MATERIAL_SAMPLE);
+					}
+					else if (m.img_resid != 0 && m.img_bmp == null) {
+						m.img_bmp = Tool.decode_res_bitmap(m.img_resid, CurStateActivity.this, Constants.DECODE_MATERIAL_SAMPLE);
+					    Log.v("curstateactivity", "got material bmp = " + bmp);
+					}
+		        	map.put("icon", m.img_bmp);
+		        	map.put("name", "");
+		        	al.add(map);
+	        	}
+	        	
+	        	if (zhuliao_ids.size() < 3 && dish.fuliao_time == 0 && tiaoliao_ids.isEmpty() && dish.tiaoliao_content_map.containsKey("盐"))
+        		{
+	        		pop_window_width += 600;
+		        	HashMap<String, Object> map = new HashMap<String, Object>();
+		        	Bitmap bmp = Tool.get_res_bitmap(R.drawable.salt);
+		        	map.put("icon", bmp);
+		        	map.put("name", "");
+		        	al.add(map);
+	        	}
+	        	
+	        	popWindow = new PopupWindow(popupView, pop_window_width, 500, true);
+	        	
+	        	SimpleAdapter sa= new SimpleAdapter(CurStateActivity.this, al, R.layout.reminder_image_text, 
+	        			new String[]{"icon","name"}, new int[]{R.id.ItemImage, R.id.ItemText});
+	        	sa.setViewBinder(new ViewBinder(){  
+	                @Override  
+	                public boolean setViewValue(View view, Object data, String textRepresentation) {  
+	                    if( (view instanceof ImageView) && (data instanceof Bitmap ) ) {  
+	                        ImageView iv = (ImageView) view;  
+	                        iv.setImageBitmap((Bitmap) data);
+	                        return true;  
+	                    } 
+	                    else if (view instanceof TextView) {
+	                    	((TextView)view).setTextColor(Color.WHITE);
+	                    }
+	                    return false;  
+	                }  
+	            });
+	        	reminder_grid.setAdapter(sa);
+	        	reminder_grid.setOnItemClickListener(new GridView.OnItemClickListener() {
+	                @Override
+	                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+	                	popWindow.dismiss();
+	                }
+	            });
+	        	
+	        	popWindow.setOutsideTouchable(true);
+	        	popWindow.setBackgroundDrawable(new BitmapDrawable());
+	        	popWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+	        		public void onDismiss() {
+	        			is_showing_reminder = false;
+	        		}
+	        	});
+	        	
+	        	has_show_reminder = true;
+	        	is_showing_reminder = true;
+	        	int h = -1 * getWindowManager().getDefaultDisplay().getHeight();
+	        	popWindow.showAtLocation(self_content_view, Gravity.RIGHT, 0, h);
+        	}
         }
         
         // 辅料提示语和图片
@@ -867,6 +1099,99 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         	
         	if (need_draw_reminder) {
         		canvas.drawBitmap(Tool.get_res_bitmap(img_resid), null, img_rect, null);
+        	}
+        	
+        	// 弹出辅料的图片
+        	if (!fuliao_ids.isEmpty() && dish.fuliao_time != 0 && 
+        			!has_show_reminder && data.size() > fuliao_i + 1) {
+	        	popupView = inflater.inflate(R.layout.reminder, null, false);
+	        	int pop_window_with = 600 * fuliao_ids.size();
+	        	
+	        	GridView reminder_grid = (GridView) popupView.findViewById(R.id.reminder_grid);
+	        	ArrayList<HashMap<String,Object>> al=new ArrayList<HashMap<String, Object>>();
+	        	for (int i = 0; i < fuliao_ids.size(); ++i) {
+	        		HashMap<String, Object> map = new HashMap<String, Object>();
+		        	Material m = dish.prepare_material_detail.get(fuliao_ids.get(i));
+		        	Bitmap bmp = null;
+		        	if (m.path != null && !m.path.isEmpty() && m.img_bmp == null) {
+		        		m.img_bmp = Tool.decode_path_bitmap(dish.getDishDirName() + m.path, Constants.DECODE_MATERIAL_SAMPLE);
+					}
+					else if (m.img_resid != 0 && m.img_bmp == null) {
+						m.img_bmp = Tool.decode_res_bitmap(m.img_resid, CurStateActivity.this, Constants.DECODE_MATERIAL_SAMPLE);
+					    Log.v("curstateactivity", "got material bmp = " + bmp);
+					}
+		        	map.put("icon", m.img_bmp);
+		        	map.put("name", "");
+		        	al.add(map);
+	        	}
+	        	
+	        	if (fuliao_ids.size() < 3 && tiaoliao_ids.isEmpty() && dish.tiaoliao_content_map.containsKey("盐"))
+        		{
+	        		pop_window_with += 600;
+		        	HashMap<String, Object> map = new HashMap<String, Object>();
+		        	Bitmap bmp = Tool.get_res_bitmap(R.drawable.salt);
+		        	map.put("icon", bmp);
+		        	map.put("name", "");
+		        	al.add(map);
+	        	}
+	        	
+	        	popWindow = new PopupWindow(popupView, pop_window_with, 500, true);
+	        	
+	        	SimpleAdapter sa= new SimpleAdapter(CurStateActivity.this, al, R.layout.reminder_image_text, 
+	        			new String[]{"icon","name"}, new int[]{R.id.ItemImage,R.id.ItemText});
+	        	sa.setViewBinder(new ViewBinder(){  
+	                @Override  
+	                public boolean setViewValue(View view, Object data, String textRepresentation) {  
+	                    if( (view instanceof ImageView) && (data instanceof Bitmap ) ) {  
+	                        ImageView iv = (ImageView) view;  
+	                        iv.setImageBitmap((Bitmap) data);
+	                        return true;  
+	                    } 
+	                    else if (view instanceof TextView) {
+	                    	((TextView)view).setTextColor(Color.WHITE);
+	                    }
+	                    return false;  
+	                }  
+	            });
+	        	reminder_grid.setAdapter(sa);
+	        	reminder_grid.setOnItemClickListener(new GridView.OnItemClickListener() {
+	                @Override
+	                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+	                	popWindow.dismiss();
+	                }
+	            });
+	        	
+	        	popWindow.setOutsideTouchable(true);
+	        	popWindow.setBackgroundDrawable(new BitmapDrawable());
+	        	popWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+	        		public void onDismiss() {
+	        			is_showing_reminder = false;
+	        		}
+	        	});
+	        	
+	        	has_show_reminder = true;
+	        	is_showing_reminder = true;
+	        	int h = -1 * getWindowManager().getDefaultDisplay().getHeight();
+	        	popWindow.showAtLocation(self_content_view, Gravity.RIGHT, 0, h);
+        	}
+        }
+        
+        if (state == Constants.STATE_FINISH/* && ds.working_state == Constants.MACHINE_WORK_STATE_COOKING*/) {
+        	if (!zhuliao_voice_done) {
+        		zhuliao_voice_done = true;
+	        	int voice_resid = R.raw.voice_cook_finish_chn;
+	        	player_fuliao = MediaPlayer.create(CurStateActivity.this, voice_resid);
+	    		player_fuliao.start();
+        	}
+        	
+        	if (wait_sec_after_finish % 2 == 0) {
+	        	Rect img_rect = new Rect();
+	        	img_rect.left   = (int) (230.0/Constants.UI_WIDTH * width);
+				img_rect.top    = (int) (160.0/Constants.UI_HEIGHT * height);
+				img_rect.right  = (int) (440.0/Constants.UI_WIDTH * width);
+				img_rect.bottom = (int) (244.0/Constants.UI_HEIGHT * height);
+		        
+		        canvas.drawBitmap(Tool.decode_res_bitmap(R.raw.cook_finish, CurStateActivity.this), null, img_rect, null);
         	}
         }
 
@@ -925,7 +1250,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         }
         
         // jiaoban stick animation
-        if (ds.jiaoban_speed > 1) {
+        if (ds.jiaoban_speed > 0) {
 	        Path path = new Path();
 	        int left = (int) (31.0/480 * width);
 	        int right = (int) (120.0/480 * width);
@@ -997,7 +1322,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 		        	wait_count = 8 - ds.jiaoban_speed;
 		        }
 	        }
-        } //if (ds.jiaoban_speed > 1)
+        } //if (ds.jiaoban_speed > 0)
 
         main.setImageBitmap(canvas_bmp);
 	}
@@ -1086,7 +1411,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 		//switch_ui_tv.setVisibility(visibility);
 		
 		minus.setVisibility(visibility);
-		bar.setVisibility(visibility);
+		//bar.setVisibility(visibility);
 		add.setVisibility(visibility);
 	}
 	
@@ -1121,5 +1446,147 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         super.onDestroy();  
         //if (canvas_bmp != null) canvas_bmp.recycle();
         Log.v("CurStateActivity", "onDestroy");  
+    }
+
+    //百度
+    private static final String LICENCE_FILE_NAME = Environment.getExternalStorageDirectory()
+            + "/tts/baidu_tts_licence.dat";
+    private SpeechSynthesizer speechSynthesizer;
+    
+    
+    public void init_tts(){
+/*   	
+        try {
+            System.loadLibrary("BDSpeechDecoder_V1");
+        } catch (UnsatisfiedLinkError e) {
+            SpeechLogger.logD("load BDSpeechDecoder_V1 failed, ignore");
+        }
+        System.loadLibrary("bd_etts");
+	    System.loadLibrary("bds");
+        
+        if (!new File(LICENCE_FILE_NAME).getParentFile().exists()) {
+            new File(LICENCE_FILE_NAME).getParentFile().mkdirs();
+        }
+        // 复制license到指定路径
+        InputStream licenseInputStream = getResources().openRawResource(R.raw.trial_license_20150527);
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(LICENCE_FILE_NAME);
+            byte[] buffer = new byte[1024];
+            int size = 0;
+            while ((size = licenseInputStream.read(buffer, 0, 1024)) >= 0) {
+                SpeechLogger.logD("size written: " + size);
+                fos.write(buffer, 0, size);
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            try {
+                licenseInputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        speechSynthesizer =
+                SpeechSynthesizer.newInstance(SpeechSynthesizer.SYNTHESIZER_AUTO, getApplicationContext(),
+                "holder", this);
+        // 请替换为开放平台上申请的apikey和secretkey
+        speechSynthesizer.setApiKey("LQAAkUZFqeQsSmY71reZZj3k", "258b3e1fb367c991d73179d40df74f9b");
+        // 设置授权文件路径
+        speechSynthesizer.setParam(SpeechSynthesizer.PARAM_TTS_LICENCE_FILE, LICENCE_FILE_NAME);
+        // TTS所需的资源文件，可以放在任意可读目录，可以任意改名
+        String ttsTextModelFilePath =
+                getApplicationContext().getApplicationInfo().dataDir + "/lib/libbd_etts_text.dat.so";
+        String ttsSpeechModelFilePath =
+                getApplicationContext().getApplicationInfo().dataDir + "/lib/libbd_etts_speech_female.dat.so";
+        speechSynthesizer.setParam(SpeechSynthesizer.PARAM_TTS_TEXT_MODEL_FILE, ttsTextModelFilePath);
+        speechSynthesizer.setParam(SpeechSynthesizer.PARAM_TTS_SPEECH_MODEL_FILE, ttsSpeechModelFilePath);
+        DataInfoUtils.verifyDataFile(ttsTextModelFilePath);
+        DataInfoUtils.getDataFileParam(ttsTextModelFilePath, DataInfoUtils.TTS_DATA_PARAM_DATE);
+        DataInfoUtils.getDataFileParam(ttsTextModelFilePath, DataInfoUtils.TTS_DATA_PARAM_SPEAKER);
+        DataInfoUtils.getDataFileParam(ttsTextModelFilePath, DataInfoUtils.TTS_DATA_PARAM_GENDER);
+        DataInfoUtils.getDataFileParam(ttsTextModelFilePath, DataInfoUtils.TTS_DATA_PARAM_CATEGORY);
+        DataInfoUtils.getDataFileParam(ttsTextModelFilePath, DataInfoUtils.TTS_DATA_PARAM_LANGUAGE);
+        speechSynthesizer.initEngine();
+        setVolumeControlStream(AudioManager.STREAM_MUSIC);
+*/
+    }
+    
+    // TTS 相关
+    
+    @Override
+    public void onStartWorking(SpeechSynthesizer arg0) {
+        logDebug("开始工作，请等待数据...");
+    }
+
+    @Override
+    public void onSpeechStart(SpeechSynthesizer synthesizer) {
+        logDebug("朗读开始");
+    }
+
+    @Override
+    public void onSpeechResume(SpeechSynthesizer synthesizer) {
+        logDebug("朗读继续");
+    }
+
+    @Override
+    public void onSpeechProgressChanged(SpeechSynthesizer synthesizer,
+            int progress) {
+        logDebug("onSpeechProgressChanged");
+    }
+
+    @Override
+    public void onSpeechPause(SpeechSynthesizer synthesizer) {
+        logDebug("朗读已暂停");
+    }
+
+    @Override
+    public void onSpeechFinish(SpeechSynthesizer synthesizer) {
+        logDebug("朗读已停止");
+    }
+
+    @Override
+    public void onNewDataArrive(SpeechSynthesizer synthesizer,
+            byte[] audioData, boolean isLastData) {
+        logDebug("新的音频数据：" + audioData.length + (isLastData ? ("end") : ""));
+    }
+
+    @Override
+    public void onError(SpeechSynthesizer synthesizer, SpeechError error) {
+    	logDebug("发生错误：" + error);
+    }
+
+    @Override
+    public void onCancel(SpeechSynthesizer synthesizer) {
+        logDebug("已取消");
+    }
+
+    @Override
+    public void onSynthesizeFinish(SpeechSynthesizer arg0) {
+        logDebug("合成已完成");
+    }
+
+    private void logDebug(String logMessage) {
+    	Log.v("CurStateActivity", logMessage);
+    }
+
+	@Override
+	public void onBufferProgressChanged(SpeechSynthesizer arg0, int arg1) {
+		logDebug("onBufferProgressChanged");
+	}
+	
+	private String errorCodeAndDescription(int errorCode) {
+        String errorDescription = "错误码：";
+        return errorDescription + "(" + errorCode + ")";
     }
 }

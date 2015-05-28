@@ -280,7 +280,6 @@ public class BuiltinDishes extends SlidingFragmentActivity {
         
 	    //单击GridView元素的响应  
 	    gridView.setOnItemClickListener(new OnItemClickListener() {  
-	  
 	        @Override  
 	        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {  
 	            //弹出单击的GridView元素的位置  

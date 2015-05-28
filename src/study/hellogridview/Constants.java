@@ -7,6 +7,8 @@ public final class Constants {
 	public static final int BBXC_SOCKET_TIMEOUT = 5000;
 	public static final String BUILTIN_CNAME = "机内菜谱";
 	public static final String SYSTEM_CNAME = "平台菜谱";
+	public static final String [] jiaoban_str = {"1不搅拌", "2特慢速", "3较慢速", "4中慢速", "5中快速", "6较快速", "7特快速", "8连续搅"};
+	
 	public static final int EARLIEST_ADD_ZHULIAO_TIME = 13; // 单位秒，加主料最早开始时间
 	
 	// connect related
@@ -35,6 +37,7 @@ public final class Constants {
 	public static final int STATE_ZHULIAO_TISHI_DONE = 3;
 	public static final int STATE_FULIAO = 4;
 	public static final int STATE_FULIAO_TISHI_DONE = 5;
+	public static final int STATE_FINISH = 6;
 	
 	// UI related
 	public static final int UI_WIDTH    = 480;

@@ -5,15 +5,14 @@
     android:background="#000000"
     android:paddingLeft="0dp"
     android:paddingTop="20dp"
-    tools:context="${relativePackage}.${activityClass}" >
+    tools:context=".CurStateActivity" >
 
     <ImageView
         android:id="@+id/main"
-        android:layout_width="465dp"
-        android:layout_height="272dp"
+        android:layout_width="520dp"
+        android:layout_height="300dp"
         android:layout_centerInParent="true"
-        android:layout_marginTop="18dp"
-        android:layout_weight="3.91"
+        
         android:scaleType="fitXY" />
 
     <!--  Button
@@ -26,55 +25,6 @@
         android:text="开始/暂停" />-->
 
     <ImageView
-        android:id="@+id/start_pause"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:layout_alignBottom="@+id/main"
-        android:layout_alignParentLeft="true"
-        android:layout_marginLeft="13.5dp"
-        android:layout_marginTop="15dp"
-        android:src="@drawable/start_pause" />
-
-    <TextView
-        android:id="@+id/add"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:layout_alignParentRight="true"
-        android:layout_alignTop="@+id/main"
-        android:layout_marginRight="8dp"
-        android:gravity="center"
-        android:text=""
-        android:textColor="#333333"
-        android:textSize="30sp"
-        android:background="@drawable/circle_add_128" />
-
-    <TextView
-        android:id="@+id/minus"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:layout_alignBottom="@+id/main"
-        android:layout_alignParentRight="true"
-        android:layout_marginRight="8dp"
-        android:gravity="center"
-        android:text=""
-        android:textColor="#333333"
-        android:textSize="30sp"
-        android:background="@drawable/circle_minus_128" />
-
-    <TextView
-        android:id="@+id/switch_ui_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/main"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="10dp"
-        android:layout_marginLeft="420dp"
-        android:gravity="center"
-        android:text="简洁"
-        android:textColor="#888888"
-        android:textSize="14sp" />
-
-    <ImageView
         android:id="@+id/back"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -84,46 +34,6 @@
         android:src="@drawable/back_32" 
         android:visibility="gone"
         />
-    
-    <TextView
-        android:id="@+id/back_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/main"
-        android:layout_alignParentBottom="true"
-        android:layout_marginLeft="10dp"
-        android:layout_marginBottom="10dp"
-        android:gravity="center"
-        android:text="返回"
-        android:textColor="#888888"
-        android:textSize="14sp" />
-
-    <TextView
-        android:id="@+id/temp"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/time"
-        android:layout_marginLeft="13.5dp"
-        android:layout_marginTop="10dp"
-        android:background="@drawable/circle_gray_128"
-        android:gravity="center"
-        android:text="温度"
-        android:textColor="#333333"
-        android:textSize="20sp" />
-
-    <TextView
-        android:id="@+id/time"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:layout_alignParentLeft="true"
-        android:layout_alignTop="@+id/main"
-        android:layout_marginLeft="13.5dp"
-        android:background="@drawable/circle_gray_128"
-        android:gravity="center"
-        android:text="时间"
-        android:textColor="#333333"
-        android:textSize="20sp" />
 
     <TextView
         android:id="@+id/jiaoban"
@@ -131,8 +41,8 @@
         android:layout_height="60dp"
         android:layout_below="@+id/temp"
         android:layout_alignParentLeft="true"
-        android:layout_marginLeft="13.5dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginLeft="0dp"
+        android:layout_marginTop="25dp"
         android:background="@drawable/circle_gray_128"
         android:gravity="center"
         android:text="搅拌"
@@ -149,6 +59,89 @@
         android:layout_marginRight="25dp"
         android:paddingLeft="5dp"
         android:paddingRight="5dp"
+        android:visibility="gone"
         android:paddingTop="10dp" />
+
+    <ImageView
+        android:id="@+id/start_pause"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_alignLeft="@+id/add"
+        android:layout_alignTop="@+id/jiaoban"
+        android:src="@drawable/start_pause" />
+
+    <TextView
+        android:id="@+id/minus"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/temp"
+        android:background="@drawable/circle_minus_128"
+        android:gravity="center"
+        android:textColor="#333333"
+        android:textSize="30sp" />
+
+    <TextView
+        android:id="@+id/switch_ui_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="14dp"
+        android:layout_marginBottom="20dp"
+        android:gravity="center"
+        android:text="简洁"
+        android:textColor="#888888"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/back_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="14dp"
+        android:layout_marginBottom="20dp"
+        android:gravity="center"
+        android:text="返回"
+        android:textColor="#888888"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/time"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignTop="@+id/main"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/circle_gray_128"
+        android:gravity="center"
+        android:text="时间"
+        android:textColor="#333333"
+        android:textSize="20sp" />
+
+    <TextView
+        android:id="@+id/add"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/time"
+        android:background="@drawable/circle_add_128"
+        android:gravity="center"
+        android:textColor="#333333"
+        android:textSize="30sp" />
+
+    <TextView
+        android:id="@+id/temp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/time"
+        android:layout_marginTop="25dp"
+        android:background="@drawable/circle_gray_128"
+        android:gravity="center"
+        android:text="温度"
+        android:textColor="#333333"
+        android:textSize="20sp" />
 
 </RelativeLayout>

@@ -1,7 +1,5 @@
 package study.hellogridview;
 
-import java.util.LinkedHashMap;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -32,8 +30,8 @@ public class SplashActivity extends Activity {
         super.onCreate(savedInstanceState);
         
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-		getWindow().setFlags(WindowManager.LayoutParams. FLAG_FULLSCREEN ,      
-                WindowManager.LayoutParams. FLAG_FULLSCREEN); 
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN ,      
+                WindowManager.LayoutParams.FLAG_FULLSCREEN); 
         setContentView(R.layout.splash);
         
         handler = new Handler() {    
@@ -112,8 +110,16 @@ public class SplashActivity extends Activity {
  
             @Override
             protected void onPostExecute(Integer result) {
-            	Intent intent = new Intent(SplashActivity.this, MainActivity.class);
-                startActivity(intent);
+            	if (MyPreference.is_first_launch(SplashActivity.this)) {
+            		//MyPreference.set_first_launch(SplashActivity.thHome
+            		
+            		Intent intent = new Intent(SplashActivity.this, GuideActivity.class);
+            		startActivity(intent);
+            	}
+            	else {
+            		Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+            		startActivity(intent);
+            	}
                 finish();
             };
         }.execute(new Void[]{});

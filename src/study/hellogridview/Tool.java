@@ -1,6 +1,5 @@
 package study.hellogridview;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -8,10 +7,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
@@ -26,10 +23,7 @@ import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
-import android.graphics.BitmapFactory.Options;
 import android.graphics.Matrix;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.NetworkInfo.State;
@@ -484,6 +478,8 @@ public class Tool {
 						Log.e("tool", "dish(" + d.dishid + ") material info error,");
 					}
 					
+					if (element.has("type")) m.type = element.getString("type");
+					
 					// done in MakeDishActivity::fill_material_table
 //					Bitmap bmp = BitmapFactory.decodeFile(m.path);
 //	        		bmp.setDensity(dm.densityDpi);
@@ -598,6 +594,10 @@ public class Tool {
 		// ±≥æ∞Õº∆¨
 		image_res_mgr.put(R.drawable.bkg_darker, decode_res_bitmap(R.drawable.bkg_darker, context, Constants.DECODE_MATERIAL_SAMPLE));
 		image_res_mgr.put(R.drawable.bkg, decode_res_bitmap(R.drawable.bkg, context, Constants.DECODE_MATERIAL_SAMPLE));
+		
+		// —Œ, ”Õ
+		image_res_mgr.put(R.drawable.salt, Tool.decode_res_bitmap(R.drawable.salt, context, Constants.DECODE_MATERIAL_SAMPLE));
+		image_res_mgr.put(R.drawable.material_oil, Tool.decode_res_bitmap(R.drawable.material_oil, context, Constants.DECODE_MATERIAL_SAMPLE));
 
 	}
 	
@@ -622,6 +622,7 @@ public class Tool {
 		    options.inInputShareable = true;
 		    options.inSampleSize = sample;
 		    Bitmap bmp = BitmapFactory.decodeStream(is, null, options);
+		    if (bmp == null) Log.v("tool", "bmp is null!");
 		    bmp.setDensity(Tool.getInstance().dm.densityDpi/sample);
 			image_res_mgr.put(resid, bmp);
 		}
@@ -672,7 +673,7 @@ public class Tool {
 		int minites = total_seconds/60;
 		int seconds = total_seconds - minites * 60;
 		String separator = seconds < 10 ? ":0" : ":";
-		String minites_prefix =  minites < 10 ? "0" : "";
+		//String minites_prefix =  minites < 10 ? "0" : "";
 		return minites + separator + seconds + "°Â";
 	}
 	

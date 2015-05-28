@@ -13,6 +13,7 @@ public class MyPreference {
     private static final String KEY_INFO_NICKNAME = "info_nickname";
     private static final String KEY_INFO_ADDRESS = "info_address";
     private static final String KEY_INFO_PHONE = "info_phone";
+    private static final String KEY_IS_FIRST_LAUNCH = "bbxc_is_first_launch";
     
     /**
      * 判断activity是否引导过
@@ -86,6 +87,24 @@ public class MyPreference {
             .putString(KEY_INFO_NICKNAME, Account.info_nickname)
             .putString(KEY_INFO_ADDRESS, Account.info_address)
             .putString(KEY_INFO_PHONE, Account.info_phone)
+            .commit();
+    	}
+    }
+    
+    public static boolean is_first_launch(Context context) {
+    	if(context != null) {
+    		String res = context.getSharedPreferences(SHAREDPREFERENCES_NAME, Context.MODE_WORLD_READABLE)
+                    .getString(KEY_IS_FIRST_LAUNCH, "");
+    		return !res.equalsIgnoreCase("false");
+    	}
+    	return true;
+    }
+    
+    public static void set_first_launch(Context context) {
+    	if(context != null) {
+    		context.getSharedPreferences(SHAREDPREFERENCES_NAME, Context.MODE_WORLD_READABLE)//保存修改后的值
+            .edit()
+            .putString(KEY_IS_FIRST_LAUNCH, "false")
             .commit();
     	}
     }

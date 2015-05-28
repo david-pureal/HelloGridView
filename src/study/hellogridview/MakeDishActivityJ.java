@@ -1167,17 +1167,17 @@ public class MakeDishActivityJ extends Activity implements OnTouchListener {
 		 for (int i = 0; i < list.size(); ++i) {
 			 Material m = list.get(i);
 			 Log.v("MakeDishActivityJ", "list = " + list + "m = " + m);
-			 if (m.path != null && !m.path.isEmpty() && m.img_drawable == null) {
-				 Bitmap bmp = Tool.decode_path_bitmap(new_dish.getDishDirName() + m.path, Constants.DECODE_MATERIAL_SAMPLE);
-        		 m.img_drawable = new BitmapDrawable(this.getResources(), bmp);
+			 if (m.path != null && !m.path.isEmpty() && m.img_bmp == null) {
+				 m.img_bmp = Tool.decode_path_bitmap(new_dish.getDishDirName() + m.path, Constants.DECODE_MATERIAL_SAMPLE);
+        		 //m.img_drawable = new BitmapDrawable(this.getResources(), bmp);
 			 }
-			 else if (m.img_resid != 0 && m.img_drawable == null) {
+			 else if (m.img_resid != 0 && m.img_bmp == null) {
 				 //Bitmap bmp = Tool.decode_res_bitmap(m.img_resid, MakeDishActivityJ.this);
-			     Bitmap bmp = Tool.decode_res_bitmap(m.img_resid, MakeDishActivityJ.this, Constants.DECODE_MATERIAL_SAMPLE);
-        		 m.img_drawable = new BitmapDrawable(this.getResources(), bmp);
+				 m.img_bmp = Tool.decode_res_bitmap(m.img_resid, MakeDishActivityJ.this, Constants.DECODE_MATERIAL_SAMPLE);
+        		 //m.img_drawable = new BitmapDrawable(this.getResources(), bmp);
 			 }
-			 add_material_row(tableLayout, m.description, m.img_drawable, i);
-			 Log.v("MakeDishActivityJ", "add_material : " + m.description + ", " + m.img_drawable);
+			 add_material_row(tableLayout, m, i);
+			 Log.v("MakeDishActivityJ", "add_material : " + m.description + ", " + m.img_bmp);
 		 }
 	 }
 	 
@@ -1222,19 +1222,20 @@ public class MakeDishActivityJ extends Activity implements OnTouchListener {
          tableLayout.addView(tableRow, tableLayout.getChildCount());
 	 }
 	 
-	 protected void add_material_row(TableLayout tableLayout, String key, Object value, int index) {
+	 protected void add_material_row(TableLayout tableLayout, Material m, int index) {
 		 TextView textView = new TextView(tableLayout.getContext());  
 		 TableLayout.LayoutParams tlp = new TableLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		 tlp.setMargins(5, 50, 150, 0);
 		 textView.setLayoutParams(tlp);
-		 Drawable image = (Drawable) value;
+		 BitmapDrawable image = new BitmapDrawable(this.getResources(), m.img_bmp);
 		 textView.setCompoundDrawablesWithIntrinsicBounds(null, null, image, null);
 		 //textView.setCompoundDrawablePadding(-100);
 		 textView.setId(index);
 		 index = Math.min(index, Tool.material_index.length - 1);
-         textView.setText(Tool.material_index[index]);
-         textView.setTextSize(17);
-         textView.setTextColor(Color.rgb(85, 85, 85));
+         //textView.setText(Tool.material_index[index])
+		 textView.setText(m.type);
+         textView.setTextSize(12);
+         textView.setTextColor(Color.rgb(0, 0, 0));
          if (editable) textView.setOnClickListener(new OnClickListener() {  
              @Override  
              public void onClick(View v) {  
@@ -1251,7 +1252,7 @@ public class MakeDishActivityJ extends Activity implements OnTouchListener {
          TableLayout.LayoutParams tlp2 = new TableLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		 tlp2.setMargins(150, 5, 50, 0);
 		 textView2.setLayoutParams(tlp2);
-         textView2.setText(key);
+         textView2.setText(m.description);
          textView2.setTextSize(20);
          textView2.setTextColor(Color.rgb(85, 85, 85));
          //textView2.setLayoutParams(lp2);

@@ -1,28 +1,27 @@
 package study.hellogridview;
 
 import java.io.File;
-import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.Arrays;
 
 import study.hellogridview.Dish.Material;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,7 +37,10 @@ public class ImageEditActivity extends Activity {
 	String key;
 	TextView material_delete;
 	
-	@SuppressWarnings("deprecation")
+	Bitmap img;
+	String img_path;
+	TextView edit_content;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -71,8 +73,7 @@ public class ImageEditActivity extends Activity {
 		cancel.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) {  
-                //startActivity(new Intent(BuiltinDishes.this, InputDishNameActivity.class));  
-                finish();//关闭当前Activity  
+                finish(); 
             }  
         });
 		
@@ -88,8 +89,12 @@ public class ImageEditActivity extends Activity {
             		}
             	}
             	else if (ImageEditActivity.this.edit_title.getText().toString().equals("备料图文")) {
-            		if (img_drawable == null) {
+            		if (img == null) {
             			Toast.makeText(ImageEditActivity.this, "请选择图片", Toast.LENGTH_SHORT).show();
+            			return;
+            		}
+            		if (mtype.equals(all_materail_types[0])) {
+            			Toast.makeText(ImageEditActivity.this, "请选择图文类型", Toast.LENGTH_SHORT).show();
             			return;
             		}
             		
@@ -97,11 +102,23 @@ public class ImageEditActivity extends Activity {
             		
             		if (m == null) {
             			m = dish.new Material();
-            			material_list.add(m);
+            			
+            			boolean has_insert = false;
+            			int my_index = Arrays.asList(all_materail_types).indexOf(mtype);
+            			for (int i = 0; i < material_list.size(); ++i) {
+            				int i_index = Arrays.asList(all_materail_types).indexOf(material_list.get(i).type);
+            				if (i_index > my_index) {
+            					material_list.add(i, m);
+            					has_insert = true;
+            					break;
+            				}
+            			}
+            			if (!has_insert) material_list.add(m);
             		}
             		m.description = str_content;
-            		m.img_drawable = img_drawable;
+            		m.img_bmp = img;
             		m.path = img_path;
+            		m.type = mtype;
             		
             		Log.v("ImageEditActivity", "save done, material_list.size() = " + material_list.size());
             	}
@@ -131,9 +148,10 @@ public class ImageEditActivity extends Activity {
 		add_material_img = (ImageView) findViewById(R.id.add_material_img);
 		add_material_img.setImageResource(R.drawable.camera);
 		
-		if (key != null) {
-			add_material_img.setImageDrawable(m.img_drawable);
-			img_drawable = m.img_drawable;
+		if (m != null) {
+			BitmapDrawable bd = new BitmapDrawable(this.getResources(), m.img_bmp);
+			add_material_img.setImageDrawable(bd);
+			img = m.img_bmp;
 		}
 		
 //		Bitmap bm = BitmapFactory.decodeResource(this.getResources(), R.drawable.camera_760_548);
@@ -146,6 +164,8 @@ public class ImageEditActivity extends Activity {
             	ImageEditActivity.this.chooseDishImage(); 
             }  
         });
+		
+		init_spinner();
 	}
 	
 	File tempFile;
@@ -168,26 +188,61 @@ public class ImageEditActivity extends Activity {
         Intent wrapperIntent = Intent.createChooser(innerIntent, "先择图片"); //开始 并设置标题  
         startActivityForResult(wrapperIntent, 1); // 设返回 码为 1  onActivityResult 中的 requestCode 对应 
     }
-	 
-	 //调用成功反回方法  
-	 @Override  
-     protected void onActivityResult(int requestCode, int resultCode, Intent data) {  
+	
+	//调用成功反回方法  
+	@Override  
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {  
          super.onActivityResult(requestCode, resultCode, data);  
          Log.v("ImageEditActivity", "requestCode = " + requestCode + "resultCode =" + resultCode);
          switch (requestCode) {  
          case 1:  
         	 //makedish_img.setImageDrawable();
         	 if (resultCode == -1) {
-        		 Bitmap bmp = Tool.decode_path_bitmap(tempFile.getAbsolutePath(), Constants.DECODE_MATERIAL_SAMPLE);
-        		 img_drawable = new BitmapDrawable(this.getResources(), bmp);
-        		 add_material_img.setImageDrawable(img_drawable);
+        		 img = Tool.decode_path_bitmap(tempFile.getAbsolutePath(), Constants.DECODE_MATERIAL_SAMPLE);
+        		 add_material_img.setImageDrawable(new BitmapDrawable(this.getResources(), img));
         	 }
              break;  
 	     }
      }
 	 
-	 BitmapDrawable img_drawable;
-	 String img_path;
-	 TextView edit_content;
+	Spinner spinner;
+	private ArrayAdapter<String> adapter;
+	private static final String[] all_materail_types = {"请选择备料图文类别", "炝锅料","主料","辅料","调料"};
+	String mtype = "";
+	
+	void init_spinner() {
+		spinner = (Spinner) findViewById(R.id.type_spinner);
+        //将可选内容与ArrayAdapter连接起来
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, all_materail_types);
+         
+        //设置下拉列表的风格
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+         
+        //将adapter 添加到spinner中
+        spinner.setAdapter(adapter);
+         
+        //添加事件Spinner事件监听  
+        spinner.setOnItemSelectedListener(new SpinnerSelectedListener());
+        
+        if (m != null) {
+        	int i = Arrays.asList(all_materail_types).indexOf(m.type);
+        	mtype = m.type;
+        	spinner.setSelection(i, true);
+        }
+	}
+	//使用数组形式操作
+    class SpinnerSelectedListener implements OnItemSelectedListener{
+ 
+        public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+        	Log.v("imageEdit", "onItemSelected arg2 = " + arg2);
+        	mtype = all_materail_types[arg2];
+        }
+ 
+        public void onNothingSelected(AdapterView<?> arg0) {
+        	Log.v("imageEdit", "onNothingSelected");
+        }
+
+    }
+	 
 }
 

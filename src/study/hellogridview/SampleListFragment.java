@@ -3,7 +3,6 @@ package study.hellogridview;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
