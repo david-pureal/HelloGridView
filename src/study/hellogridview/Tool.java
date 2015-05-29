@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Properties;
@@ -52,6 +53,8 @@ public class Tool {
 	public static String [] material_index = {"①", "②", "③", "④", "⑤", "⑥", "⑦", "⑧", "⑨", "⑩"};
 
 	public static HashMap<Integer, Bitmap> image_res_mgr = new HashMap<Integer, Bitmap>(); //一些可以公用的图片资源，比如提示语，启动时加载
+	
+	public static ArrayList<Bitmap> guide_image = new ArrayList<Bitmap>(); //首次启动时，操作引导页所需图片
 	
 	public String makeTinyImage(Dish dish/*BitmapDrawable input, short dishid*/) {
 		Bitmap src_bmp = dish.img_bmp;
@@ -638,6 +641,37 @@ public class Tool {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	public static Bitmap decode_res_bitmap2(int resid, Context context, int sample) {
+		InputStream is = context.getResources().openRawResource(resid);
+		BitmapFactory.Options options=new BitmapFactory.Options(); 
+	    options.inJustDecodeBounds = false; 
+	    options.inPreferredConfig = Bitmap.Config.RGB_565; 
+	    options.inPurgeable = true; 
+	    options.inSampleSize = sample;
+	    Bitmap bmp = BitmapFactory.decodeStream(is, null, options);
+	    if (bmp == null) Log.v("tool", "bmp is null!");
+	    return bmp;
+	}
+	
+	public static void load_guide_img(Context context) {
+		int sample = 1;//Constants.DECODE_MATERIAL_SAMPLE;
+		guide_image.add(decode_res_bitmap2(R.drawable.viewpager1, context, sample));
+		guide_image.add(decode_res_bitmap2(R.drawable.viewpager2, context, sample));
+		guide_image.add(decode_res_bitmap2(R.drawable.viewpager3, context, sample));
+		guide_image.add(decode_res_bitmap2(R.drawable.viewpager4, context, sample));
+		guide_image.add(decode_res_bitmap2(R.drawable.viewpager5, context, sample));
+		guide_image.add(decode_res_bitmap2(R.drawable.viewpager6, context, sample));
+		guide_image.add(decode_res_bitmap2(R.drawable.viewpager7, context, sample));
+		guide_image.add(decode_res_bitmap2(R.drawable.viewpager8, context, sample));
+	}
+	
+	public static void unload_guide_img(Context context) {
+		for (int i = 0; i < guide_image.size(); ++i) {
+			guide_image.get(i).recycle();
+		}
+		guide_image.clear();
 	}
 	
 	@SuppressWarnings("resource")

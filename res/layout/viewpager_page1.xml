@@ -21,11 +21,12 @@
         android:textSize="20sp" />
     
     <ImageView
+        android:id="@+id/image"
         android:layout_width="match_parent"
         android:layout_height="300dp"
         android:layout_centerInParent="true"
         android:layout_marginTop="30dp"
         android:scaleType="fitXY"
-        android:src="@drawable/viewpager1" />
+         />
   
 </LinearLayout>

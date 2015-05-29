@@ -381,7 +381,7 @@ public class Dish implements Cloneable {
 			dish4.dishid = 5;
 			dish4.intro = "葱香浓郁，羊肉鲜嫩，营养价值高，有壮阳健肾、补虚养身的功效。";
 			
-			dish4.zhuliao_content_map.put("薄羊肉片", "130克");
+			dish4.zhuliao_content_map.put("羊肉片", "130克");
 			dish4.fuliao_content_map.put("大葱段", "150克");
 			dish4.fuliao_content_map.put("红萝卜丝", "30克");
 			dish4.fuliao_content_map.put("木耳片", "20克");
@@ -976,7 +976,7 @@ public class Dish implements Cloneable {
 				dish.zhuliao_content_map.put("鸡脯肉", "150克");
 				dish.zhuliao_content_map.put("胡萝卜", "50克");
 				dish.fuliao_content_map.put("黄瓜",  "150克");
-				dish.fuliao_content_map.put("油炸花生米(熟)",  "50克");
+				dish.fuliao_content_map.put("油炸花生米",  "50克");
 				dish.prepare_material_detail.add(dish.new Material(R.drawable.gongbaojiding_1, "炝锅料：姜、蒜、葱、干辣椒、花椒", "炝锅料"));
 				dish.prepare_material_detail.add(dish.new Material(R.drawable.gongbaojiding_2, "鸡肉脯切丁，用料酒、生抽、盐、白胡椒、油、生粉腌制10分钟", "主料"));
 				dish.prepare_material_detail.add(dish.new Material(R.drawable.gongbaojiding_3, "红萝卜切丁", "主料"));
@@ -1145,6 +1145,7 @@ public class Dish implements Cloneable {
 	}
 	
 	public void get_pre_material(String type_name, ArrayList<Integer> ids) {
+		ids.clear();
 		for (int i = 0; i < this.prepare_material_detail.size(); ++i) {
 			if (prepare_material_detail.get(i).type.equals(type_name)) ids.add(i);
 		}

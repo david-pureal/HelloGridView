@@ -197,6 +197,11 @@ public class TCPClient {
 		}
 	}
 	
+	// 是否通过AP模式连接机器
+	public boolean is_conn_ap() {
+		return clientThread!=null && clientThread.current_ip.equals(Constants.AP_IP);
+	}
+	
 	public void set_mainact(MainActivity main) {
 		this.main_activity = main;
 	}

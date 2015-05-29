@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import study.hellogridview.Dish.Material;
 import android.app.Activity;
@@ -43,11 +44,11 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.SimpleAdapter.ViewBinder;
 import android.widget.TextView;
 
-import com.baidu.speechsynthesizer.SpeechSynthesizer;
-import com.baidu.speechsynthesizer.SpeechSynthesizerListener;
-import com.baidu.speechsynthesizer.publicutility.SpeechError;
+//import com.baidu.speechsynthesizer.SpeechSynthesizer;
+//import com.baidu.speechsynthesizer.SpeechSynthesizerListener;
+//import com.baidu.speechsynthesizer.publicutility.SpeechError;
 
-public class CurStateActivity extends Activity implements OnSeekBarChangeListener, SpeechSynthesizerListener {
+public class CurStateActivity extends Activity implements OnSeekBarChangeListener/*, SpeechSynthesizerListener*/ {
 	public int total_time = 260;
 	public byte temp = (byte) 180;
 	public byte jiaoban_speed = 1;
@@ -492,7 +493,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 		ds.zhuliao_time_set = dish.zhuliao_time;
 		ds.fuliao_time_set = dish.fuliao_time;
 		
-		init_tts();
+		//init_tts();
 		
         draw_temp_baselin(); 
 		
@@ -834,14 +835,22 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         	if (!zhuliao_voice_done) {
         		zhuliao_voice_done = true;
         		
-        		int voice_resid = R.raw.voice_add_oil_qgl_chn;
-        		if (dish.qiangguoliao == 0) voice_resid = R.raw.voice_add_oil_chn;
-	        	player_oil = MediaPlayer.create(this, voice_resid);
-	        	player_oil.start();
-        		
-//        		int ret = speechSynthesizer.speak("请加油，姜，蒜和干辣椒");
-//                if (ret != 0) logDebug("开始合成器失败：" + errorCodeAndDescription(ret));
-//                else logDebug("开始工作，请等待数据...");
+        		if (tcpclient.is_conn_ap()) {
+	        		int voice_resid = R.raw.voice_add_oil_qgl_chn;
+	        		if (dish.qiangguoliao == 0) voice_resid = R.raw.voice_add_oil_chn;
+		        	player_oil = MediaPlayer.create(this, voice_resid);
+		        	player_oil.start();
+        		}
+        		else {
+        			String speak_text = "请加油、";
+        			Set<String> set = dish.qiangguoliao_content_map.keySet();
+				    for (String s:set) {  
+				    	speak_text += s + "、"; 
+				    	if (speak_text.length() > 20) break;
+				    }  
+				    if (speak_text.length() > 20) speak_text += "等";
+        			MainActivity.speak(speak_text);
+        		}
         	}
         	
         	boolean need_draw_reminder = false;
@@ -975,9 +984,26 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
     		
         	if (!zhuliao_voice_done) {
         		zhuliao_voice_done = true;
-        		player_zhuliao = MediaPlayer.create(CurStateActivity.this, voice_resid);
-        		//player.stop();
-        		player_zhuliao.start();
+        		
+        		
+        		if (tcpclient.is_conn_ap()) {
+        			player_zhuliao = MediaPlayer.create(CurStateActivity.this, voice_resid);
+            		player_zhuliao.start();
+        		}
+        		else {
+        			String speak_text = "请加";
+        			Set<String> set = dish.zhuliao_content_map.keySet();
+				    for (String s:set) {  
+				    	speak_text += s + "、"; 
+				    	if (speak_text.length() > 20) break;
+				    }  
+				    if (dish.water == 1) speak_text += "，再加水，";
+				    if (dish.fuliao_time == 0) {
+				    	speak_text += "调料";
+				    	speak_text += "。加好后可以去玩，菜熟了通知您啦";
+				    }
+        			MainActivity.speak(speak_text);
+        		}
         	}
         	
         	boolean need_draw_reminder = false;
@@ -1093,8 +1119,22 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	        
         	if (!zhuliao_voice_done) {
         		zhuliao_voice_done = true;
-        		player_fuliao = MediaPlayer.create(CurStateActivity.this, voice_resid);
-        		player_fuliao.start();
+        		
+        		if (tcpclient.is_conn_ap()) {
+        			player_fuliao = MediaPlayer.create(CurStateActivity.this, voice_resid);
+            		player_fuliao.start();
+        		}
+        		else {
+        			String speak_text = "请加";
+        			Set<String> set = dish.fuliao_content_map.keySet();
+				    for (String s:set) {  
+				    	speak_text += s + "、"; 
+				    	if (speak_text.length() > 20) break;
+				    }  
+				    speak_text += "，再加" + (dish.water==2 ? "水，调料" : "调料");
+				    speak_text += "。加好后可以去玩，菜熟了通知您啦";
+        			MainActivity.speak(speak_text);
+        		}
         	}
         	
         	if (need_draw_reminder) {
@@ -1449,13 +1489,13 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
     }
 
     //百度
-    private static final String LICENCE_FILE_NAME = Environment.getExternalStorageDirectory()
-            + "/tts/baidu_tts_licence.dat";
-    private SpeechSynthesizer speechSynthesizer;
-    
+//    private static final String LICENCE_FILE_NAME = Environment.getExternalStorageDirectory()
+//            + "/tts/baidu_tts_licence.dat";
+//    private SpeechSynthesizer speechSynthesizer;
+    /*    
     
     public void init_tts(){
-/*   	
+   	
         try {
             System.loadLibrary("BDSpeechDecoder_V1");
         } catch (UnsatisfiedLinkError e) {
@@ -1519,7 +1559,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         DataInfoUtils.getDataFileParam(ttsTextModelFilePath, DataInfoUtils.TTS_DATA_PARAM_LANGUAGE);
         speechSynthesizer.initEngine();
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
-*/
+
     }
     
     // TTS 相关
@@ -1589,4 +1629,5 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         String errorDescription = "错误码：";
         return errorDescription + "(" + errorCode + ")";
     }
+    */
 }

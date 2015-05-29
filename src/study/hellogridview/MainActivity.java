@@ -9,6 +9,13 @@ import java.util.TimerTask;
 
 import cn.sharesdk.framework.ShareSDK;
 
+import com.iflytek.cloud.ErrorCode;
+import com.iflytek.cloud.InitListener;
+import com.iflytek.cloud.SpeechConstant;
+import com.iflytek.cloud.SpeechError;
+import com.iflytek.cloud.SpeechSynthesizer;
+import com.iflytek.cloud.SpeechUtility;
+import com.iflytek.cloud.SynthesizerListener;
 import com.jeremyfeinstein.slidingmenu.lib.app.SlidingFragmentActivity;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 
@@ -17,6 +24,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.Settings;
@@ -157,6 +165,9 @@ public class MainActivity extends SlidingFragmentActivity {
         };
 		
         gridView2 = (GridView)findViewById(R.id.gridview2);
+        
+        // TODO 讯飞语音合成
+        init_tts();
 	    
 	}// onCreate
 	
@@ -386,5 +397,118 @@ public class MainActivity extends SlidingFragmentActivity {
     protected void setGuideResId(int resId){
         this.guideResourceId=resId;
     }
+    
+    public static SpeechSynthesizer mTts;
+
+	// 默认发音人
+	private String voicer="xiaoyan";
+	// 引擎类型
+	private String mEngineType = SpeechConstant.TYPE_CLOUD;
+	// 缓冲进度
+	private int mPercentForBuffering = 0;
+	// 播放进度
+	private int mPercentForPlaying = 0;
  
+    public void init_tts() {
+    	SpeechUtility.createUtility(this, SpeechConstant.APPID +"=55654fe9");
+        //1.创建 SpeechSynthesizer 对象, 第二个参数:本地合成时传 InitListener
+        //2.合成参数设置,详见《科大讯飞MSC API手册(Android)》SpeechSynthesizer 类
+        //设置发音人(更多在线发音人,用户可参见 附录12.2
+    	// 初始化合成对象
+    	mTts = SpeechSynthesizer.createSynthesizer(this, mTtsInitListener); 
+       
+    }
+    
+    /**
+	 * 初始化监听。
+	 */
+	private InitListener mTtsInitListener = new InitListener() {
+		@Override
+		public void onInit(int code) {
+			Log.d("main", "InitListener init() code = " + code);
+			if (code != ErrorCode.SUCCESS) {
+        		Log.d("main", "初始化失败,错误码 code = " + code);
+        	} else {
+        		Log.d("main", "初始化成功 code = " + code);
+        		setParam();
+        		//mTts.startSpeaking("科大讯飞,让世界聆听我们的声音", mTtsListener);
+        		//mTts.startSpeaking("请加黄瓜、油炸花生米、再加水，调料。料已加完，可以休息了", mTtsListener);
+        		
+				// 初始化成功，之后可以调用startSpeaking方法
+        		// 注：有的开发者在onCreate方法中创建完合成对象之后马上就调用startSpeaking进行合成，
+        		// 正确的做法是将onCreate中的startSpeaking调用移至这里
+			}		
+		}
+	};
+	
+	public static void speak(String data) {
+		mTts.startSpeaking(data, null);
+	}
+	
+	/**
+	 * 合成回调监听。
+	 */
+	private SynthesizerListener mTtsListener = new SynthesizerListener() {
+		@Override
+		public void onSpeakBegin() {
+		}
+
+		@Override
+		public void onSpeakPaused() {
+		}
+
+		@Override
+		public void onSpeakResumed() {
+		}
+
+		@Override
+		public void onBufferProgress(int percent, int beginPos, int endPos,
+				String info) {
+			// 合成进度
+			mPercentForBuffering = percent;
+		}
+
+		@Override
+		public void onSpeakProgress(int percent, int beginPos, int endPos) {
+			// 播放进度
+			mPercentForPlaying = percent;
+		}
+
+		@Override
+		public void onCompleted(SpeechError error) {
+		}
+
+		@Override
+		public void onEvent(int eventType, int arg1, int arg2, Bundle obj) {
+		}
+	};
+    
+    private void setParam(){
+		// 清空参数
+		mTts.setParameter(SpeechConstant.PARAMS, null);
+		// 根据合成引擎设置相应参数
+		if(mEngineType.equals(SpeechConstant.TYPE_CLOUD)) {
+			mTts.setParameter(SpeechConstant.ENGINE_TYPE, SpeechConstant.TYPE_CLOUD);
+			// 设置在线合成发音人
+			mTts.setParameter(SpeechConstant.VOICE_NAME,voicer);
+		}else {
+			mTts.setParameter(SpeechConstant.ENGINE_TYPE, SpeechConstant.TYPE_LOCAL);
+			// 设置本地合成发音人 voicer为空，默认通过语音+界面指定发音人。
+			mTts.setParameter(SpeechConstant.VOICE_NAME,"");
+		}
+		//设置合成语速
+		mTts.setParameter(SpeechConstant.SPEED, "50");
+		//设置合成音调
+		mTts.setParameter(SpeechConstant.PITCH, "50");
+		//设置合成音量
+		mTts.setParameter(SpeechConstant.VOLUME, "50");
+		//设置播放器音频流类型
+		mTts.setParameter(SpeechConstant.STREAM_TYPE, "3");
+		
+		// 设置播放合成音频打断音乐播放，默认为true
+		mTts.setParameter(SpeechConstant.KEY_REQUEST_FOCUS, "true");
+		
+		// 设置合成音频保存路径，设置路径为sd卡请注意WRITE_EXTERNAL_STORAGE权限
+		mTts.setParameter(SpeechConstant.PARAMS,"tts_audio_path="+Environment.getExternalStorageDirectory()+"/test.pcm");
+	}
 }

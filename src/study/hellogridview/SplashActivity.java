@@ -70,6 +70,8 @@ public class SplashActivity extends Activity {
                 Tool.preload_common_res(SplashActivity.this); // 加载常用图片
                 MyPreference.get_info(SplashActivity.this);   // 读取用户信息
                 
+                Tool.load_guide_img(SplashActivity.this);
+                
                 long loadingTime = System.currentTimeMillis() - startTime;
                 if (loadingTime < 3000) {
                     try {

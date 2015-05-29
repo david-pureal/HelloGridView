@@ -283,7 +283,7 @@ public class MakeDishActivityJ extends Activity implements OnTouchListener {
             		Toast.makeText(MakeDishActivityJ.this, "请先连接机器", Toast.LENGTH_SHORT).show();
             		return;
             	}
-            	if (DeviceState.getInstance().working_state == Constants.MACHINE_WORK_STATE_COOKING) {
+            	if (DeviceState.getInstance().working_state != Constants.MACHINE_WORK_STATE_STOP) {
             		Toast.makeText(MakeDishActivityJ.this, "已经在炒菜了", Toast.LENGTH_SHORT).show();
             		return;
             	}
@@ -291,7 +291,7 @@ public class MakeDishActivityJ extends Activity implements OnTouchListener {
                 try {
                     Message msg = new Message();  
                     msg.what = 0x345;  
-                    Package data = new Package(Package.Send_Dish, MakeDishActivityJ.this.new_dish);
+                    Package data = new Package(Package.Send_Dish, new_dish);
                     msg.obj = data.getBytes();
                     tcpClient.sendMsg(msg); 
                     
@@ -646,7 +646,7 @@ public class MakeDishActivityJ extends Activity implements OnTouchListener {
 	                    image_package_count = data.get_img_pkg_count();
 	                	progressBar1.setProgress(0);
 	                	progressBar1.setMax(image_package_count - 1); //从0开始的
-	                    MakeDishActivityJ.this.resp_cmd108_count = 0;
+	                    resp_cmd108_count = 0;
 	                    progressBar1.setProgress(0);
 	                    progressBar1.setVisibility(View.VISIBLE);
 	                    
@@ -1169,12 +1169,9 @@ public class MakeDishActivityJ extends Activity implements OnTouchListener {
 			 Log.v("MakeDishActivityJ", "list = " + list + "m = " + m);
 			 if (m.path != null && !m.path.isEmpty() && m.img_bmp == null) {
 				 m.img_bmp = Tool.decode_path_bitmap(new_dish.getDishDirName() + m.path, Constants.DECODE_MATERIAL_SAMPLE);
-        		 //m.img_drawable = new BitmapDrawable(this.getResources(), bmp);
 			 }
 			 else if (m.img_resid != 0 && m.img_bmp == null) {
-				 //Bitmap bmp = Tool.decode_res_bitmap(m.img_resid, MakeDishActivityJ.this);
 				 m.img_bmp = Tool.decode_res_bitmap(m.img_resid, MakeDishActivityJ.this, Constants.DECODE_MATERIAL_SAMPLE);
-        		 //m.img_drawable = new BitmapDrawable(this.getResources(), bmp);
 			 }
 			 add_material_row(tableLayout, m, i);
 			 Log.v("MakeDishActivityJ", "add_material : " + m.description + ", " + m.img_bmp);

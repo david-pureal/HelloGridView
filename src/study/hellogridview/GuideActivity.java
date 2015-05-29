@@ -9,6 +9,7 @@ import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +17,7 @@ import android.view.Window;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
   
 public class GuideActivity extends Activity {
@@ -67,8 +69,11 @@ public class GuideActivity extends Activity {
         for(int i=0;i<pageViews.size();i++){
             imageView = new ImageView(GuideActivity.this);
             //设置小圆点imageview的参数
-            imageView.setLayoutParams(new LayoutParams(20,20));//创建一个宽高均为20 的布局
-            imageView.setPadding(20, 0, 20, 0);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(30, 30);
+            lp.bottomMargin = 40;
+            lp.leftMargin = 10;
+            imageView.setLayoutParams(lp);//创建一个宽高均为20 的布局
+            imageView.setPadding(20, 0, 20, 10);
             //将小圆点layout添加到数组中
             imageViews[i] = imageView;
               
@@ -94,12 +99,15 @@ public class GuideActivity extends Activity {
     private Button.OnClickListener  Button_OnClickListener = new Button.OnClickListener() {
         public void onClick(View v) {
             //跳转
+        	Tool.unload_guide_img(GuideActivity.this);
             Intent mIntent = new Intent();
             mIntent.setClass(GuideActivity.this, MainActivity.class);
             GuideActivity.this.startActivity(mIntent);
             GuideActivity.this.finish();
         }
     }; 
+    
+    int  is_set_bitmap = 0;
       
     class GuidePageAdapter extends PagerAdapter{
         //销毁position位置的界面
@@ -121,7 +129,11 @@ public class GuideActivity extends Activity {
         //初始化position位置的界面
         @Override
         public Object instantiateItem(View v, int position) {
-            ((ViewPager) v).addView(pageViews.get(position));  
+        	Log.v("guidactivity", "guidactivity instantiateItem");
+        	View view_element = pageViews.get(position);
+        	ImageView img = (ImageView) view_element.findViewById(R.id.image);
+            img.setImageBitmap(Tool.guide_image.get(position));
+            ((ViewPager) v).addView(view_element);  
               
              // 测试页卡1内的按钮事件  
             if (position == pageViews.size() - 1) { 
