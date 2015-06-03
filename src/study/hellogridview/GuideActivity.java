@@ -139,7 +139,15 @@ public class GuideActivity extends Activity {
             if (position == pageViews.size() - 1) { 
                 TextView btn = (TextView) v.findViewById(R.id.btn_close_guide);  
                 btn.setOnClickListener(Button_OnClickListener);  
+                
+                ImageView iv = (ImageView) findViewById(R.id.image_gotry);
+                iv.setOnClickListener(Button_OnClickListener); 
             } 
+            
+            if (position == 0) {
+            	TextView skip  = (TextView) v.findViewById(R.id.skip);
+            	skip.setOnClickListener(Button_OnClickListener);
+            }
               
             return pageViews.get(position);  
         }

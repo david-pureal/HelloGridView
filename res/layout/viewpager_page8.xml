@@ -8,18 +8,27 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="50dp"
         android:text="第七步，出锅了"
-        android:textSize="25sp" />
+        android:textSize="21sp" />
 
     <ImageView
         android:id="@+id/image"
-        android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:layout_centerInParent="true"
-        android:layout_marginTop="30dp"
+        android:layout_width="230dp"
+        android:layout_height="310dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="80dp"
+        android:scaleType="fitXY" />
+    
+    <ImageView
+        android:id="@+id/image_gotry"
+        android:layout_width="179dp"
+        android:layout_height="27dp"
+        android:layout_gravity="right"
+        android:layout_marginRight="25dp"
+        android:layout_marginTop="50dp"
         android:scaleType="fitXY"
-        />
+        android:src="@drawable/viewpager8_gotry" />
     
      <TextView
          android:id="@+id/btn_close_guide"
@@ -30,6 +39,7 @@
          android:layout_marginTop="50dp"
          android:textColor="#000000"
          android:textSize="25sp"
-         android:text="开始使用" />
+         android:visibility="gone"
+         android:text="学会了，去试吧" />
   
 </LinearLayout>

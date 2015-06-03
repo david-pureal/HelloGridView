@@ -4,29 +4,48 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
       
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="20dp"
-        android:text="几分钟，让你成为炒菜高手"
-        android:textSize="25sp" />
+    <ImageView
+        android:layout_width="300dp"
+        android:layout_height="78dp"
+        android:layout_centerInParent="true"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="70dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/viewpager1_title" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="20dp"
-        android:text="机器简介， 手机与机器配合使用"
-        android:textSize="20sp" />
-    
     <ImageView
         android:id="@+id/image"
-        android:layout_width="match_parent"
-        android:layout_height="300dp"
+        android:layout_width="310dp"
+        android:layout_height="231dp"
         android:layout_centerInParent="true"
-        android:layout_marginTop="30dp"
-        android:scaleType="fitXY"
-         />
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="80dp"
+        android:scaleType="fitXY" />
+    
+    <RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal" >
+
+	    <TextView
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_marginLeft="25dp"
+	        android:text="手机与机器配合使用"
+	        android:textSize="15sp" />
+
+	    <TextView
+	        android:id="@+id/skip"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignParentRight="true"
+	        android:layout_alignParentTop="true"
+	        android:layout_marginRight="25dp"
+	        android:text="高手跳过"
+	        android:textSize="15sp" />
+
+	</RelativeLayout>
   
 </LinearLayout>

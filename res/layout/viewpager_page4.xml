@@ -8,17 +8,17 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="20dp"
-        android:text="第三步，打开手机APP"
-        android:textSize="25sp" />
+        android:layout_marginTop="50dp"
+        android:text="第三步，打开爸爸小炒"
+        android:textSize="21sp" />
 
     <ImageView
         android:id="@+id/image"
-        android:layout_width="350dp"
-        android:layout_height="485dp"
+        android:layout_width="260dp"
+        android:layout_height="360dp"
         android:layout_centerInParent="true"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="80dp"
         android:scaleType="fitXY" />
   
 </LinearLayout>
