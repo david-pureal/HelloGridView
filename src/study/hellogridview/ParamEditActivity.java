@@ -34,7 +34,7 @@ public class ParamEditActivity extends Activity {
 	public View self_content_view;
 	public View popupView;
 	
-	public Integer[] temps = new Integer[41];
+	public Integer[] temps = new Integer[36];
 	public final String jiaoban[] = {"1不搅拌", "2最慢速", "3较慢速", "4中慢速", "5中快速", "6较快速", "7最快速", "8连续搅"};
 	
 	@Override
@@ -44,7 +44,7 @@ public class ParamEditActivity extends Activity {
 		setContentView(R.layout.activity_param_edit);
 		
 		for(int i = 0; i < temps.length; i++) {
-			temps[i] = 120 + 2 * i;
+			temps[i] = Constants.MIN_TEMP + 2 * i;
 		}
 		
 		inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE); 
@@ -81,7 +81,8 @@ public class ParamEditActivity extends Activity {
         });
 		
         makedish_temp = (TextView) findViewById(R.id.makedish_temp);
-        makedish_temp.setText(is_setting_zhuliao ? (new_dish.zhuliao_temp & 0xff) + "°C" : (new_dish.fuliao_temp & 0xff) + "°C");
+        final int temperature = is_setting_zhuliao ? (new_dish.zhuliao_temp & 0xff) : (new_dish.fuliao_temp & 0xff);
+        makedish_temp.setText(temperature + "°C");
         makedish_temp.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) {  
@@ -91,7 +92,7 @@ public class ParamEditActivity extends Activity {
             	final WheelView column_1 = (WheelView) popupView.findViewById(R.id.column_1);
             	ArrayWheelAdapter<Integer> adapter = new ArrayWheelAdapter<Integer>(ParamEditActivity.this, temps);
             	column_1.setViewAdapter(adapter);
-            	column_1.setCurrentItem(((new_dish.zhuliao_temp & 0xff) - 120) / 2);
+            	column_1.setCurrentItem((temperature - Constants.MIN_TEMP) / 2);
             	
             	Button sure = (Button) popupView.findViewById(R.id.makesure);
             	sure.setOnClickListener(new View.OnClickListener() {
@@ -109,7 +110,8 @@ public class ParamEditActivity extends Activity {
         });
         
         makedish_time = (TextView) findViewById(R.id.makedish_time);
-        makedish_time.setText(is_setting_zhuliao ? Tool.sec2str(new_dish.zhuliao_time) : Tool.sec2str(new_dish.fuliao_time));
+        final short time = is_setting_zhuliao ? new_dish.zhuliao_time : new_dish.fuliao_time;
+        makedish_time.setText(Tool.sec2str(time));
         makedish_time.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) {  
@@ -120,13 +122,13 @@ public class ParamEditActivity extends Activity {
             	if (column_1 == null) Log.v("ParamEditActivity", "hours is null!");
             	column_1.setViewAdapter(new NumericWheelAdapter(ParamEditActivity.this, 0, 59));
             	column_1.setCyclic(true);
-            	column_1.setCurrentItem(new_dish.zhuliao_time / 60);
+            	column_1.setCurrentItem(time / 60);
             	
             	final WheelView column_2 = (WheelView) popupView.findViewById(R.id.column_2);
             	if (column_2 == null) Log.v("ParamEditActivity", "hours is null!");
             	column_2.setViewAdapter(new NumericWheelAdapter(ParamEditActivity.this, 0, 59));
             	column_2.setCyclic(true);
-            	column_2.setCurrentItem(new_dish.zhuliao_time % 60);
+            	column_2.setCurrentItem(time % 60);
             	
             	Button sure = (Button) popupView.findViewById(R.id.makesure);
             	sure.setOnClickListener(new View.OnClickListener() {

@@ -180,14 +180,6 @@ public class MenuFragment extends Fragment {
         });
 		
 		
-//		temp = (ImageView) getView().findViewById(R.id.account);
-//		temp.setOnClickListener(new OnClickListener() {  
-//            @Override  
-//            public void onClick(View v) {  
-//                startActivity(new Intent(getActivity(),BuiltinDishes.class));  
-//                //finish();//关闭当前Activity  
-//            }  
-//        });
 		temp = (ImageView) getView().findViewById(R.id.makedish);
 		temp.setOnClickListener(new OnClickListener() {  
             @Override  
@@ -245,6 +237,22 @@ public class MenuFragment extends Fragment {
                 //finish();//关闭当前Activity  
             }  
         });
+		
+		temp = (ImageView) getView().findViewById(R.id.store);
+		temp.setOnClickListener(new OnClickListener() {  
+            @Override  
+            public void onClick(View v) {  
+                startActivity(new Intent(getActivity(), StoreActivity.class));  
+            }  
+        });
+		TextView store_tv = (TextView) getView().findViewById(R.id.store_tv);
+		store_tv.setOnClickListener(new OnClickListener() {  
+            @Override  
+            public void onClick(View v) {  
+                startActivity(new Intent(getActivity(), StoreActivity.class));  
+            }  
+        });
+		
 //		temp = (ImageView) getView().findViewById(R.id.tips); 
 //		temp.setOnClickListener(new OnClickListener() {  
 //            @Override  

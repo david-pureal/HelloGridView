@@ -133,6 +133,12 @@
         </activity>
         
         <activity
+            android:name=".StoreActivity"
+            android:screenOrientation="sensorPortrait"
+            android:label=" 首次启动引导" >
+        </activity>
+        
+        <activity
 			 android:name="cn.sharesdk.framework.ShareSDKUIShell"
 			 android:theme="@android:style/Theme.Translucent.NoTitleBar"
 			 android:configChanges="keyboardHidden|orientation|screenSize"

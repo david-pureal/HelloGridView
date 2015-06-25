@@ -572,6 +572,7 @@ public class Tool {
 		image_res_mgr.put(R.raw.add_zhuliao_tiaoliao_chn, decode_res_bitmap(R.raw.add_zhuliao_tiaoliao_chn, context));
 		image_res_mgr.put(R.raw.add_zhuliao_water_tiaoliao_chn, decode_res_bitmap(R.raw.add_zhuliao_water_tiaoliao_chn, context));
 		image_res_mgr.put(R.raw.add_zhuliao_water_chn, decode_res_bitmap(R.raw.add_zhuliao_water_chn, context));
+		image_res_mgr.put(R.raw.qiangguo_ing_chn, decode_res_bitmap(R.raw.qiangguo_ing_chn, context));
 		
 		// 简洁界面和标准界面
 		image_res_mgr.put(R.drawable.simple_bkg, decode_res_bitmap(R.drawable.simple_bkg, context));

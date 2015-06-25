@@ -10,6 +10,10 @@ public final class Constants {
 	public static final String [] jiaoban_str = {"1不搅拌", "2特慢速", "3较慢速", "4中慢速", "5中快速", "6较快速", "7特快速", "8连续搅"};
 	
 	public static final int EARLIEST_ADD_ZHULIAO_TIME = 13; // 单位秒，加主料最早开始时间
+	public static final int MAX_TEMP = 220; // device max temperature
+	public static final int MIN_TEMP = 150;
+	public static final int QIANGGUO_DURATION = 40; // seconds
+	public static final int HEARTBEAT_INTEVAL = 60 * 1000; // 为了保持与机器的tcp连接，默认心跳超时是600s，另外机器用此来判断是否有连接了手机
 	
 	// connect related
 	public static final int CONNECTING   = 0;
@@ -31,13 +35,14 @@ public final class Constants {
 	public static final byte MACHINE_LOCK_MACHINE       = 0x04; // 解锁
 	
 	// machine cooking stage
-	public static final int STATE_HEATING = 0;
-	public static final int STATE_ADD_OIL = 1;
-	public static final int STATE_ZHULIAO = 2;
-	public static final int STATE_ZHULIAO_TISHI_DONE = 3;
-	public static final int STATE_FULIAO = 4;
-	public static final int STATE_FULIAO_TISHI_DONE = 5;
-	public static final int STATE_FINISH = 6;
+	public static final int STATE_HEATING            = 0;
+	public static final int STATE_ADD_OIL            = 1;
+	public static final int STATE_QIANGGUO_ING       = 2; // 炝锅，温度达到最高温度，开始炝锅，持续一分钟
+	public static final int STATE_ZHULIAO            = 3;
+	public static final int STATE_ZHULIAO_TISHI_DONE = 4;
+	public static final int STATE_FULIAO             = 5;
+	public static final int STATE_FULIAO_TISHI_DONE  = 6;
+	public static final int STATE_FINISH             = 7;
 	
 	// UI related
 	public static final int UI_WIDTH    = 480;

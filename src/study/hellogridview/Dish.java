@@ -148,12 +148,12 @@ public class Dish implements Cloneable {
 	
 	public void saveDishParam() {
 		
-		if (this.isMine()) {
+		if (this.isMine() && Account.is_login) {
 			this.author_id = Account.userid;
 			this.author_name = Account.username;
 		}
 		
-		if (fuliao_content_map.isEmpty()) {fuliao_time = 0;fuliao_temp=0;fuliao_jiaoban_speed=0;}
+		if (fuliao_content_map.isEmpty()) {fuliao_time = 0;fuliao_temp=0;fuliao_jiaoban_speed=1;}
 		
 		// 用于写入文件
 		JSONObject dishj = new JSONObject();
@@ -335,15 +335,15 @@ public class Dish implements Cloneable {
 			
 			Dish dish3 = new Dish(R.drawable.maladoufu, "麻辣豆腐");
 			dish3.img_tiny = R.raw.maladoufu_tiny;
-			dish3.zhuliao_temp = (byte) 165;
+			dish3.zhuliao_temp = (byte) 190;
 			dish3.fuliao_temp = 0;
-			dish3.zhuliao_time = 240;
+			dish3.zhuliao_time = 300;
 			dish3.fuliao_time = 0;
-			dish3.zhuliao_jiaoban_speed = 3;
+			dish3.zhuliao_jiaoban_speed = 5;
 			dish3.fuliao_jiaoban_speed = 0;
-			dish3.water = 1;
-			dish3.water_weight = 10;
-			dish3.oil = 30;
+			dish3.water = 0;
+			dish3.water_weight = 0;
+			dish3.oil = 20;
 			dish3.qiangguoliao = 1;
 			dish3.text = "1、底油：25克\n2、炝锅料：姜丝5克、蒜片5克，干红椒段3克，麻椒粒2克\n3、主料：嫩豆腐块350克\n4、水和调料：水30克、盐2克、鸡精2克、老抽2克、生抽10克"; 
 			dish3.name_english = "Mapo Tofu";
@@ -352,16 +352,20 @@ public class Dish implements Cloneable {
 			dish3.intro = "麻、辣、香、嫩、鲜、滑，经济而且实惠，好吃不贵。豆腐高营养、低脂肪、低热量。可称为最健康的食品之一。";
 
 			dish3.zhuliao_content_map.put("嫩豆腐块", "350克");
-			dish3.prepare_material_detail.add(dish3.new Material(R.drawable.maladoufu_2, "姜丝、蒜片，干红椒段，麻椒粒", "炝锅料"));
+			dish3.zhuliao_content_map.put("肉末", "50克");
+			dish3.prepare_material_detail.add(dish3.new Material(R.drawable.maladoufu_2, "姜丝、蒜片，麻椒粒", "炝锅料"));
 			dish3.prepare_material_detail.add(dish3.new Material(R.drawable.maladoufu_1, "嫩豆腐块", "主料"));
+			dish3.prepare_material_detail.add(dish3.new Material(R.drawable.maladoufu_3, "肉末，水，调料", "调料"));
 			dish3.qiangguoliao_content_map.put("姜丝", "5克");
 			dish3.qiangguoliao_content_map.put("蒜片", "5克");
-			dish3.qiangguoliao_content_map.put("干红椒段", "3克");
+			//dish3.qiangguoliao_content_map.put("干红椒段", "3克");
 			dish3.qiangguoliao_content_map.put("麻椒粒", "2克");
 			dish3.tiaoliao_content_map.put("鸡精", "2克");
 			dish3.tiaoliao_content_map.put("盐", "2克");
-			dish3.tiaoliao_content_map.put("老抽", "2克");
-			dish3.tiaoliao_content_map.put("生抽", "10克");
+			dish3.tiaoliao_content_map.put("老干妈", "5克");
+			dish3.tiaoliao_content_map.put("生抽", "12克");
+			dish3.tiaoliao_content_map.put("豆豉", "5克");
+			dish3.tiaoliao_content_map.put("水", "35克");
 			alldish_map.put(dish3.dishid, dish3);
 			
 			Dish dish4 = new Dish(R.drawable.congbaoyangrou, "葱爆羊肉");
@@ -1018,18 +1022,19 @@ public class Dish implements Cloneable {
 				dish.fuliao_content_map.put("胡萝卜丝",  "150克");
 				dish.fuliao_content_map.put("木耳",  "50克");
 				dish.prepare_material_detail.add(dish.new Material(R.drawable.yuxiangrousi_1, "炝锅料", "炝锅料"));
-				dish.prepare_material_detail.add(dish.new Material(R.drawable.yuxiangrousi_2, "豆瓣酱一勺", "炝锅料"));
+				//dish.prepare_material_detail.add(dish.new Material(R.drawable.yuxiangrousi_2, "豆瓣酱一勺", "炝锅料"));
 				dish.prepare_material_detail.add(dish.new Material(R.drawable.yuxiangrousi_3, "猪肉用料酒、生抽、盐、白胡椒、油、生粉腌制10分钟", "主料"));
 				dish.prepare_material_detail.add(dish.new Material(R.drawable.yuxiangrousi_4, "青笋、胡萝卜、木耳", "辅料"));
 				dish.prepare_material_detail.add(dish.new Material(R.drawable.yuxiangrousi_5, "配置好的调料", "调料"));
 				dish.qiangguoliao_content_map.put("姜片", "5克");
 				dish.qiangguoliao_content_map.put("蒜片", "5克");
-				dish.qiangguoliao_content_map.put("豆瓣酱", "15克");
+				//dish.qiangguoliao_content_map.put("豆瓣酱", "15克");
 				dish.tiaoliao_content_map.put("醋", "2.5克");
 				dish.tiaoliao_content_map.put("酱油", "5克");
 				dish.tiaoliao_content_map.put("糖", "4克");
 				dish.tiaoliao_content_map.put("料酒", "2.5克");
 				dish.tiaoliao_content_map.put("盐", "2克");
+				dish.tiaoliao_content_map.put("豆瓣酱", "15克");
 				alldish_map.put(dish.dishid, dish);
 			}
 			
@@ -1039,7 +1044,7 @@ public class Dish implements Cloneable {
 				dish.zhuliao_temp = (byte) 180;
 				dish.fuliao_temp = (byte) 180;
 				dish.zhuliao_time = (short) 60;
-				dish.fuliao_time = (short) 180;
+				dish.fuliao_time = (short) 240;
 				dish.zhuliao_jiaoban_speed = 6;
 				dish.fuliao_jiaoban_speed = 6;
 				dish.water = 0;

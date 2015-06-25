@@ -90,15 +90,15 @@ public class TCPClient {
 					try {
 						if (clientThread != null && clientThread.revHandler != null && clientThread.s.isConnected()) {
 							long curr = System.currentTimeMillis();
-							if (curr - last_hb >= 180*1000) {
+							if (curr - last_hb >= Constants.HEARTBEAT_INTEVAL) {
 								do_heartbeat();
 			                    last_hb = curr;
 			                    Log.v("tcpclient", "send heartbeat");
-			                    Thread.sleep(30*1000);
+			                    Thread.sleep(Constants.HEARTBEAT_INTEVAL/2);
 							}
 						} else {
-							Log.v("TcpClient", "socket is not connected yet, try heartbeat after 180 seconds");
-							Thread.sleep(180*1000);
+							Log.v("TcpClient", "socket is not connected yet, try heartbeat later");
+							Thread.sleep(Constants.HEARTBEAT_INTEVAL/2);
 						}
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
@@ -743,7 +743,7 @@ public class TCPClient {
 			ds.temp_set = bs[34] & 0xff;
 			ds.zhuliao_time_set = this.gotShort(bs, 35);
 			ds.fuliao_time_set = this.gotShort(bs, 37);
-			Log.v("tcpclient", "zhuliao_time_set = " + ds.zhuliao_time_set + ", fuliao_time_set=" + ds.fuliao_time_set);
+			//Log.v("tcpclient", "zhuliao_time_set = " + ds.zhuliao_time_set + ", fuliao_time_set=" + ds.fuliao_time_set);
 			
 			RespPackage rp_ms = new RespPackage();
 			rp_ms.reqid_head = gotInt(bs, 10);
@@ -781,6 +781,15 @@ public class TCPClient {
 						ds.builtin_dishids[i] = gotShort(bs, start_pos);
 						start_pos += 2;
 					}
+					
+					short[] cook_times = new short[12];
+					String cook_times_str = "";
+					for (int i = 0; i < cook_times.length; ++i) {
+						cook_times[i] = gotShort(bs, start_pos);
+						start_pos += 2;
+						cook_times_str += cook_times[i] + ",";
+					}
+					Log.v("tcpclient", "cook_times_str = " + cook_times_str);
 				}
 			}
 			

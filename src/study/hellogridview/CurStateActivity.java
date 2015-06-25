@@ -21,7 +21,6 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -43,10 +42,6 @@ import android.widget.SimpleAdapter;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.SimpleAdapter.ViewBinder;
 import android.widget.TextView;
-
-//import com.baidu.speechsynthesizer.SpeechSynthesizer;
-//import com.baidu.speechsynthesizer.SpeechSynthesizerListener;
-//import com.baidu.speechsynthesizer.publicutility.SpeechError;
 
 public class CurStateActivity extends Activity implements OnSeekBarChangeListener/*, SpeechSynthesizerListener*/ {
 	public int total_time = 260;
@@ -116,8 +111,9 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 		
 		Intent intent = getIntent();
 		if (intent != null) {
-			dish_id = intent.getIntExtra("dish_id", 1); 
-		} else {
+			dish_id = intent.getIntExtra("dish_id", 0); 
+		}
+		if (dish_id == 0) {
 			dish_id = ds.dishid & 0xffff;
 		}
 		Log.v("CurStateActivity", "onCreate dish_id = " + dish_id + ", ds.dishid= " + ds.dishid);
@@ -182,14 +178,14 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
             public void handleMessage(Message msg) {  
                 // 如果消息来自子线程  
                 if (msg.what == 0x123) {  
-                	Log.v("CurStateActivity", "got Machine state event time=" + ds.time + "temp=" + (ds.temp & 0x00ff) + "jiaoban=" + ds.jiaoban_speed);
+                	//Log.v("CurStateActivity", "got Machine state event time=" + ds.time + "temp=" + (ds.temp & 0x00ff) + "jiaoban=" + ds.jiaoban_speed);
                 	synchronized (this) {
 	                	CurStateActivity.this.jiaoban_speed = ds.jiaoban_speed;
 	                	
 	                	// TODO revert
 	                	if (state != Constants.STATE_FINISH) {
 	                		dish_id = Math.max(1, ds.dishid & 0xffff);
-	                		if (dish != null && dish_id != dish.dishid) {
+	                		if (dish != null && dish_id != dish.dishid && Dish.alldish_map.containsKey(dish_id)) {
 	                			dish = Dish.getDishById(dish_id); 
 	                			
 	                			dish.get_pre_material("炝锅料", qiangguoliao_ids);
@@ -214,7 +210,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
                 		if (ds.working_state == Constants.MACHINE_WORK_STATE_PAUSE) {
                 		}
                 		else if (data.size() < MaxDataSize){ 
-                			data.add(Math.min(200, (int)(ds.temp & 0x00ff)));
+                			data.add(Math.min(Constants.MAX_TEMP, (int)(ds.temp & 0xff)));
                 		}
                 	} else {
                 		
@@ -233,11 +229,15 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	                		wait_count = 0;
 	                		zhuliao_i = 0;
 	                		fuliao_i = 0;
+	                		oil_i = 0;
+	                		qiangguo_i = 0;
 	                		
 	                		is_setting_param = false;
 	                		current_twinkle_times = 0;
 	                		
 	                		got_fuliao_index = false;
+	                		got_zhuliao_index = false;
+	                		
 	                		zhuliao_temp_set = 0;
 	                		fuliao_temp_set = 0;
 	                		
@@ -331,7 +331,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 		            	if (selected_param.getId() == R.id.temp) {
 		            		CurStateActivity.this.modify_state = (byte)0x40;
 		            		int t = ds.temp_set + i*2;
-		            		t = Math.min(200, t);
+		            		t = Math.min(Constants.MAX_TEMP, t);
 		            		CurStateActivity.this.temp = (byte) Math.max(0, t);
 		        		} else if (selected_param.getId() == R.id.jiaoban) {
 		        			CurStateActivity.this.modify_state = (byte)0x20;
@@ -493,9 +493,9 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 		ds.zhuliao_time_set = dish.zhuliao_time;
 		ds.fuliao_time_set = dish.fuliao_time;
 		
-		//init_tts();
-		
-        draw_temp_baselin(); 
+		if (tcpclient.connect_state != Constants.CONNECTED) {
+			draw_temp_baselin(); 
+		}
 		
 	} // oncreate
 	
@@ -503,6 +503,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	private static boolean zhuliao_voice_done = false;
 	
 	MediaPlayer player_oil;
+	MediaPlayer player_qiangguo;
 	MediaPlayer player_zhuliao;
 	MediaPlayer player_fuliao;
 	MediaPlayer player_stop; // 手动结束
@@ -510,6 +511,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	private int zhuliao_i = 0;
 	private int fuliao_i = 0;
 	private int oil_i = 0;
+	private int qiangguo_i = 0;
 	
 	static Bitmap canvas_bmp = null;
 	static Bitmap simple_bkg_bmp = null;
@@ -562,6 +564,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	int current_twinkle_times = 0;
 	
 	boolean got_fuliao_index = false;
+	boolean got_zhuliao_index = false;
 	boolean is_showing_reminder = false;
 	boolean has_show_reminder = false;
 	static int zhuliao_temp_set = 0;
@@ -596,6 +599,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 //	} //RefreshUIThread
 	
 	// 画设定的温度线，用绿色线
+	@SuppressWarnings("deprecation")
 	private void draw_temp_baselin() {
 		if (dish == null) {
 			Log.v("CurStateActivity", "dishid=" + dish_id + " is not exist, skip drawing");
@@ -623,6 +627,14 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         if (state < Constants.STATE_FULIAO) {
         	zhuliao_temp_set = ds.temp_set;
         	fuliao_temp_set = dish.fuliao_time == 0 ? zhuliao_temp_set : (dish.fuliao_temp & 0xff);
+        	// 开始做主料时，获取主料index
+        	if (!data.isEmpty() && ds.time < ds.zhuliao_time_set + ds.fuliao_time_set) {
+        		if (!got_zhuliao_index) {
+        			Log.v("curstate",  "has got zhuliao_index = " + zhuliao_index);
+        			zhuliao_index = data.size();
+        			got_zhuliao_index = true;
+        		}
+        	}
         }
         else {
         	if (ds.time < ds.fuliao_time_set) {
@@ -685,19 +697,19 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         	x_per_seconds_zhuliao = ((float)(x_end - x_start)) / ds.zhuliao_time_set;
         }
         float x_per_seconds_fuliao = ((float)(x_end - x_middle)) / ds.fuliao_time_set;
-        final float y_per_temp = (float) ((float)(y_max - y_min) / 200.0);
+        final float y_per_temp = (float) ((float)(y_max - y_min) / ((float)Constants.MAX_TEMP));
         
-        int yend = (int) (y_min + y_per_temp*(200 - zhuliao_temp_set));
+        int yend = (int) (y_min + y_per_temp*(Constants.MAX_TEMP - zhuliao_temp_set));
         canvas.drawLine(x_start, y_max, x_start, yend, paint);
         canvas.drawLine(x_start, yend, x_middle, yend, paint);
         
         int fuliao_temp = fuliao_temp_set;
         
         if (dish.fuliao_time == 0) fuliao_temp = zhuliao_temp_set;
-        int yend2 = (int) (y_min + y_per_temp*(200 - fuliao_temp));
+        int yend2 = (int) (y_min + y_per_temp*(Constants.MAX_TEMP - fuliao_temp));
         canvas.drawLine(x_middle, yend, x_middle, yend2, paint);
         canvas.drawLine(x_middle, yend2, x_end, yend2, paint);
-        Log.v("curstate", "zhuliao_temp_set=" + zhuliao_temp_set + "， fuliao_temp" + fuliao_temp);
+        //Log.v("curstate", "zhuliao_temp_set=" + zhuliao_temp_set + "， fuliao_temp" + fuliao_temp);
         
         //temperature
         int temp = ds.temp & 0xff;
@@ -779,14 +791,33 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         if (data.size() > 0) cur_temp = data.get(data.size() - 1);
         else cur_temp = 0;
         
-        //Log.v("CurStateActivity", "cur_temp =" + cur_temp); 
+        //Log.v("CurStateActivity", "cur_temp =" + cur_temp + "dish.qiangguoliao" + dish.qiangguoliao); 
         if (state == Constants.STATE_HEATING && cur_temp >= 90) {
         	zhuliao_voice_done = false;
         	has_show_reminder = false;
         	state = Constants.STATE_ADD_OIL;
         	oil_i = data.size();
-        } else if (state == Constants.STATE_ADD_OIL && cur_temp > zhuliao_temp_set - 10) {
-        	if (data.size() > Constants.EARLIEST_ADD_ZHULIAO_TIME) {
+        } else if (state == Constants.STATE_ADD_OIL && dish.qiangguoliao != 0 && cur_temp >= Constants.MAX_TEMP) {
+        	// TODO 加油提示语和炝锅中，提示语应间隔至少5秒
+        	Log.v("CurStateActivity", "STATE_QIANGGUO_ING");
+        	qiangguo_i = data.size();
+        	zhuliao_voice_done = false;
+        	if (is_showing_reminder && popWindow != null) {
+        		popWindow.dismiss();
+        	}
+        	state = Constants.STATE_QIANGGUO_ING;
+        	
+        } else if ((dish.qiangguoliao == 0 && state == Constants.STATE_ADD_OIL && cur_temp > zhuliao_temp_set - 10) || 
+        		   (dish.qiangguoliao != 0 && state == Constants.STATE_QIANGGUO_ING)) {
+        	boolean go_next_state = false;
+        	if (dish.qiangguoliao == 0 && data.size() > Constants.EARLIEST_ADD_ZHULIAO_TIME) {
+        		go_next_state = true;
+        	}
+        	else if (dish.qiangguoliao != 0 && data.size() > qiangguo_i + Constants.QIANGGUO_DURATION) {
+        		go_next_state = true;
+        	}
+        	
+        	if (go_next_state) {
 	        	zhuliao_i = data.size();
 	        	zhuliao_voice_done = false;
 	        	has_show_reminder = false;
@@ -795,6 +826,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	        	}
 	        	state = Constants.STATE_ZHULIAO;
         	}
+        	
         } else if (state == Constants.STATE_ZHULIAO && data.size() > zhuliao_i + 5) { // 5秒闪烁提示图片
         	state = Constants.STATE_ZHULIAO_TISHI_DONE;
         } else if (state == Constants.STATE_ZHULIAO_TISHI_DONE && dish.fuliao_time == 0) {
@@ -861,14 +893,14 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	        	int img_resid = 0;
 	        	Rect img_rect = new Rect();
 	        	img_rect.left    = (int) (198.0/Constants.UI_WIDTH * width);
-	        	img_rect.top    = (int) (200.0/Constants.UI_HEIGHT * height);
+	        	img_rect.top    = (int) (((float)Constants.MAX_TEMP)/Constants.UI_HEIGHT * height);
 		        img_rect.bottom  = (int) (265.0/Constants.UI_HEIGHT * height);
 	        	if (dish.qiangguoliao == 0)  {
 	        		img_resid = R.raw.add_oil_chn;
-			        img_rect.right   = (int) (320.0/Constants.UI_WIDTH * width);
+			        img_rect.right = (int) (320.0/Constants.UI_WIDTH * width);
 	        	}
 		        else {
-			        img_rect.right   = (int) (430.0/Constants.UI_WIDTH * width);
+			        img_rect.right = (int) (430.0/Constants.UI_WIDTH * width);
 	        		img_resid = R.raw.add_oil_qgl_chn;
 	        	}
 		        canvas.drawBitmap(Tool.get_res_bitmap(img_resid), null, img_rect, null);
@@ -889,6 +921,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 		        	map.put("name", "");
 		        	al.add(map);
 	        	}
+	        	
 	        	for (int i = 0; i < qiangguoliao_ids.size(); ++i) {
 	        		HashMap<String, Object> map = new HashMap<String, Object>();
 		        	Material m = dish.prepare_material_detail.get(qiangguoliao_ids.get(i));
@@ -944,6 +977,32 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         	}
         }
         
+        // 炝锅1分钟的提示
+        if (state == Constants.STATE_QIANGGUO_ING && ds.working_state != Constants.MACHINE_WORK_STATE_STOP)
+        {
+        	Log.v("curstateactivity", "STATE_QIANGGUO_ING");
+        	if (!zhuliao_voice_done) {
+        		zhuliao_voice_done = true;
+        		player_qiangguo = MediaPlayer.create(CurStateActivity.this, R.raw.voice_qiangguo_ing_chn);
+        		player_qiangguo.start();
+        	}
+        	
+        	Rect img_rect = new Rect();
+        	img_rect.left   = (int) (192.0/Constants.UI_WIDTH * width); 
+        	img_rect.right  = (int) (342.0/Constants.UI_WIDTH * width);
+        	img_rect.top    = (int) ((166.0 + ((160 - Constants.MAX_TEMP) * img_y_per_temp))/Constants.UI_HEIGHT * height); 
+	        img_rect.bottom = (int) (245.0/Constants.UI_HEIGHT * height);
+	        
+	        int img_resid = R.raw.qiangguo_ing_chn;
+	        
+	        boolean need_draw_reminder = false;
+        	if (state == Constants.STATE_QIANGGUO_ING && data.size() % 2 == 0) need_draw_reminder = true;
+        
+        	if (need_draw_reminder) {
+        		canvas.drawBitmap(Tool.get_res_bitmap(img_resid), null, img_rect, null);
+        	}
+        }
+        
         // 主料提示语和图片
         if ((state == Constants.STATE_ZHULIAO || state == Constants.STATE_ZHULIAO_TISHI_DONE)
         		&& ds.working_state != Constants.MACHINE_WORK_STATE_STOP)
@@ -984,7 +1043,6 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
     		
         	if (!zhuliao_voice_done) {
         		zhuliao_voice_done = true;
-        		
         		
         		if (tcpclient.is_conn_ap()) {
         			player_zhuliao = MediaPlayer.create(CurStateActivity.this, voice_resid);
@@ -1243,29 +1301,34 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 			
 			
 			if (!got_fuliao_index) fuliao_index = data.size();
-			
-			if (state <= Constants.STATE_ZHULIAO) {
+			//Log.v("curstate", "got_zhuliao_index = " + got_zhuliao_index);
+			if (!got_zhuliao_index) {
 				zhuliao_index = data.size();
-				for(int i=0; i< data.size(); i++){ 
-					if (data.get(i) > zhuliao_temp_set) {
-						zhuliao_index = i;
-						break;
-					}
-				}
+				Log.v("curstate", "zhuliao_index = " + zhuliao_index);
 			}
+			
+//			if (state <= Constants.STATE_ZHULIAO) {
+//				zhuliao_index = data.size();
+//				for(int i=0; i< data.size(); i++){ 
+//					if (data.get(i) > zhuliao_temp_set) {
+//						zhuliao_index = i;
+//						break;
+//					}
+//				}
+//			}
 			
 			if (zhuliao_index < Constants.EARLIEST_ADD_ZHULIAO_TIME) zhuliao_index = Constants.EARLIEST_ADD_ZHULIAO_TIME;
 			
 			// 补齐温度曲线
 			if (!data.isEmpty()){
-				int tempy = (int) (y_min + y_per_temp*(200 - data.get(0)));
+				int tempy = (int) (y_min + y_per_temp*(Constants.MAX_TEMP - data.get(0)));
 				canvas.drawLine(x_start, y_max, x_start, tempy, paint);
 			}
 			
-			Log.v("CurStateActivity", "zhuliao_index = " + zhuliao_index + ", fuliao_index = " + fuliao_index + ", state=" + state);
+			//Log.v("CurStateActivity", "zhuliao_index = " + zhuliao_index + ", fuliao_index = " + fuliao_index + ", data.size()=" + data.size());
 	        for(int i=0; i< data.size(); i++){ 
 	        	int tempx = x_start;
-	        	int tempy = (int) (y_min + y_per_temp*(200 - data.get(i)));
+	        	int tempy = (int) (y_min + y_per_temp*(Constants.MAX_TEMP - data.get(i)));
 	        	if (tempy < y_min) tempy = y_min;
 	        	
 	        	if (i <= zhuliao_index) {
@@ -1284,7 +1347,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	        	}
 	        } 
 	        if (data.size() > 0) {
-				Log.v("CurStateActivity", "data[" + (data.size() - 1) + "]=" + data.get(data.size()-1));
+				//Log.v("CurStateActivity", "data[" + (data.size() - 1) + "]=" + data.get(data.size()-1));
 				//draw_index = data.size() - 1;
 	        }
         }
@@ -1340,7 +1403,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 	        	canvas.drawCircle(left_bottom_x - green_boll_radius, left_bottom_y - green_boll_radius - (float)2.5/480*width, green_boll_radius, paint);
 	        }
 	        
-	        Log.v("CurState", "jiaoban_current_pos="+jiaoban_current_pos+",wait_count=" + wait_count+",goright=" + jiaoban_goright);
+	        //Log.v("CurState", "jiaoban_current_pos="+jiaoban_current_pos+",wait_count=" + wait_count+",goright=" + jiaoban_goright);
 	        
 	        if (ds.working_state == Constants.MACHINE_WORK_STATE_COOKING) {
 		        if ((jiaoban_current_pos == 0 || jiaoban_current_pos == jianban_angles.size() - 1)  && wait_count > 0) {
@@ -1388,7 +1451,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
 			pos = (int) ((float)(this.jiaoban_speed) / 8 * 100);
 		} else if (selected_param.getId() == R.id.time) {
 			pos = (int) ((float)(ds.time) / 3599 * 100);
-			Log.v("CurStateActivity", "now time=" + pos);
+			//Log.v("CurStateActivity", "now time=" + pos);
 		}
 		
 		bar.setProgress(pos);
@@ -1488,146 +1551,4 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         Log.v("CurStateActivity", "onDestroy");  
     }
 
-    //百度
-//    private static final String LICENCE_FILE_NAME = Environment.getExternalStorageDirectory()
-//            + "/tts/baidu_tts_licence.dat";
-//    private SpeechSynthesizer speechSynthesizer;
-    /*    
-    
-    public void init_tts(){
-   	
-        try {
-            System.loadLibrary("BDSpeechDecoder_V1");
-        } catch (UnsatisfiedLinkError e) {
-            SpeechLogger.logD("load BDSpeechDecoder_V1 failed, ignore");
-        }
-        System.loadLibrary("bd_etts");
-	    System.loadLibrary("bds");
-        
-        if (!new File(LICENCE_FILE_NAME).getParentFile().exists()) {
-            new File(LICENCE_FILE_NAME).getParentFile().mkdirs();
-        }
-        // 复制license到指定路径
-        InputStream licenseInputStream = getResources().openRawResource(R.raw.trial_license_20150527);
-        FileOutputStream fos = null;
-        try {
-            fos = new FileOutputStream(LICENCE_FILE_NAME);
-            byte[] buffer = new byte[1024];
-            int size = 0;
-            while ((size = licenseInputStream.read(buffer, 0, 1024)) >= 0) {
-                SpeechLogger.logD("size written: " + size);
-                fos.write(buffer, 0, size);
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (fos != null) {
-                try {
-                    fos.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            try {
-                licenseInputStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        speechSynthesizer =
-                SpeechSynthesizer.newInstance(SpeechSynthesizer.SYNTHESIZER_AUTO, getApplicationContext(),
-                "holder", this);
-        // 请替换为开放平台上申请的apikey和secretkey
-        speechSynthesizer.setApiKey("LQAAkUZFqeQsSmY71reZZj3k", "258b3e1fb367c991d73179d40df74f9b");
-        // 设置授权文件路径
-        speechSynthesizer.setParam(SpeechSynthesizer.PARAM_TTS_LICENCE_FILE, LICENCE_FILE_NAME);
-        // TTS所需的资源文件，可以放在任意可读目录，可以任意改名
-        String ttsTextModelFilePath =
-                getApplicationContext().getApplicationInfo().dataDir + "/lib/libbd_etts_text.dat.so";
-        String ttsSpeechModelFilePath =
-                getApplicationContext().getApplicationInfo().dataDir + "/lib/libbd_etts_speech_female.dat.so";
-        speechSynthesizer.setParam(SpeechSynthesizer.PARAM_TTS_TEXT_MODEL_FILE, ttsTextModelFilePath);
-        speechSynthesizer.setParam(SpeechSynthesizer.PARAM_TTS_SPEECH_MODEL_FILE, ttsSpeechModelFilePath);
-        DataInfoUtils.verifyDataFile(ttsTextModelFilePath);
-        DataInfoUtils.getDataFileParam(ttsTextModelFilePath, DataInfoUtils.TTS_DATA_PARAM_DATE);
-        DataInfoUtils.getDataFileParam(ttsTextModelFilePath, DataInfoUtils.TTS_DATA_PARAM_SPEAKER);
-        DataInfoUtils.getDataFileParam(ttsTextModelFilePath, DataInfoUtils.TTS_DATA_PARAM_GENDER);
-        DataInfoUtils.getDataFileParam(ttsTextModelFilePath, DataInfoUtils.TTS_DATA_PARAM_CATEGORY);
-        DataInfoUtils.getDataFileParam(ttsTextModelFilePath, DataInfoUtils.TTS_DATA_PARAM_LANGUAGE);
-        speechSynthesizer.initEngine();
-        setVolumeControlStream(AudioManager.STREAM_MUSIC);
-
-    }
-    
-    // TTS 相关
-    
-    @Override
-    public void onStartWorking(SpeechSynthesizer arg0) {
-        logDebug("开始工作，请等待数据...");
-    }
-
-    @Override
-    public void onSpeechStart(SpeechSynthesizer synthesizer) {
-        logDebug("朗读开始");
-    }
-
-    @Override
-    public void onSpeechResume(SpeechSynthesizer synthesizer) {
-        logDebug("朗读继续");
-    }
-
-    @Override
-    public void onSpeechProgressChanged(SpeechSynthesizer synthesizer,
-            int progress) {
-        logDebug("onSpeechProgressChanged");
-    }
-
-    @Override
-    public void onSpeechPause(SpeechSynthesizer synthesizer) {
-        logDebug("朗读已暂停");
-    }
-
-    @Override
-    public void onSpeechFinish(SpeechSynthesizer synthesizer) {
-        logDebug("朗读已停止");
-    }
-
-    @Override
-    public void onNewDataArrive(SpeechSynthesizer synthesizer,
-            byte[] audioData, boolean isLastData) {
-        logDebug("新的音频数据：" + audioData.length + (isLastData ? ("end") : ""));
-    }
-
-    @Override
-    public void onError(SpeechSynthesizer synthesizer, SpeechError error) {
-    	logDebug("发生错误：" + error);
-    }
-
-    @Override
-    public void onCancel(SpeechSynthesizer synthesizer) {
-        logDebug("已取消");
-    }
-
-    @Override
-    public void onSynthesizeFinish(SpeechSynthesizer arg0) {
-        logDebug("合成已完成");
-    }
-
-    private void logDebug(String logMessage) {
-    	Log.v("CurStateActivity", logMessage);
-    }
-
-	@Override
-	public void onBufferProgressChanged(SpeechSynthesizer arg0, int arg1) {
-		logDebug("onBufferProgressChanged");
-	}
-	
-	private String errorCodeAndDescription(int errorCode) {
-        String errorDescription = "错误码：";
-        return errorDescription + "(" + errorCode + ")";
-    }
-    */
 }

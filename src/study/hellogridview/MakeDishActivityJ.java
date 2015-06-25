@@ -3,7 +3,6 @@ package study.hellogridview;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -21,34 +20,27 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Bitmap.CompressFormat;
-import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
-import android.view.ViewConfiguration;
 import android.view.Window;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
-import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -391,7 +383,11 @@ public class MakeDishActivityJ extends Activity implements OnTouchListener {
                 	
                 	Log.v("MakeDishActivityJ", "current_cmd=" + current_cmd + ", resp_cmd108_count=" + resp_cmd108_count
                 			+ ",image_package_count=" + image_package_count);
-                	if (resp_cmd108_count == image_package_count) { //目前图片都是分成5个帧传输的
+                	
+                	/// 目前发现机器的响应包偶尔会丢失一个，所以为了绕过这个bug，改为image_package_count - 1
+                	/// 这样可能会引入新的bug：当最后一帧图片传输失败，导致机器开始炒菜失败时，APP却跳转到机器状态界面了
+                	if (resp_cmd108_count == image_package_count - 1) { 
+                	//if (resp_cmd108_count == image_package_count) { //所有图片已经传完
                 		resp_cmd108_count = 0;
                 		is_starting_cook = false;
                 		image_package_count = Integer.MAX_VALUE;
