@@ -27,7 +27,7 @@ public class Dish implements Cloneable {
 	public byte water = 0;       //0代表不需加水， 1代表加入主料时水，2代表加入辅料时水
 	public int water_weight = 0; // 加水量 ， 单位：克
 	public byte oil = 30;        //加油量
-	public byte qiangguoliao = 1;//炝锅料 0表示无， 1表示有
+	public byte qiangguoliao = 0;//炝锅料 0表示无， 1表示有
 	
 	public Integer img = R.drawable.tudousi;   // APP自带的菜谱
 	public Bitmap img_bmp = null;  // 自编菜谱，用来在APP上展示
@@ -285,7 +285,7 @@ public class Dish implements Cloneable {
 			
 			Dish dish1 = new Dish(R.drawable.chaoqingcai, "炒青菜");
 			dish1.img_tiny = R.raw.chaoqingcai_tiny;
-			dish1.zhuliao_temp = (byte) 180;
+			dish1.zhuliao_temp = (byte) 200;
 			dish1.fuliao_temp = 0;
 			dish1.zhuliao_time = 180;
 			dish1.fuliao_time = 0;
@@ -335,7 +335,7 @@ public class Dish implements Cloneable {
 			
 			Dish dish3 = new Dish(R.drawable.maladoufu, "麻辣豆腐");
 			dish3.img_tiny = R.raw.maladoufu_tiny;
-			dish3.zhuliao_temp = (byte) 190;
+			dish3.zhuliao_temp = (byte) 185;
 			dish3.fuliao_temp = 0;
 			dish3.zhuliao_time = 300;
 			dish3.fuliao_time = 0;
@@ -347,19 +347,19 @@ public class Dish implements Cloneable {
 			dish3.qiangguoliao = 1;
 			dish3.text = "1、底油：25克\n2、炝锅料：姜丝5克、蒜片5克，干红椒段3克，麻椒粒2克\n3、主料：嫩豆腐块350克\n4、水和调料：水30克、盐2克、鸡精2克、老抽2克、生抽10克"; 
 			dish3.name_english = "Mapo Tofu";
-			//dish3.sound = R.raw.tudousi_voice;
 			dish3.dishid = 4;
 			dish3.intro = "麻、辣、香、嫩、鲜、滑，经济而且实惠，好吃不贵。豆腐高营养、低脂肪、低热量。可称为最健康的食品之一。";
 
-			dish3.zhuliao_content_map.put("嫩豆腐块", "350克");
-			dish3.zhuliao_content_map.put("肉末", "50克");
-			dish3.prepare_material_detail.add(dish3.new Material(R.drawable.maladoufu_2, "姜丝、蒜片，麻椒粒", "炝锅料"));
-			dish3.prepare_material_detail.add(dish3.new Material(R.drawable.maladoufu_1, "嫩豆腐块", "主料"));
+			dish3.zhuliao_content_map.put("豆腐块", "350克");
+			dish3.prepare_material_detail.add(dish3.new Material(R.drawable.maladoufu_4, "姜丝、蒜片，麻椒粒", "炝锅料"));
+			dish3.prepare_material_detail.add(dish3.new Material(R.drawable.maladoufu_1, "豆腐块", "主料"));
 			dish3.prepare_material_detail.add(dish3.new Material(R.drawable.maladoufu_3, "肉末，水，调料", "调料"));
 			dish3.qiangguoliao_content_map.put("姜丝", "5克");
 			dish3.qiangguoliao_content_map.put("蒜片", "5克");
-			//dish3.qiangguoliao_content_map.put("干红椒段", "3克");
 			dish3.qiangguoliao_content_map.put("麻椒粒", "2克");
+			
+			dish3.tiaoliao_content_map.put("肉末", "50克");
+			dish3.tiaoliao_content_map.put("鸡精", "2克");
 			dish3.tiaoliao_content_map.put("鸡精", "2克");
 			dish3.tiaoliao_content_map.put("盐", "2克");
 			dish3.tiaoliao_content_map.put("老干妈", "5克");
@@ -454,7 +454,7 @@ public class Dish implements Cloneable {
 			
 			Dish dish7 = new Dish(R.drawable.zhahuasheng, "炸花生");
 			dish7.img_tiny = R.raw.zhahuasheng_tiny;
-			dish7.zhuliao_temp = (byte) 180;
+			dish7.zhuliao_temp = (byte) 190;
 			dish7.fuliao_temp = 0;
 			dish7.zhuliao_time = 600;
 			dish7.fuliao_time = 0;
@@ -591,7 +591,8 @@ public class Dish implements Cloneable {
 			dish11.tiaoliao_content_map.put("鸡精", "2克");
 			dish11.tiaoliao_content_map.put("盐", "2克");
 			alldish_map.put(dish11.dishid, dish11);
-			
+
+			/*
 			{
 				Dish dish = new Dish(R.drawable.xiangganroupian, "香干肉片");
 				dish.img_tiny = R.drawable.xiangganroupian_tiny;
@@ -1111,6 +1112,7 @@ public class Dish implements Cloneable {
 				dish.tiaoliao_content_map.put("水", "18克");
 				alldish_map.put(dish.dishid, dish);
 			}
+		*/
 		}
 		
 		return alldish_map;

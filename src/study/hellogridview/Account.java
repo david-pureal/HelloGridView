@@ -72,8 +72,10 @@ public class Account {
 	}
 	
 	public static boolean isFavorite(Dish dish) {
-		return (is_login && favorites.indexOf(dish.dishid) != -1) 
-				|| (!is_login && local_favorites.indexOf(dish.dishid) != -1);
+		if (!is_login) return local_favorites.indexOf(dish.dishid) != -1;
+		else {
+			return local_favorites.indexOf(dish.dishid) != -1 || favorites.indexOf(dish.dishid) != -1;
+		}
 	}
 
 	// 返回操作后是否为收藏菜谱

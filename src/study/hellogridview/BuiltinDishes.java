@@ -211,6 +211,7 @@ public class BuiltinDishes extends SlidingFragmentActivity {
         {
              int key = it.next();
              Dish d = dishes.get(key);
+             if (d == null) continue;
              HashMap<String, Object> map = new HashMap<String, Object>(); 
              if (title.equals(Constants.BUILTIN_CNAME)) {
             	 int pos = Arrays.binarySearch(ds.builtin_dishids, (short)key);
@@ -238,7 +239,12 @@ public class BuiltinDishes extends SlidingFragmentActivity {
             	 if (d.hasNotUploaded()) continue;
              }
              else if (title.equals(Constants.SYSTEM_CNAME)) {
-            	 if (!d.isAppBuiltIn()) continue;
+            	 // oTyObs9trPUn836t-Lu6Rgeq0MAY userName=³Â³½
+            	 // oTyObs-ij5aWjDfGY5Agz2O1FAGI userName=½¯¿ËÁÁ£¨½¡¿µÖÇÄÜ³´²Ë»ú£©
+            	 if (d.isAppBuiltIn() || 
+            			 (!d.hasNotUploaded() && 
+            					 (d.author_id.equals("oTyObs-ij5aWjDfGY5Agz2O1FAGI") || d.author_id.equals("oTyObs9trPUn836t-Lu6Rgeq0MAY")))) ;
+            	 else continue;
              }
              
              if (d.img_bmp == null) d.img_bmp = Tool.decode_res_bitmap(d.img, this, Constants.DECODE_DISH_IMG_SAMPLE);
@@ -295,7 +301,8 @@ public class BuiltinDishes extends SlidingFragmentActivity {
 	        	intent.putExtra("dish_id", dish.dishid); 
 	        	intent.putExtra("title", tv.getText().toString()); 
 	        	
-	        	intent.putExtra("editable", tv.getText().toString().equals("×Ô±à²ËÆ×") && !dish.isVerifyDone());
+	        	//intent.putExtra("editable", tv.getText().toString().equals("×Ô±à²ËÆ×") && !dish.isVerifyDone());
+	        	intent.putExtra("editable", tv.getText().toString().equals("×Ô±à²ËÆ×") || tv.getText().toString().equals("²ËÆ×ÉóºË"));
 	        	startActivity(intent);
 	        }  
 	     });

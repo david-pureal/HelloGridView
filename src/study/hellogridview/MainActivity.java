@@ -220,13 +220,14 @@ public class MainActivity extends SlidingFragmentActivity {
         index_id_list.clear();
          
         ArrayList<HashMap<String,Object>> al=new ArrayList<HashMap<String, Object>>();
-        int [] hotids = {25, 26, 24, 16};
+        int [] hotids = {30187,30188,30186};
         for (int i = 0; i < hotids.length; ++i)
         {
         	HashMap<String, Object> map = new HashMap<String, Object>();
         	Dish d = Dish.getDishById(hotids[i]);
+        	if (d == null) continue;
         	if (d.img_bmp == null) d.img_bmp = Tool.decode_res_bitmap(d.img, MainActivity.this, Constants.DECODE_DISH_IMG_SAMPLE);
-            if (d.isAppBuiltIn() /*|| d.isVerifyDone()*/) {
+            if (true/*d.isAppBuiltIn() || d.isVerifyDone()*/) {
               	 map.put("icon", d.img_bmp); //添加图像资源的ID 
               	 map.put("name", d.name_chinese);//按序号做ItemText 
                  al.add(map);

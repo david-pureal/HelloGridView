@@ -727,12 +727,13 @@ public class MakeDishActivityJ extends Activity implements OnTouchListener {
         		 oks.setTitle(getString(R.string.share));
         		 // titleUrl是标题的网络链接，仅在人人网和QQ空间使用
         		 oks.setTitleUrl("http://sharesdk.cn");
-        		 // text是分享文本，所有平台都需要这个字段
-        		 oks.setText("我是分享文本");
+        		 // text是分享文本，所有平台都需要这个字段, 当为链接时该字段才有用
+        		 //oks.setText("我是分享文本");
+        		 oks.setText(new_dish.name_chinese);
         		 // imagePath是图片的本地路径，Linked-In以外的平台都支持此参数
         		 oks.setImagePath(Environment.getExternalStorageDirectory().getAbsolutePath() + "/share_pic.jpg");//确保SDcard下面存在此张图片
         		 // url仅在微信（包括好友和朋友圈）中使用
-        		 oks.setUrl("http://sharesdk.cn");
+        		 //oks.setUrl("http://sharesdk.cn");
         		 // comment是我对这条分享的评论，仅在人人网和QQ空间使用
         		 oks.setComment("我是测试评论文本");
         		 // site是分享此内容的网站名称，仅在QQ空间使用
@@ -784,6 +785,7 @@ public class MakeDishActivityJ extends Activity implements OnTouchListener {
             public void onClick(View v) {
             	if (new_dish.hasNotUploaded()) {
 	            	Dish.remove_not_uploaded_dish(new_dish);
+	            	new_dish = null;
 	            	finish();
             	}
             	else {
@@ -1005,7 +1007,8 @@ public class MakeDishActivityJ extends Activity implements OnTouchListener {
          case 1:  
         	 //makedish_img.setImageDrawable();
         	 if (resultCode == -1) {
-        		 //new_dish.img_drawable = (BitmapDrawable) Drawable.createFromPath(tempFile.getAbsolutePath());
+        		 Tool.compressImage(tempFile, Constants.MAX_MAIN_IMAGE_SIZE);
+        		 
         		 BitmapFactory.Options options = new BitmapFactory.Options(); options.inPurgeable = true; 
         		 new_dish.img_bmp = BitmapFactory.decodeFile(tempFile.getAbsolutePath(), options);
         		 new_dish.img_tiny_path = Tool.getInstance().makeTinyImage(new_dish);
@@ -1014,6 +1017,7 @@ public class MakeDishActivityJ extends Activity implements OnTouchListener {
          case 2:
         	 if (data != null) {
 	        	 if (new_dish.qiangguoliao_content_map.isEmpty()) new_dish.qiangguoliao = 0;
+	        	 else new_dish.qiangguoliao = 1;
 	        	 fill_liao_table(table_qiangguoliao, new_dish.qiangguoliao_content_map);
         	 }
              break; 
@@ -1257,7 +1261,7 @@ public class MakeDishActivityJ extends Activity implements OnTouchListener {
 	 @Override  
 	 protected void onDestroy() {  
 	     super.onDestroy();  
-	     if (editable) {
+	     if (editable && new_dish != null) {
 	    	 new_dish.saveDishParam();
 	    	 Log.v("MakeDishActivityJ", "onDestroy saveDishParam to file"); 
 	     }

@@ -111,6 +111,39 @@ public class Tool {
         return filename; 
 	}
 	
+	public static void compressImage(File imgfile, int size) {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();  
+        int options = 100;  
+        FileInputStream fs;
+        Bitmap bmp = null;
+		try {
+			fs = new FileInputStream(imgfile);
+			bmp = BitmapFactory.decodeFileDescriptor(fs.getFD());
+			fs.close();
+			
+			bmp.compress(Bitmap.CompressFormat.JPEG, options, baos);
+			int old_size = baos.size();
+	        while ( baos.size() > size) {           
+	            baos.reset();
+	            options -= options/10;
+	            bmp.compress(Bitmap.CompressFormat.JPEG, options, baos);//这里压缩options%，把压缩后的数据存放到baos中  
+	            int new_size = baos.size();
+		        Log.v("tool", "compressImage old_size = " + old_size + ", new_size = " + new_size);
+	        }
+	        
+	        FileOutputStream fos = new FileOutputStream(imgfile);
+        	baos.writeTo(fos);
+        	baos.flush();
+        	baos.close();
+        	fos.close();
+	        
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	   
+	}
+	
 	//获取本APP的本地存储目录
 	public String getModulePath() {
 		String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/babaxiaochao/";
@@ -346,9 +379,6 @@ public class Tool {
 		for (int i = 0; i < dirs.length; ++i) { 
 			File dish_dir = dirs[i];
 			String dir_name = dish_dir.getName();
-			if (dir_name.equals("dish30126")){
-				Log.v("s","s");
-			}
 			if (dish_dir.isDirectory() && isDishDirName(dir_name)) {
 				try {
 					int dishid = Integer.parseInt(dir_name.substring(4));
@@ -368,8 +398,10 @@ public class Tool {
 					if (jsonStringToDish(data, d)) {
 						// skip local uploaded dish if it's not in web dish_list
 						// don't bother the not uploaded local dish.
-						if (Dish.alldish_web.indexOf(dishid) == -1 && dishid < Dish.USER_MAKE_DISH_START_ID) {
-							Log.v("Tool", "local dishid=" + dishid + " is not in weblist, so skip it.");
+						if (!Dish.alldish_web.isEmpty() && Dish.alldish_web.indexOf(dishid) == -1 && dishid < Dish.USER_MAKE_DISH_START_ID) {
+							Log.v("Tool", "local dishid=" + dishid + " is not in weblist, so delete it.");
+							File dir = new File(dish_dir.getCanonicalPath());
+							this.deleteDirectory(dir);
 							continue;
 						}
 						
@@ -710,6 +742,40 @@ public class Tool {
 		String separator = seconds < 10 ? ":0" : ":";
 		//String minites_prefix =  minites < 10 ? "0" : "";
 		return minites + separator + seconds + "″";
+	}
+	
+	public static void temp_save_builtin_disk() {
+		int tempid = 61000;
+		for (int dishid = 13; dishid <= 28; ) {
+			Dish d = Dish.getDishById(dishid);
+			d.dishid = tempid;
+			d.author_id = "oTyObs-ij5aWjDfGY5Agz2O1FAGI";
+			d.author_name = "蒋克亮(智能小炒机)";
+			Tool.getInstance().make_directory(d.getDishDirName());
+			
+			d.img_path = Constants.DISH_IMG_FILENAME;
+			String path = d.getDishDirName() + d.img_path;
+			d.img_bmp = Tool.decode_res_bitmap2(d.img, MainActivity.instance, 1);
+			Tool.getInstance().savaBitmap(d.img_bmp, path);
+			File file = new File(path);
+			Tool.compressImage(file, Constants.MAX_MAIN_IMAGE_SIZE);
+			d.img_tiny_path = Tool.getInstance().makeTinyImage(d);// 此处为相对路径
+			ArrayList<Material> list = d.prepare_material_detail;
+			for (int i = 0; i < list.size(); ++i) {
+				 Material m = list.get(i);
+				 m.path = "material_" + i + ".jpg";
+				 m.img_bmp = Tool.decode_res_bitmap2(m.img_resid, MainActivity.instance, 1);
+				 Tool.getInstance().savaBitmap(m.img_bmp, d.getDishDirName() + m.path);
+				 File file2 = new File(d.getDishDirName() + m.path);
+				 Tool.compressImage(file2, Constants.MAX_MATERIAL_IMAGE_SIZE);
+			}
+			d.type = Constants.DISH_MADE_BY_USER;
+			d.device_id = Account.device_id;
+			
+			d.saveDishParam();
+			
+			++dishid;++tempid;
+		}
 	}
 	
 }

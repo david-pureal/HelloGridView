@@ -272,10 +272,18 @@ public class HttpUtils {
 				Log.v("HttpUtil", "register done. userId=" + id + ", userName=" + name + ", res=" + res);
 				JSONArray favoritesj;
 				try {
-					favoritesj = new JSONArray(res);
-					for (int i = 0; i < favoritesj.length(); ++i) {
-						int dishid = favoritesj.getInt(i);  
-						Account.favorites.add(dishid);
+					if (Account.favorites.isEmpty()) {
+						favoritesj = new JSONArray(res);
+						for (int i = 0; i < favoritesj.length(); ++i) {
+							int dishid = favoritesj.getInt(i);  
+							if (Dish.getDishById(dishid) == null) continue;
+							Account.favorites.add(dishid);
+							
+							// 添加到本地收藏
+							if (Account.local_favorites.indexOf(dishid) < 0) {
+								Account.do_local_favorite(Dish.getDishById(dishid));
+							}
+						}
 					}
 				} catch (JSONException e) {
 					// TODO Auto-generated catch block
@@ -352,8 +360,18 @@ public class HttpUtils {
 							String res = new String(arg2);
 							Log.v("HttpUtil", "favorite done. res=" + res + ", dishid=" + dish.dishid);
 							if (res.equals("ok")) {
-								if (is_favorite_before) Account.favorites.remove(index);
-								else Account.favorites.add(dish.dishid);
+								if (is_favorite_before) {
+									if (Account.favorites.indexOf(dish.dishid) >= 0)
+										Account.favorites.remove(index);
+									if (Account.local_favorites.indexOf(dish.dishid) >= 0) 
+										Account.do_local_favorite(dish);
+								}
+								else {
+									if (Account.favorites.indexOf(dish.dishid) < 0)
+										Account.favorites.add(dish.dishid);
+									if (Account.local_favorites.indexOf(dish.dishid) < 0) 
+										Account.do_local_favorite(dish);
+								}
 							}
 						}
 			    	});

@@ -180,7 +180,9 @@ public class SettingActivity extends Activity implements OnTouchListener {
 		
 		verify_dish = (Button) findViewById(R.id.verify_dish);
 		// oTyObs9trPUn836t-Lu6Rgeq0MAY userName=³Â³½
-		verify_dish.setVisibility(Account.is_login && Account.userid.equals("oTyObs9trPUn836t-Lu6Rgeq0MAY") ? View.VISIBLE : View.GONE);
+		// oTyObs-ij5aWjDfGY5Agz2O1FAGI userName=½¯¿ËÁÁ£¨½¡¿µÖÇÄÜ³´²Ë»ú£©
+		boolean is_operator = Account.userid.equals("oTyObs9trPUn836t-Lu6Rgeq0MAY") || Account.userid.equals("oTyObs-ij5aWjDfGY5Agz2O1FAGI");
+		verify_dish.setVisibility(Account.is_login && is_operator ? View.VISIBLE : View.GONE);
 		verify_dish.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) { 

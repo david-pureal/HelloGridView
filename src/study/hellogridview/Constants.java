@@ -14,6 +14,8 @@ public final class Constants {
 	public static final int MIN_TEMP = 150;
 	public static final int QIANGGUO_DURATION = 40; // seconds
 	public static final int HEARTBEAT_INTEVAL = 60 * 1000; // 为了保持与机器的tcp连接，默认心跳超时是600s，另外机器用此来判断是否有连接了手机
+	public static final int MAX_MAIN_IMAGE_SIZE = 70*1024; // 菜谱主图片的最大size，自编菜谱选取图片时要压缩
+	public static final int MAX_MATERIAL_IMAGE_SIZE = 70 * 1024; // 配料图片的最大size
 	
 	// connect related
 	public static final int CONNECTING   = 0;

@@ -30,7 +30,7 @@ public class SplashActivity extends Activity {
         super.onCreate(savedInstanceState);
         
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN ,      
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,      
                 WindowManager.LayoutParams.FLAG_FULLSCREEN); 
         setContentView(R.layout.splash);
         
@@ -60,6 +60,11 @@ public class SplashActivity extends Activity {
         new AsyncTask<Void, Void, Integer>() {
             @Override
             protected Integer doInBackground(Void... params) {
+            	// 第一次要下载大量菜谱，提示下载中
+            	if (MyPreference.is_first_launch(SplashActivity.this)) {
+            		TextView download_note = (TextView) findViewById(R.id.download_note);
+            		download_note.setVisibility(View.VISIBLE);
+            	}
                 int result;
                 long startTime = System.currentTimeMillis();
                 
@@ -113,13 +118,14 @@ public class SplashActivity extends Activity {
             @Override
             protected void onPostExecute(Integer result) {
             	if (MyPreference.is_first_launch(SplashActivity.this)) {
-            		//MyPreference.set_first_launch(SplashActivity.thHome
+            		MyPreference.set_first_launch(SplashActivity.this);
             		
             		Intent intent = new Intent(SplashActivity.this, GuideActivity.class);
             		startActivity(intent);
             	}
             	else {
-            		Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+            		//Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+            		Intent intent = new Intent(SplashActivity.this, GuideActivity.class);
             		startActivity(intent);
             	}
                 finish();

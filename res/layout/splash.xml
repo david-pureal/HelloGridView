@@ -91,6 +91,18 @@
         android:textColor="#999999"
         android:textSize="18sp" />
 
+    <TextView
+        android:id="@+id/download_note"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/skip"
+        android:layout_alignBottom="@+id/skip"
+        android:layout_centerHorizontal="true"
+        android:text="数据更新中..."
+        android:textColor="#000000"
+        android:visibility="gone"
+        android:textSize="18sp" />
+
     
 
 </RelativeLayout>

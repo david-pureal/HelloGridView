@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:id="@+id/layout_store"
-    android:layout_height="match_parent"
+    android:layout_height="fill_parent"
     android:background="#f0f0f0"
     android:orientation="vertical" >
     
@@ -12,10 +12,10 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="10dp"
-        android:text="快捷购买"
+        android:text="预定购买"
         android:textColor="#000000"
         android:textSize="25sp" />
-    
+
     <ImageView
         android:id="@+id/machine"
         android:layout_width="200dp"
@@ -26,22 +26,30 @@
         android:scaleType="fitXY"
         android:src="@drawable/machine" />
     
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="5dp"
-        android:text="库存：0件"
-        android:textColor="#000000"
-        android:textSize="25sp" />
-
-    <Button
-        android:id="@+id/button1"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="10dp"
-        android:text="  预定  " />
+        android:orientation="horizontal" >
+
+	    <TextView
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_gravity="top"
+	        android:layout_marginTop="5dp"
+	        android:text="库存：0件"
+	        android:textColor="#000000"
+	        android:textSize="25sp" />
+	
+	    <Button
+	        android:id="@+id/button1"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_gravity="center_vertical"
+	        android:layout_marginLeft="20dp"
+	        android:text="  预定  " />
+
+	</LinearLayout>
     
     <LinearLayout
         android:layout_width="wrap_content"
@@ -102,5 +110,16 @@
         android:layout_gravity="center"
         android:layout_marginTop="10dp"
         android:text="  购买  " />
+
+    <TextView
+        android:id="@+id/title_tv2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:text="也可以关注微信公众号“爸爸小炒”，预定购买"
+        android:textColor="#999999"
+        android:textSize="20sp" />
 
 </LinearLayout>

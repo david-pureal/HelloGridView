@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import org.json.JSONObject;
+
 import study.hellogridview.Dish.Material;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -66,7 +68,23 @@ public class ImageEditActivity extends Activity {
 			editText.setText(key);
 		}
 		else {
-			material_index = material_list.size();
+			// FIX BUG
+			// 场景：已经添加好四个配料图文，这时候把第一个删掉，重新添加的时候，
+			// material_index不能是material_list.size()，而应该是先找出最大的，然后加1
+			for (int i = 0; i < material_list.size(); ++i)
+			{
+				try {
+					Material m = material_list.get(i);
+					int dot_pos = m.path.indexOf(".jpg");
+					int index = Integer.parseInt(m.path.substring(9, dot_pos));// 9 is length of "material_"
+					if (index > material_index) material_index = index;
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+			++material_index;
+			Log.v("ImageEditActivity", "material_index = " + material_index);
+			//material_index = material_list.size();
 		}
 		
 		TextView cancel = (TextView) findViewById(R.id.cancel);
@@ -198,6 +216,7 @@ public class ImageEditActivity extends Activity {
          case 1:  
         	 //makedish_img.setImageDrawable();
         	 if (resultCode == -1) {
+        		 Tool.compressImage(tempFile, Constants.MAX_MATERIAL_IMAGE_SIZE);
         		 img = Tool.decode_path_bitmap(tempFile.getAbsolutePath(), Constants.DECODE_MATERIAL_SAMPLE);
         		 add_material_img.setImageDrawable(new BitmapDrawable(this.getResources(), img));
         	 }
