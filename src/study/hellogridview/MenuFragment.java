@@ -242,14 +242,14 @@ public class MenuFragment extends Fragment {
 		temp.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) {  
-                startActivity(new Intent(getActivity(), StoreActivity.class));  
+                startActivity(new Intent(getActivity(), YouZanStoreActivity.class));  
             }  
         });
 		TextView store_tv = (TextView) getView().findViewById(R.id.store_tv);
 		store_tv.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) {  
-                startActivity(new Intent(getActivity(), StoreActivity.class));  
+                startActivity(new Intent(getActivity(), YouZanStoreActivity.class));  
             }  
         });
 		

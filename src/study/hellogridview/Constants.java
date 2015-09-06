@@ -1,9 +1,12 @@
 package study.hellogridview;
 
 public final class Constants {
-	public static final String AP_NAME_PREFIX = "RDIntelligent";
-	public static final String AP_IP = "192.168.1.50";
-	public static final short AP_STA_PORT = 5000;
+	public static final String AP_NAME_PREFIX = "BABA";
+	public static final String AP_IP = "10.10.100.254";
+	public static final short AP_STA_PORT = 8899;
+//	public static final String AP_NAME_PREFIX = "RDI";
+//	public static final String AP_IP = "192.168.1.50";
+//	public static final short AP_STA_PORT = 5000;
 	public static final int BBXC_SOCKET_TIMEOUT = 5000;
 	public static final String BUILTIN_CNAME = "机内菜谱";
 	public static final String SYSTEM_CNAME = "平台菜谱";

@@ -25,7 +25,9 @@ public class ParamEditActivity extends Activity {
 	TextView makedish_time;
 	TextView makedish_jiaoban;
 	
-	boolean is_setting_zhuliao = true;
+	boolean is_setting_zhuliao = false;
+	boolean is_setting_fuliao = false;
+	boolean is_setting_qiangguoliao = false;
 	
 	
 	Dish new_dish;
@@ -53,8 +55,14 @@ public class ParamEditActivity extends Activity {
 		edit_title = (TextView) findViewById(R.id.edit_title);
 		Intent intent = getIntent();
 		edit_title.setText(intent.getStringExtra("edit_title"));
+		if (intent.getStringExtra("edit_title").equals("主料参数")) {
+			is_setting_zhuliao = true;
+		}
 		if (intent.getStringExtra("edit_title").equals("辅料参数")) {
-			is_setting_zhuliao = false;
+			is_setting_fuliao = true;
+		}
+		if (intent.getStringExtra("edit_title").equals("炝锅料参数")) {
+			is_setting_qiangguoliao = true;
 		}
 		
 		int dish_id = intent.getIntExtra("dish_id", 0);
@@ -81,7 +89,8 @@ public class ParamEditActivity extends Activity {
         });
 		
         makedish_temp = (TextView) findViewById(R.id.makedish_temp);
-        final int temperature = is_setting_zhuliao ? (new_dish.zhuliao_temp & 0xff) : (new_dish.fuliao_temp & 0xff);
+        int temperature_tmp = is_setting_zhuliao ? (new_dish.zhuliao_temp & 0xff) : (new_dish.fuliao_temp & 0xff);
+        final int temperature = is_setting_qiangguoliao ? (new_dish.qiangguo_temp & 0xff) : temperature_tmp;
         makedish_temp.setText(temperature + "°C");
         makedish_temp.setOnClickListener(new OnClickListener() {  
             @Override  
@@ -100,7 +109,9 @@ public class ParamEditActivity extends Activity {
                     public void onClick(View v) {
                         // TODO Auto-generated method stub
                     	if (is_setting_zhuliao)  new_dish.zhuliao_temp = temps[column_1.getCurrentItem()].byteValue();
-                    	else new_dish.fuliao_temp = temps[column_1.getCurrentItem()].byteValue();
+                    	if (is_setting_fuliao) new_dish.fuliao_temp = temps[column_1.getCurrentItem()].byteValue();
+                    	if (is_setting_qiangguoliao) new_dish.qiangguo_temp = temps[column_1.getCurrentItem()].byteValue();
+                    	
                     	makedish_temp.setText(temps[column_1.getCurrentItem()] + "°C");
                         popWindow.dismiss(); //Close the Pop Window
                     }
@@ -110,7 +121,8 @@ public class ParamEditActivity extends Activity {
         });
         
         makedish_time = (TextView) findViewById(R.id.makedish_time);
-        final short time = is_setting_zhuliao ? new_dish.zhuliao_time : new_dish.fuliao_time;
+        short time_tmp = is_setting_zhuliao ? new_dish.zhuliao_time : new_dish.fuliao_time;
+        final short time = is_setting_qiangguoliao ? new_dish.qiangguo_time : time_tmp;
         makedish_time.setText(Tool.sec2str(time));
         makedish_time.setOnClickListener(new OnClickListener() {  
             @Override  
@@ -137,9 +149,12 @@ public class ParamEditActivity extends Activity {
                         // TODO Auto-generated method stub
                     	if (is_setting_zhuliao) 
                     		new_dish.zhuliao_time = (short) (column_1.getCurrentItem() * 60 + column_2.getCurrentItem());
-                    	else 
+                    	if (is_setting_fuliao) {
                     		new_dish.fuliao_time = (short) (column_1.getCurrentItem() * 60 + column_2.getCurrentItem());
-                    	
+                    	}
+                    	if (is_setting_qiangguoliao) {
+                    		new_dish.qiangguo_time = (short) (column_1.getCurrentItem() * 60 + column_2.getCurrentItem());
+                    	}
                     	makedish_time.setText("" + column_1.getCurrentItem() + ":" + column_2.getCurrentItem() + "″");
                         popWindow.dismiss(); //Close the Pop Window
                     }
@@ -150,6 +165,7 @@ public class ParamEditActivity extends Activity {
         
         makedish_jiaoban = (TextView) findViewById(R.id.makedish_jiaoban);
         makedish_jiaoban.setText(is_setting_zhuliao ? jiaoban[(new_dish.zhuliao_jiaoban_speed & 0xff) - 1] : jiaoban[(new_dish.fuliao_jiaoban_speed & 0xff) - 1]);
+        if (is_setting_qiangguoliao) makedish_jiaoban.setVisibility(View.GONE);
         makedish_jiaoban.setOnClickListener(new OnClickListener() {  
             @Override  
             public void onClick(View v) {  

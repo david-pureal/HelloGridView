@@ -160,6 +160,11 @@ public class Package {
 				Log.v("Package", "getBytes chinese name as GB2312 error!");
 			}
 			
+			// 炝锅料时间和温度
+			putShort(tmp, dish.qiangguo_time);
+			byte temp = dish.qiangguo_temp;
+			bytestream.write(temp);
+			
 			break;
 		case Set_Param :
 			try {
@@ -237,7 +242,7 @@ public class Package {
 					byte[] bytes = dish.name_english.getBytes("GB2312");
 					if (bytes.length < dish_name_length) { //english name is length is 13
 						bytestream.write(bytes);
-						byte[] b = new byte[dish_name_length];
+						byte[] b = new byte[dish_name_length - bytes.length];
 						bytestream.write(b);
 					}
 					else {
@@ -253,6 +258,11 @@ public class Package {
 					e.printStackTrace();
 					Log.v("Package", "getBytes chinese name as GB2312 error!");
 				}
+				
+				// 炝锅料时间和温度
+				putShort(tmp, dish.qiangguo_time);
+				byte temp2 = dish.qiangguo_temp;
+				bytestream.write(temp2);
 				
 			} catch (Exception e) {
 				// TODO Auto-generated catch block

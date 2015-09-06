@@ -427,6 +427,13 @@ public class Tool {
 			d.name_english = dishj.getString("name_english");
 			
 			d.zhuliao_time = (short) dishj.getInt("zhuliao_time");
+			if (dishj.has("qiangguo_time")) {
+				d.qiangguo_time = (short) dishj.getInt("qiangguo_time");
+			}
+			if (dishj.has("qiangguo_temp")) {
+				d.qiangguo_temp = (byte) dishj.getInt("qiangguo_temp");
+			}
+			d.zhuliao_time = (short) dishj.getInt("zhuliao_time");
 			d.zhuliao_temp = (byte) dishj.getInt("zhuliao_temp");
 			d.zhuliao_jiaoban_speed = (byte) dishj.getInt("zhuliao_jiaoban_speed");
 			d.fuliao_time = (short) dishj.getInt("fuliao_time");
@@ -746,7 +753,7 @@ public class Tool {
 	
 	public static void temp_save_builtin_disk() {
 		int tempid = 61000;
-		for (int dishid = 13; dishid <= 28; ) {
+		for (int dishid = 1; dishid <= 12; ) {
 			Dish d = Dish.getDishById(dishid);
 			d.dishid = tempid;
 			d.author_id = "oTyObs-ij5aWjDfGY5Agz2O1FAGI";

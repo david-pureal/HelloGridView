@@ -76,6 +76,7 @@ public class MakeDishActivityJ extends Activity implements OnTouchListener {
 	
 	TableLayout table_qiangguoliao;
 	
+	TableLayout table_qiangguoliao_param;
 	TableLayout table_zhuliao_param;
 	TableLayout table_fuliao_param;
 	
@@ -540,6 +541,18 @@ public class MakeDishActivityJ extends Activity implements OnTouchListener {
             }  
         });
 		
+		table_qiangguoliao_param = (TableLayout) findViewById(R.id.table_qiangguoliao_param);
+		if (editable) table_qiangguoliao_param.setOnClickListener(new OnClickListener() {  
+            @Override  
+            public void onClick(View v) {  
+            	if (!editable) return;
+            	Intent intent = new Intent(MakeDishActivityJ.this, ParamEditActivity.class);
+            	intent.putExtra("edit_title", "炝锅料参数");
+            	intent.putExtra("dish_id", new_dish.dishid);
+            	startActivityForResult(intent, 14);
+            }  
+        });
+		
 		makedish_set_fuliao_param_tv = (TextView) findViewById(R.id.makedish_set_fuliao_param_tv);
 		makedish_set_fuliao_param_tv.setOnClickListener(new OnClickListener() {  
             @Override  
@@ -867,6 +880,7 @@ public class MakeDishActivityJ extends Activity implements OnTouchListener {
 			
 			//if (!editable) table_zhuliao_param.setOnClickListener(null);
 			fill_param_table(table_zhuliao_param);
+			fill_param_table(table_qiangguoliao_param);
 			makedish_set_fuliao_param_tv.setVisibility(editable ? View.VISIBLE : View.GONE);
 			
 			//if (!editable) tableLayout_fuliao.setOnClickListener(null);
@@ -1016,7 +1030,10 @@ public class MakeDishActivityJ extends Activity implements OnTouchListener {
              break;  
          case 2:
         	 if (data != null) {
-	        	 if (new_dish.qiangguoliao_content_map.isEmpty()) new_dish.qiangguoliao = 0;
+	        	 if (new_dish.qiangguoliao_content_map.isEmpty()) {
+	        		 new_dish.qiangguoliao = 0;
+	        		 table_qiangguoliao_param.removeAllViews();
+	        	 }
 	        	 else new_dish.qiangguoliao = 1;
 	        	 fill_liao_table(table_qiangguoliao, new_dish.qiangguoliao_content_map);
         	 }
@@ -1083,6 +1100,10 @@ public class MakeDishActivityJ extends Activity implements OnTouchListener {
 	     case 11:  
 	        	fill_param_table(table_fuliao_param);
 	            break;
+	     case 14:  
+	        	fill_param_table(table_qiangguoliao_param);
+	        	Log.v("DishActivity", "qiangguo_temp = " + (new_dish.qiangguo_temp & 0xff));
+	            break;       
 	     case 12:
 	        	if (data != null) {
 		        	fill_liao_table(table_tiaoliao, new_dish.tiaoliao_content_map);
@@ -1155,6 +1176,12 @@ public class MakeDishActivityJ extends Activity implements OnTouchListener {
 				 add_row(tableLayout, "搅拌", jiaoban[(new_dish.fuliao_jiaoban_speed & 0xff) - 1], false);
 			 }
 		 }
+		 else if (tableLayout.equals(table_qiangguoliao_param)) {
+			 if (!new_dish.qiangguoliao_content_map.isEmpty()) {
+				 add_row(tableLayout, "温度", (new_dish.qiangguo_temp & 0xff) + "°C", true);
+				 add_row(tableLayout, "时间", Tool.sec2str(new_dish.qiangguo_time), false);
+			 }
+		 }
 		 Log.v("makedish", "fill_param_table, tableLayout.childViewCount = " + tableLayout.getChildCount());
 	 }
 	 
@@ -1190,11 +1217,11 @@ public class MakeDishActivityJ extends Activity implements OnTouchListener {
 		 textView0.setWidth(70);
 		 textView0.setTextColor(Color.TRANSPARENT);
 		 String title = "原料：";
-		 if (isfirst && (tableLayout.equals(tableLayout_zhuliao) || tableLayout.equals(tableLayout_fuliao))) {
+		 if (isfirst && (tableLayout.equals(tableLayout_zhuliao) || tableLayout.equals(tableLayout_fuliao) || tableLayout.equals(table_qiangguoliao))) {
 			 title = "原料：";
 			 textView0.setTextColor(Color.GRAY);
 		 }
-		 if (isfirst && (tableLayout.equals(table_zhuliao_param) || tableLayout.equals(table_fuliao_param))) {
+		 if (isfirst && (tableLayout.equals(table_zhuliao_param) || tableLayout.equals(table_fuliao_param) || tableLayout.equals(table_qiangguoliao_param))) {
 			 title = "参数：";
 			 textView0.setTextColor(Color.GRAY);
 		 }

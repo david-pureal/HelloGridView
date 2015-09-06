@@ -118,7 +118,17 @@
 		    android:layout_marginLeft="25dp"
 		    android:layout_marginTop="5dp"
 		    android:stretchColumns="*" >
-		</TableLayout>  
+		</TableLayout>
+		
+		<!-- 炝锅料参数表格 -->
+	    <TableLayout
+		    android:id="@+id/table_qiangguoliao_param"
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:layout_marginLeft="25dp"
+		    android:layout_marginTop="5dp"
+		    android:stretchColumns="*" >
+		 </TableLayout>
 		    
         <TextView
             android:id="@+id/makedish_zhuliao_title"

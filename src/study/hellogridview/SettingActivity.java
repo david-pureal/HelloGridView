@@ -374,7 +374,7 @@ public class SettingActivity extends Activity implements OnTouchListener {
 				@Override
 				public void run() {
 					Toast.makeText(SettingActivity.this, 
-							"发现设备  "+mi.getMid()+"mac"+ mi.getMac()+"IP"+mi.getModuleIP(), 
+							"发现设备  "+mi.getMid()+"mac"+ mi.getMac()+"IP"+mi.getModuleIP(),
 							Toast.LENGTH_SHORT).show();
 					TCPClient.getInstance().connect_ip_sta(mi.getModuleIP());
 				}
@@ -400,6 +400,8 @@ public class SettingActivity extends Activity implements OnTouchListener {
 			ssid.setText("未连接到WiFi,请检查手机及路由器连接正常");
 		}
 		
+		TextView device_id_tv = (TextView) findViewById(R.id.device_id_tv);
+		
     	if (tcpclient.connect_state == Constants.CONNECTED) {
     		connect_bar.setVisibility(View.GONE);
     		//m_deviceBtn.setImageResource(R.drawable.connected_32);
@@ -415,6 +417,10 @@ public class SettingActivity extends Activity implements OnTouchListener {
 			} else {
 				smartlink_tv.setText("已通过WiFi( " + ssid + " )与机器相连");
 			}
+			
+			device_id_tv.setVisibility(View.VISIBLE);
+			String id_str = Integer.toHexString(DeviceState.getInstance().device_id);
+			device_id_tv.setText("设备编号：" + id_str);
     	}
     	else if (tcpclient.connect_state == Constants.DISCONNECTED) {
     		connect_bar.setVisibility(View.GONE);

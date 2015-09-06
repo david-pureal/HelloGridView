@@ -99,6 +99,12 @@ public class GuideActivity extends Activity {
         public void onClick(View v) {
             //跳转
         	Tool.unload_guide_img(GuideActivity.this);
+        	
+        	if (MyPreference.is_first_launch(GuideActivity.this)) {
+        		//第一次不能跳过学习页面，不然会出core，所以知道学习页面再set_first_launch
+        		MyPreference.set_first_launch(GuideActivity.this);
+        	}
+        	
             Intent mIntent = new Intent();
             mIntent.setClass(GuideActivity.this, MainActivity.class);
             GuideActivity.this.startActivity(mIntent);
@@ -146,6 +152,9 @@ public class GuideActivity extends Activity {
             if (position == 0) {
             	TextView skip  = (TextView) v.findViewById(R.id.skip);
             	skip.setOnClickListener(Button_OnClickListener);
+            	if (MyPreference.is_first_launch(GuideActivity.this)) {
+            		skip.setVisibility(View.GONE);
+            	}
             }
               
             return pageViews.get(position);  

@@ -797,7 +797,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         	has_show_reminder = false;
         	state = Constants.STATE_ADD_OIL;
         	oil_i = data.size();
-        } else if (state == Constants.STATE_ADD_OIL && dish.qiangguoliao != 0 && cur_temp >= Constants.MAX_TEMP) {
+        } else if (state == Constants.STATE_ADD_OIL && dish.qiangguoliao != 0 && cur_temp >= (dish.qiangguo_temp&0xff) /*Constants.MAX_TEMP*/) {
         	// TODO 加油提示语和炝锅中，提示语应间隔至少5秒
         	Log.v("CurStateActivity", "STATE_QIANGGUO_ING");
         	qiangguo_i = data.size();
@@ -813,7 +813,7 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         	if (dish.qiangguoliao == 0 && data.size() > Constants.EARLIEST_ADD_ZHULIAO_TIME) {
         		go_next_state = true;
         	}
-        	else if (dish.qiangguoliao != 0 && data.size() > qiangguo_i + Constants.QIANGGUO_DURATION) {
+        	else if (dish.qiangguoliao != 0 && data.size() > qiangguo_i + dish.qiangguo_time /*Constants.QIANGGUO_DURATION*/) {
         		go_next_state = true;
         	}
         	
@@ -990,8 +990,9 @@ public class CurStateActivity extends Activity implements OnSeekBarChangeListene
         	Rect img_rect = new Rect();
         	img_rect.left   = (int) (192.0/Constants.UI_WIDTH * width); 
         	img_rect.right  = (int) (342.0/Constants.UI_WIDTH * width);
-        	img_rect.top    = (int) ((166.0 + ((160 - Constants.MAX_TEMP) * img_y_per_temp))/Constants.UI_HEIGHT * height); 
-	        img_rect.bottom = (int) (245.0/Constants.UI_HEIGHT * height);
+        	//img_rect.top    = (int) ((166.0 + ((160 - Constants.MAX_TEMP) * img_y_per_temp))/Constants.UI_HEIGHT * height); 
+        	img_rect.top    = (int) ((166.0 + ((160 - (dish.qiangguo_temp&0xff)) * img_y_per_temp))/Constants.UI_HEIGHT * height); 
+        	img_rect.bottom = (int) (245.0/Constants.UI_HEIGHT * height);
 	        
 	        int img_resid = R.raw.qiangguo_ing_chn;
 	        

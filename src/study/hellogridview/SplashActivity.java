@@ -64,6 +64,7 @@ public class SplashActivity extends Activity {
             	if (MyPreference.is_first_launch(SplashActivity.this)) {
             		TextView download_note = (TextView) findViewById(R.id.download_note);
             		download_note.setVisibility(View.VISIBLE);
+            		skip.setText("");
             	}
                 int result;
                 long startTime = System.currentTimeMillis();
@@ -78,11 +79,13 @@ public class SplashActivity extends Activity {
                 Tool.load_guide_img(SplashActivity.this);
                 
                 long loadingTime = System.currentTimeMillis() - startTime;
-                if (loadingTime < 3000) {
+                long wait_time = 3000;
+                if (MyPreference.is_first_launch(SplashActivity.this)) wait_time = 10000;
+                if (loadingTime < wait_time) {
                     try {
                     	Log.v("SplashActivity", "loadingTime = " +  loadingTime);
                     	
-                    	long total = 3000 - loadingTime;
+                    	long total = wait_time - loadingTime;
                     	long cur = 0;
                     	while(!need_skip && cur < total) {
                     		Thread.sleep(300);
@@ -118,7 +121,8 @@ public class SplashActivity extends Activity {
             @Override
             protected void onPostExecute(Integer result) {
             	if (MyPreference.is_first_launch(SplashActivity.this)) {
-            		MyPreference.set_first_launch(SplashActivity.this);
+            		//第一次不能跳过学习页面，不然会出core，所以知道学习页面再set_first_launch
+            		//MyPreference.set_first_launch(SplashActivity.this);
             		
             		Intent intent = new Intent(SplashActivity.this, GuideActivity.class);
             		startActivity(intent);

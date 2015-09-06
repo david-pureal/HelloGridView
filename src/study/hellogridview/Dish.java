@@ -20,8 +20,10 @@ public class Dish implements Cloneable {
 	public int dishid = 100;
 	public short zhuliao_time = 150;
 	public short fuliao_time = 80;
+	public short qiangguo_time = 40;
 	public byte zhuliao_temp = (byte) 180;
 	public byte fuliao_temp = (byte) 160;
+	public byte qiangguo_temp = (byte) 220;
 	public byte zhuliao_jiaoban_speed = 8;
 	public byte fuliao_jiaoban_speed = 7;
 	public byte water = 0;       //0代表不需加水， 1代表加入主料时水，2代表加入辅料时水
@@ -162,10 +164,14 @@ public class Dish implements Cloneable {
 			dishj.put("name_chinese", name_chinese);
 			dishj.put("name_english", name_english);
 			
+			dishj.put("qiangguo_time", qiangguo_time & 0xffff);
 			dishj.put("zhuliao_time", zhuliao_time & 0xffff);
 			dishj.put("fuliao_time", fuliao_time & 0xffff);
+			
+			dishj.put("qiangguo_temp", qiangguo_temp & 0xff);
 			dishj.put("zhuliao_temp", zhuliao_temp & 0xff);
 			dishj.put("fuliao_temp", fuliao_temp & 0xff);
+			
 			dishj.put("zhuliao_jiaoban_speed", zhuliao_jiaoban_speed & 0xff);
 			dishj.put("fuliao_jiaoban_speed", fuliao_jiaoban_speed & 0xff);
 			
@@ -256,12 +262,12 @@ public class Dish implements Cloneable {
 			{
 				Dish dish = new Dish(R.drawable.tudousi, "炒土豆丝");
 				dish.img_tiny = R.raw.tudousi_tiny;
-				dish.zhuliao_temp = (byte) 180;
+				dish.zhuliao_temp = (byte) 200;
 				dish.fuliao_temp = 0;
-				dish.zhuliao_time = 230;
+				dish.zhuliao_time = 300;
 				dish.fuliao_time = 0;
 				dish.zhuliao_jiaoban_speed = 5;
-				dish.fuliao_jiaoban_speed = 5;
+				dish.fuliao_jiaoban_speed = 0;
 				dish.water = 0;
 				dish.oil = 30;
 				dish.qiangguoliao = 1;
@@ -285,12 +291,15 @@ public class Dish implements Cloneable {
 			
 			Dish dish1 = new Dish(R.drawable.chaoqingcai, "炒青菜");
 			dish1.img_tiny = R.raw.chaoqingcai_tiny;
-			dish1.zhuliao_temp = (byte) 200;
+			dish1.qiangguo_temp = (byte) 210;
+			dish1.zhuliao_temp = (byte) 210;
 			dish1.fuliao_temp = 0;
-			dish1.zhuliao_time = 180;
+			
+			dish1.qiangguo_time = 20;
+			dish1.zhuliao_time = 240;
 			dish1.fuliao_time = 0;
 			dish1.zhuliao_jiaoban_speed = 5;
-			dish1.fuliao_jiaoban_speed = 5;
+			dish1.fuliao_jiaoban_speed = 0;
 			dish1.water = 0;
 			dish1.oil = 30;
 			dish1.qiangguoliao = 1;
@@ -310,8 +319,8 @@ public class Dish implements Cloneable {
 			
 			Dish dish2 = new Dish(R.drawable.fanqiechaodan, "番茄炒蛋");
 			dish2.img_tiny = R.raw.fanqiechaodan_tiny;//87%
-			dish2.zhuliao_temp = (byte) 170;
-			dish2.fuliao_temp = (byte) 170;
+			dish2.zhuliao_temp = (byte) 200;
+			dish2.fuliao_temp = (byte) 190;
 			dish2.zhuliao_time = 60;
 			dish2.fuliao_time = 180;
 			dish2.zhuliao_jiaoban_speed = 8;
@@ -370,7 +379,7 @@ public class Dish implements Cloneable {
 			
 			Dish dish4 = new Dish(R.drawable.congbaoyangrou, "葱爆羊肉");
 			dish4.img_tiny = R.raw.congbaoyangrou_tiny;
-			dish4.zhuliao_temp = (byte) 180;
+			dish4.zhuliao_temp = (byte) 200;
 			dish4.fuliao_temp = (byte) 180;
 			dish4.zhuliao_time = 60;
 			dish4.fuliao_time = 200;
@@ -401,12 +410,13 @@ public class Dish implements Cloneable {
 			
 			Dish dish5 = new Dish(R.drawable.hongshaoyukuai, "红烧鱼块");
 			dish5.img_tiny = R.raw.hongshaoyukuai_tiny;
-			dish5.zhuliao_temp = (byte) 160;
-			dish5.fuliao_temp = (byte) 160;
-			dish5.zhuliao_time = 60;
-			dish5.fuliao_time = 300;
-			dish5.zhuliao_jiaoban_speed = 5;
-			dish5.fuliao_jiaoban_speed = 2;
+			dish5.qiangguo_temp = (byte)200;
+			dish5.zhuliao_temp = (byte) 180;
+			dish5.fuliao_temp = (byte) 180;
+			dish5.zhuliao_time = 310;
+			dish5.fuliao_time = 110;
+			dish5.zhuliao_jiaoban_speed = 4;
+			dish5.fuliao_jiaoban_speed = 3;
 			dish5.water = 1;
 			dish5.water_weight = 10;
 			dish5.oil = 30;
@@ -454,7 +464,7 @@ public class Dish implements Cloneable {
 			
 			Dish dish7 = new Dish(R.drawable.zhahuasheng, "炸花生");
 			dish7.img_tiny = R.raw.zhahuasheng_tiny;
-			dish7.zhuliao_temp = (byte) 190;
+			dish7.zhuliao_temp = (byte) 200;
 			dish7.fuliao_temp = 0;
 			dish7.zhuliao_time = 600;
 			dish7.fuliao_time = 0;
@@ -477,9 +487,10 @@ public class Dish implements Cloneable {
 			
 			Dish dish8 = new Dish(R.drawable.qingchaosuantai, "清炒蒜台");
 			dish8.img_tiny = R.raw.qingchaosuantai_tiny;
-			dish8.zhuliao_temp = (byte) 180;
+			dish8.qiangguo_temp = (byte) 210;
+			dish8.zhuliao_temp = (byte) 210;
 			dish8.fuliao_temp = 0;
-			dish8.zhuliao_time = 230;
+			dish8.zhuliao_time = 240;
 			dish8.fuliao_time = 0;
 			dish8.zhuliao_jiaoban_speed = 5;
 			dish8.fuliao_jiaoban_speed = 0;
@@ -504,12 +515,12 @@ public class Dish implements Cloneable {
 			
 			Dish dish9 = new Dish(R.drawable.suanmiaolarou, "蒜苗腊肉");
 			dish9.img_tiny = R.raw.suanmiaolarou_tiny;
-			dish9.zhuliao_temp = (byte) 170;
-			dish9.fuliao_temp = (byte) 170;
+			dish9.zhuliao_temp = (byte) 200;
+			dish9.fuliao_temp = (byte) 200;
 			dish9.zhuliao_time = 60;
-			dish9.fuliao_time = 150;
-			dish9.zhuliao_jiaoban_speed = 6;
-			dish9.fuliao_jiaoban_speed = 6;
+			dish9.fuliao_time = 180;
+			dish9.zhuliao_jiaoban_speed = 5;
+			dish9.fuliao_jiaoban_speed = 5;
 			dish9.water = 2;
 			dish9.water_weight = 30;
 			dish9.oil = 30;
@@ -535,10 +546,10 @@ public class Dish implements Cloneable {
 			
 			Dish dish10 = new Dish(R.drawable.hongshaojichi, "红烧鸡翅");
 			dish10.img_tiny = R.raw.hongshaojichi_tiny;
-			dish10.zhuliao_temp = (byte) 185;
+			dish10.zhuliao_temp = (byte) 200;
 			dish10.fuliao_temp = (byte) 185;
-			dish10.zhuliao_time = 60;
-			dish10.fuliao_time = 210;
+			dish10.zhuliao_time = 210;
+			dish10.fuliao_time = 180;
 			dish10.zhuliao_jiaoban_speed = 4;
 			dish10.fuliao_jiaoban_speed = 4;
 			dish10.water = 2;
@@ -565,8 +576,9 @@ public class Dish implements Cloneable {
 			
 			Dish dish11 = new Dish(R.drawable.xiqinxiaren, "西芹虾仁");
 			dish11.img_tiny = R.raw.xiqinxiaren_tiny;
-			dish11.zhuliao_temp = (byte) 170;
-			dish11.fuliao_temp = (byte) 170;
+			dish11.qiangguo_temp = (byte) 200;
+			dish11.zhuliao_temp = (byte) 180;
+			dish11.fuliao_temp = (byte) 180;
 			dish11.zhuliao_time = 60;
 			dish11.fuliao_time = 180;
 			dish11.zhuliao_jiaoban_speed = 5;
