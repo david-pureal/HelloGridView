@@ -58,7 +58,8 @@ public class YouZanStoreActivity extends Activity implements YouzanJsHandler {
         settings.setJavaScriptEnabled(true);
         // 处理网页后退时的('weview.goBack()') net:ERR_CACHE_MISS 问题
         if (Build.VERSION.SDK_INT >= 19) {
-            settings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
+            //settings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
+        	settings.setCacheMode(WebSettings.LOAD_DEFAULT);
         }
         // 更改对应的 UserAgent 为在有赞注册的 UA（默认的UA加上有赞注册的UA标识)
         String youzanUA = webView.getSettings().getUserAgentString() + " " + APP_YOUZAN_UA + " " + APP_VERSION;
